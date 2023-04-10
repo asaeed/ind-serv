@@ -1,0 +1,32 @@
+{
+  "name": "ind-serv",
+  "version": "1.0.0",
+  "description": "A game you can't win, simulating indentured servitude",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack",
+    "start": "webpack serve --open",
+    "watch": "webpack --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/asaeed/ind-serv.git"
+  },
+  "author": "asaeed",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/asaeed/ind-serv/issues"
+  },
+  "homepage": "https://github.com/asaeed/ind-serv#readme",
+  "devDependencies": {
+    "css-loader": "^6.7.3",
+    "html-webpack-plugin": "^5.5.0",
+    "sass": "^1.61.0",
+    "sass-loader": "^13.2.2",
+    "style-loader": "^3.3.2",
+    "webpack": "^5.78.0",
+    "webpack-cli": "^5.0.1",
+    "webpack-dev-server": "^4.13.2"
+  }
+}
