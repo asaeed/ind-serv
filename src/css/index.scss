@@ -1,7 +1,21 @@
 @use "./reset.scss";
+@import "./variables.scss";
 
-$body-color: red;
+/* fonts */
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@300&display=swap");
 
 body {
   color: $body-color;
+  background-color: $body-bg-color;
+  font-family: "Press Start 2P", cursive;
+}
+
+.frame-num,
+.seconds-passed {
+  display: flex;
+  margin-top: 20px;
+
+  .label {
+    margin-right: 20px;
+  }
 }

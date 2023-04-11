@@ -1,16 +1,43 @@
 import "./css/index.scss";
 
-document.querySelector(
-  ".container"
-).innerHTML = `<div>Hello from Webpack </div>`;
+// TODO: mark up in code vs in html?
+document.querySelector(".main-container").innerHTML = `
+<div class="frame-num">
+  <div class="label">Frame number:</div>
+  <div class="value">0</div>
+</div>
+<div class="seconds-passed">
+  <div class="label">Seconds passed:</div>
+  <div class="value">0</div>
+</div>
+`;
 
+// needed for webpack hot reload
+if (module.hot) {
+  module.hot.accept();
+}
+
+const MyGame = {};
+const framesDiv = document.querySelector(".frame-num > .value");
+const secondsDiv = document.querySelector(".seconds-passed > .value");
+const startTime = Date.now();
+
+const update = (tFrame) => {
+  framesDiv.innerHTML = tFrame;
+
+  const secondsPassed = (Date.now() - startTime) / 1000;
+  secondsDiv.innerHTML = secondsPassed;
+};
+
+// game loop from mozilla
+// https://developer.mozilla.org/en-US/docs/Games/Anatomy
 (() => {
   function main(tFrame) {
     MyGame.stopMain = window.requestAnimationFrame(main);
 
-    update(tFrame); // Call your update method. In our case, we give it rAF's timestamp.
-    render();
+    update(tFrame); // pass rAF's timestamp.
+    // render();
   }
 
-  main(); // Start the cycle
+  main(); // start the cycle
 })();
