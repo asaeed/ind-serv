@@ -14,10 +14,10 @@ import Game1 from './js/gameModule'
 // </div>
 // `
 
-// const game = new Game(document)
-// game.mainLoop()
-Game1.setup(document)
-Game1.mainLoop()
+const game = new Game(document)
+game.mainLoop()
+// Game1.setup(document)
+// Game1.mainLoop()
 
 // needed for webpack hot reload
 if (module.hot) {
