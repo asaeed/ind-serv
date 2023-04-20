@@ -13,8 +13,9 @@ export default class Game {
       height: 600,
     })
 
-    this.layerStatic = new Konva.Layer()
-    this.layerAnim = new Konva.Layer()
+    // to be able to use tiny pixel sprites, turn off image smoothing
+    this.layerStatic = new Konva.Layer({ imageSmoothingEnabled: false })
+    this.layerAnim = new Konva.Layer({ imageSmoothingEnabled: false })
 
     this.sprite = new Sprite(this.layerAnim)
 
