@@ -1,9 +1,12 @@
 import Konva from 'konva'
-import imagePath from '../assets/img/MiniVillagerWoman.png'
 
-export default class Sprite {
-  constructor(layer) {
+export default class Character {
+  constructor(layer, imagePath, x, y) {
     this.layer = layer
+    this.scale = 4
+    this.facingDirection = 'right'
+    this.x = x
+    this.y = y
 
     const w = 32
     const h = 32
@@ -28,23 +31,26 @@ export default class Sprite {
     }
 
     const imageObj = new Image()
-    imageObj.onload = function () {
-      var sprite = new Konva.Sprite({
-        x: 100,
-        y: 100,
+    imageObj.onload = () => {
+      this.sprite = new Konva.Sprite({
+        x: this.x,
+        y: this.y,
         image: imageObj,
         animation: 'walk',
         animations: animations,
         frameRate: 6,
         frameIndex: 0,
-        scaleX: 4,
-        scaleY: 4,
+        scaleX: this.scale,
+        scaleY: this.scale,
+        offsetX: w / 2,
+        offsetY: h / 2,
       })
-      layer.add(sprite)
-
-      // start sprite animation
-      sprite.start()
+      this.layer.add(this.sprite)
+      this.sprite.start() // start sprite animation
+      console.log(this.sprite.attrs)
     }
     imageObj.src = imagePath
   }
+
+  update() {}
 }
