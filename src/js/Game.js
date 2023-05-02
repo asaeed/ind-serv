@@ -36,7 +36,8 @@ export default class Game {
 
     this.map = new Map(this.layerStatic)
 
-    this.player = new Player(this.layerAnim, worker, 100, 100)
+    this.player = new Player(this.layerAnim, oldMan, 400, 300)
+    this.sprite0 = new Character(this.layerAnim, worker, 100, 100)
     this.sprite1 = new Character(this.layerAnim, villagerWoman, 200, 100)
     this.sprite2 = new Character(this.layerAnim, villagerMan, 300, 100)
     this.sprite3 = new Character(this.layerAnim, queen, 400, 100)
@@ -80,7 +81,7 @@ export default class Game {
     this.secondsDiv.innerHTML = (Date.now() - this.startTime) / 1000
     this.directionDiv.innerHTML = JSON.stringify(this.input.directionPress)
 
-    this.player.update(this.input)
+    this.player.update(this.input, this.map)
 
     var period = 2000
     var scale = Math.sin((tFrame * 2 * Math.PI) / period) + 0.001
@@ -88,9 +89,21 @@ export default class Game {
   }
 
   mainLoop() {
+    let msPrev = window.performance.now()
+    const fps = 60
+    const msPerFrame = 1000 / fps
     const main = (tFrame) => {
       this.stopMain = window.requestAnimationFrame(main)
+
+      const msNow = window.performance.now()
+      const msPassed = msNow - msPrev
+
+      if (msPassed < msPerFrame) return
+
       this.update(tFrame) // pass rAF's timestamp.
+
+      const excessTime = msPassed % msPerFrame
+      msPrev = msNow - excessTime
     }
     main()
   }

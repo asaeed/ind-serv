@@ -38,7 +38,7 @@ export default class Character {
         image: imageObj,
         animation: 'walk',
         animations: animations,
-        frameRate: 6,
+        frameRate: 7,
         frameIndex: 0,
         scaleX: this.scale,
         scaleY: this.scale,
@@ -47,7 +47,7 @@ export default class Character {
       })
       this.layer.add(this.sprite)
       this.sprite.start() // start sprite animation
-      console.log(this.sprite.attrs)
+      // console.log(this.sprite.attrs)
     }
     imageObj.src = imagePath
   }
