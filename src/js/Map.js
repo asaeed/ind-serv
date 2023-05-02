@@ -20,6 +20,7 @@ export default class Map {
       [62, 14, 65, 66, 64, 6, 6, 6, 6, 6, 109, 152, 152, 152, 6, 6],
       [62, 14, 63, 61, 6, 6, 6, 6, 6, 6, 151, 152, 152, 152, 6, 6],
     ]
+    this.vacantTiles = [0, 1, 2, 6, 14, 28, 61, 62, 63, 64, 65, 66, 109, 186, 187]
     this.tileSize = 16
     this.upScale = 4
 
@@ -50,14 +51,15 @@ export default class Map {
 
   isVacant(x, y) {
     // convert x and y from pixels to grid squares
+    const yAdjust = -14
     const gridX = Math.floor(x / (this.tileSize * this.upScale))
-    const gridY = Math.floor(y / (this.tileSize * this.upScale)) + 1
+    const gridY = Math.floor((y + yAdjust) / (this.tileSize * this.upScale)) + 1
 
     // false if out of bounds
-    if (!this.tileMap[gridY] || !this.tileMap[gridY][gridX]) return false
+    if (!this.tileMap[gridY] || (!this.tileMap[gridY][gridX] && this.tileMap[gridY][gridX] !== 0)) return false
 
     // true if the location is inhabitable
     console.log(gridX, gridY, this.tileMap[gridY][gridX])
-    return this.tileMap[gridY][gridX] <= 70
+    return this.vacantTiles.indexOf(this.tileMap[gridY][gridX]) !== -1
   }
 }
