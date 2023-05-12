@@ -40,9 +40,9 @@ export default class Player extends Character {
     }
 
     // move map and items on it to follow player
-    const xThreshDistance = 200
-    const yThreshDistance = 100
-    const xFromCenter = stage.width() / 2 - this.sprite.attrs.x
+    const xThreshDistance = 100
+    const yThreshDistance = 50
+    const xFromCenter = stage.width() / 2 - this.sprite.attrs.x + 32
     const yFromCenter = stage.height() / 2 - this.sprite.attrs.y - 32
 
     // if user has strayed more than threshold and animation is not already running
