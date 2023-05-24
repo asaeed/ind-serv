@@ -37,7 +37,6 @@ export default class Player extends Character {
 
     const xFromCenter = stage.width() / 2 - this.sprite.attrs.x + 32
     const yFromCenter = stage.height() / 2 - this.sprite.attrs.y - 32
-
     if (press.up || press.down || press.left || press.right) {
       this.sprite.animation('walk')
       this.centerCamera(xFromCenter, yFromCenter, 100, 50, this.speed, map)

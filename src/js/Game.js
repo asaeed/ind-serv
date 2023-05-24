@@ -28,8 +28,6 @@ export default class Game {
     this.input = new Input(document) // keyboard events
 
     this.player = new Player(this.map.layer, oldMan, this.stage.width() / 2, this.stage.height() / 2)
-
-    //this.textPanel = new TextPanel(this.map.layer)
   }
 
   update(tFrame) {

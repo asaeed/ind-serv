@@ -1,4 +1,5 @@
 import Konva from 'konva'
+import TextPanel from './TextPanel'
 
 export default class Hud {
   constructor(stage) {
@@ -13,6 +14,8 @@ export default class Hud {
       stroke: 'black',
       strokeWidth: 4,
     })
+
+    // this.textPanel = new TextPanel(this.layer)
 
     this.layer.add(this.circle)
     this.stage.add(this.layer)
