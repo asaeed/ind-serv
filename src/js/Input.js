@@ -30,7 +30,7 @@ export default class Input {
         this.directionPress.right = 1
         this.lastXDirection = 'right'
         break
-      case 'z':
+      case ' ':
         this.interactPress = 1
         break
     }
@@ -53,7 +53,7 @@ export default class Input {
         this.directionPress.right = 0
         this.lastXDirection = 'right'
         break
-      case 'z':
+      case ' ':
         this.interactPress = 0
         break
     }
