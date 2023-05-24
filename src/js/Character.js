@@ -28,6 +28,16 @@ export default class Character {
         w * 4, h, w, h,
         w * 5, h, w, h,
       ],
+      jump: [
+        0, h * 2, w, h,
+        w, h * 2, w, h,
+        w * 2, h * 2, w, h,
+      ],
+      hurt: [
+        0, h * 3, w, h,
+        w, h * 3, w, h,
+        w * 2, h * 3, w, h,
+      ]
     }
 
     const imageObj = new Image()

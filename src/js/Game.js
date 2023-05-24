@@ -2,7 +2,7 @@ import Konva from 'konva'
 import Input from './Input'
 import Map from './Map'
 import Player from './Player'
-import oldMan from '../assets/img/MiniOldMan.png'
+import villagerMan from '../assets/img/MiniVillagerMan.png'
 import Hud from './Hud'
 import Interactables from './Interactables'
 
@@ -27,7 +27,7 @@ export default class Game {
 
     this.input = new Input(document) // keyboard events
 
-    this.player = new Player(this.map.layer, oldMan, this.stage.width() / 2, this.stage.height() / 2)
+    this.player = new Player(this.map.layer, villagerMan, this.stage.width() / 2, this.stage.height() / 2)
   }
 
   update(tFrame) {

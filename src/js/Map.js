@@ -6,6 +6,7 @@ import villagerMan from '../assets/img/MiniVillagerMan.png'
 import queen from '../assets/img/MiniQueen.png'
 import princess from '../assets/img/MiniPrincess.png'
 import peasant from '../assets/img/MiniPeasant.png'
+import oldMan from '../assets/img/MiniOldMan.png'
 import oldWoman from '../assets/img/MiniOldWoman.png'
 import nobleWoman from '../assets/img/MiniNobleWoman.png'
 import nobleMan from '../assets/img/MiniNobleMan.png'
@@ -74,6 +75,7 @@ export default class Map {
             y: y * this.tileSize * this.upScale,
             width: this.tileSize * this.upScale,
             height: this.tileSize * this.upScale,
+            listening: false,
           })
           this.imageGroup.add(image)
         }
@@ -94,12 +96,12 @@ export default class Map {
     // create characters
     this.interactables.push(new Character(this.imageGroup, worker, 100, 100))
     this.interactables.push(new Character(this.imageGroup, villagerWoman, 200, 100))
-    this.interactables.push(new Character(this.imageGroup, villagerMan, 300, 100))
+    // this.interactables.push(new Character(this.imageGroup, villagerMan, 300, 100))
     this.interactables.push(new Character(this.imageGroup, queen, 400, 100))
     this.interactables.push(new Character(this.imageGroup, princess, 500, 100))
     this.interactables.push(new Character(this.imageGroup, peasant, 100, 200))
     this.interactables.push(new Character(this.imageGroup, oldWoman, 200, 200))
-    // this.interactables.push(new Character(this.imageGroup, oldMan, 300, 200))
+    this.interactables.push(new Character(this.imageGroup, oldMan, 300, 200))
     this.interactables.push(new Character(this.imageGroup, nobleWoman, 400, 200))
     this.interactables.push(new Character(this.imageGroup, nobleMan, 500, 200))
   }
