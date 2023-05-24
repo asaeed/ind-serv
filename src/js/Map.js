@@ -9,13 +9,15 @@ import peasant from '../assets/img/MiniPeasant.png'
 import oldWoman from '../assets/img/MiniOldWoman.png'
 import nobleWoman from '../assets/img/MiniNobleWoman.png'
 import nobleMan from '../assets/img/MiniNobleMan.png'
-
-import imagePath from '../assets/img/DesertTileMap.png'
+import tileSheet from '../assets/img/DesertTileMap.png'
 
 export default class Map {
-  constructor(stage, layer) {
-    this.layer = layer
+  constructor(stage) {
     this.stage = stage
+
+    // to be able to use tiny pixel sprites, turn off image smoothing
+    this.layer = new Konva.Layer({ imageSmoothingEnabled: false })
+    this.stage.add(this.layer)
 
     const numTilesX = 14
     const numTilesY = 15
@@ -40,7 +42,14 @@ export default class Map {
     this.tileSize = 16
     this.upScale = 4
 
-    let background = new Konva.Rect({
+    // every tile/sprite that's stuck to the map goes in a single group
+    this.imageGroup = new Konva.Group({
+      x: 0,
+      y: 0,
+    })
+
+    // background rect helps with artifacts when tiles redraw
+    this.backgroundRect = new Konva.Rect({
       x: 0,
       y: 0,
       width: this.stage.width(),
@@ -48,16 +57,12 @@ export default class Map {
       fill: '#d6a054',
       listening: false,
     })
-    this.layer.add(background)
+    this.imageGroup.add(this.backgroundRect)
 
-    this.imageGroup = new Konva.Group({
-      x: 0,
-      y: 0,
-    })
-
+    // add map tiles to stage
     const imageObj = new Image()
     imageObj.onload = () => {
-      for (let y in this.tileMap)
+      for (let y in this.tileMap) {
         for (let x in this.tileMap[y]) {
           var image = new Konva.Image({
             image: imageObj,
@@ -72,24 +77,31 @@ export default class Map {
           })
           this.imageGroup.add(image)
         }
+      }
+
       this.layer.add(this.imageGroup)
       this.layer.batchDraw()
-
       // console.log(tile.attrs)
+
+      this.createCharacters()
     }
-    imageObj.src = imagePath
+    imageObj.src = tileSheet
+  }
+
+  createCharacters() {
+    this.interactables = []
 
     // create characters
-    this.sprite0 = new Character(this.imageGroup, worker, 100, 100)
-    this.sprite1 = new Character(this.imageGroup, villagerWoman, 200, 100)
-    this.sprite2 = new Character(this.imageGroup, villagerMan, 300, 100)
-    this.sprite3 = new Character(this.imageGroup, queen, 400, 100)
-    this.sprite4 = new Character(this.imageGroup, princess, 500, 100)
-    this.sprite5 = new Character(this.imageGroup, peasant, 100, 200)
-    this.sprite6 = new Character(this.imageGroup, oldWoman, 200, 200)
-    // this.sprite7 = new Character(this.imageGroup, oldMan, 300, 200)
-    this.sprite8 = new Character(this.imageGroup, nobleWoman, 400, 200)
-    this.sprite9 = new Character(this.imageGroup, nobleMan, 500, 200)
+    this.interactables.push(new Character(this.imageGroup, worker, 100, 100))
+    this.interactables.push(new Character(this.imageGroup, villagerWoman, 200, 100))
+    this.interactables.push(new Character(this.imageGroup, villagerMan, 300, 100))
+    this.interactables.push(new Character(this.imageGroup, queen, 400, 100))
+    this.interactables.push(new Character(this.imageGroup, princess, 500, 100))
+    this.interactables.push(new Character(this.imageGroup, peasant, 100, 200))
+    this.interactables.push(new Character(this.imageGroup, oldWoman, 200, 200))
+    // this.interactables.push(new Character(this.imageGroup, oldMan, 300, 200))
+    this.interactables.push(new Character(this.imageGroup, nobleWoman, 400, 200))
+    this.interactables.push(new Character(this.imageGroup, nobleMan, 500, 200))
   }
 
   isVacant(x, y) {

@@ -1,8 +1,8 @@
 import Konva from 'konva'
 
 export default class Character {
-  constructor(layer, imagePath, x, y) {
-    this.layer = layer
+  constructor(group, imagePath, x, y) {
+    this.group = group
     this.scale = 4
     this.facingDirection = 'right'
     this.x = x
@@ -45,7 +45,7 @@ export default class Character {
         offsetX: w / 2,
         offsetY: h / 2,
       })
-      this.layer.add(this.sprite)
+      this.group.add(this.sprite)
       this.sprite.start() // start sprite animation
       // console.log(this.sprite.attrs)
     }
