@@ -4,6 +4,7 @@ import Map from './Map'
 import Player from './Player'
 import oldMan from '../assets/img/MiniOldMan.png'
 import Hud from './Hud'
+import Interactables from './Interactables'
 
 export default class Game {
   constructor(document) {
@@ -18,21 +19,17 @@ export default class Game {
       height: 600,
     })
 
-    // to be able to use tiny pixel sprites, turn off image smoothing
-    this.layerStatic = new Konva.Layer({ imageSmoothingEnabled: false, draggable: true })
-    this.layerAnim = new Konva.Layer({ imageSmoothingEnabled: false, draggable: true })
-    this.stage.add(this.layerStatic)
-    this.stage.add(this.layerAnim)
+    this.map = new Map(this.stage) // map creates a layer
 
     this.hud = new Hud(this.stage) // hud creates it's own layer on top
 
-    this.input = new Input(document)
+    // this.interactables = new Interactables(this.map.imageGroup)
 
-    this.map = new Map(this.stage, this.layerStatic)
+    this.input = new Input(document) // keyboard events
 
-    this.player = new Player(this.layerAnim, oldMan, this.stage.width() / 2, this.stage.height() / 2)
+    this.player = new Player(this.map.layer, oldMan, this.stage.width() / 2, this.stage.height() / 2)
 
-    //this.textPanel = new TextPanel(this.layerAnim)
+    //this.textPanel = new TextPanel(this.map.layer)
   }
 
   update(tFrame) {

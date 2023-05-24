@@ -35,7 +35,6 @@ export default class Player extends Character {
       if (map.isVacant(newX, this.sprite.attrs.y)) this.sprite.x(newX)
     }
 
-    // move map and items on it to follow player
     const xThreshDistance = 100
     const yThreshDistance = 50
     const xFromCenter = stage.width() / 2 - this.sprite.attrs.x + 32
@@ -48,7 +47,7 @@ export default class Player extends Character {
       this.centerCamera(xFromCenter, yFromCenter, map)
     }
 
-    // if user has strayed more than threshold and animation is not already running
+    // move map and items on it to follow player
     if (Math.abs(xFromCenter) > xThreshDistance) {
       const delta = speed * (xFromCenter > 0 ? 1 : -1)
       map.imageGroup.move({ x: delta, y: 0 })
@@ -63,6 +62,7 @@ export default class Player extends Character {
   }
 
   centerCamera(xFromCenter, yFromCenter, map) {
+    // if user has strayed more than threshold and animation is not already running
     if ((Math.abs(yFromCenter) > 10 || Math.abs(xFromCenter) > 10) && !this.isCentering) {
       const anim = new Konva.Animation((frame) => {
         let xDist = xFromCenter * (frame.timeDiff / 1000)
