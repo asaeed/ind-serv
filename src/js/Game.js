@@ -14,7 +14,7 @@ export default class Game {
     this.startTime = Date.now()
 
     this.stage = new Konva.Stage({
-      container: 'canvas-container', // id of container <div>
+      container: 'canvas-container',
       width: 1000,
       height: 600,
     })

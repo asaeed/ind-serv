@@ -6,7 +6,6 @@ export default class Player extends Character {
 
     this.speed = 4
     this.isJumping = false
-    // this.isCentering = false
   }
 
   update(input, map, stage) {
