@@ -11,21 +11,31 @@ import nobleWoman from '../assets/img/MiniNobleWoman.png'
 import nobleMan from '../assets/img/MiniNobleMan.png'
 
 export default class Interactables {
-  constructor(group) {
-    this.group = group
+  constructor(map) {
+    this.map = map
+    this.group = this.map.imageGroup
 
-    this.interactables = []
+    this.gameObjects = []
 
     // create characters
-    this.interactables.push(new Character(this.group, worker, 100, 100))
-    this.interactables.push(new Character(this.group, villagerWoman, 200, 100))
-    this.interactables.push(new Character(this.group, villagerMan, 300, 100))
-    this.interactables.push(new Character(this.group, queen, 400, 100))
-    this.interactables.push(new Character(this.group, princess, 500, 100))
-    this.interactables.push(new Character(this.group, peasant, 100, 200))
-    this.interactables.push(new Character(this.group, oldWoman, 200, 200))
-    // this.interactables.push(new Character(this.group, oldMan, 300, 200))
-    this.interactables.push(new Character(this.group, nobleWoman, 400, 200))
-    this.interactables.push(new Character(this.group, nobleMan, 500, 200))
+    this.createCharacter(worker, 2, 2)
+    this.createCharacter(villagerWoman, 4, 2)
+    // this.createCharacter(villagerMan, 6, 2)
+    this.createCharacter(queen, 8, 2)
+    this.createCharacter(princess, 2, 4)
+    this.createCharacter(peasant, 4, 4)
+    this.createCharacter(oldWoman, 6, 4)
+    this.createCharacter(nobleWoman, 8, 4)
+    this.createCharacter(nobleMan, 13, 3)
+  }
+
+  createCharacter(sprite, gridX, gridY) {
+    const mult = this.map.tileSize * this.map.upScale
+
+    this.gameObjects.push({
+      o: new Character(this.group, sprite, gridX * mult, gridY * mult),
+      x: gridX,
+      y: gridY,
+    })
   }
 }
