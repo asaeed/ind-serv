@@ -15,7 +15,7 @@ export default class Hud {
       strokeWidth: 4,
     })
 
-    // this.textPanel = new TextPanel(this.layer)
+    this.textPanel = new TextPanel(this.layer)
 
     this.layer.add(this.circle)
     this.stage.add(this.layer)

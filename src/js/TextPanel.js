@@ -9,10 +9,10 @@ export default class TextPanel {
     imageObj.onload = () => {
       var panel = new Konva.Image({
         image: imageObj,
-        x: 125,
-        y: 340,
-        scaleX: 0.55,
-        scaleY: 0.55,
+        x: 156,
+        y: 380,
+        scaleX: 0.5,
+        scaleY: 0.5,
       })
       this.layer.add(panel)
       this.layer.batchDraw()

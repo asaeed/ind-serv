@@ -4,7 +4,6 @@ import Map from './Map'
 import Player from './Player'
 import villagerMan from '../assets/img/MiniVillagerMan.png'
 import Hud from './Hud'
-import Interactables from './Interactables'
 
 export default class Game {
   constructor(document) {
@@ -22,8 +21,6 @@ export default class Game {
     this.map = new Map(this.stage) // map creates a layer
 
     this.hud = new Hud(this.stage) // hud creates it's own layer on top
-
-    // this.interactables = new Interactables(this.map.imageGroup)
 
     this.input = new Input(document) // keyboard events
 

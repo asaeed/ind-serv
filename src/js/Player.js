@@ -37,20 +37,22 @@ export default class Player extends Character {
 
     const xFromCenter = stage.width() / 2 - this.sprite.attrs.x + 32
     const yFromCenter = stage.height() / 2 - this.sprite.attrs.y - 32
-    if (!this.isJumping)
-      if (press.up || press.down || press.left || press.right) {
-        this.sprite.animation('walk')
-        this.centerCamera(xFromCenter, yFromCenter, 100, 50, this.speed, map)
-      } else {
-        this.sprite.animation('idle')
-        this.centerCamera(xFromCenter, yFromCenter, 10, 10, this.speed / 2, map)
-      }
+
+    if (press.up || press.down || press.left || press.right) {
+      if (!this.isJumping) this.sprite.animation('walk')
+      this.centerCamera(xFromCenter, yFromCenter, 100, 50, this.speed, map)
+    } else {
+      if (!this.isJumping) this.sprite.animation('idle')
+      this.centerCamera(xFromCenter, yFromCenter, 10, 10, this.speed / 2, map)
+    }
 
     // interaction should fire once, last for the animation duration of 400
     if (input.interactPress && !this.isJumping) {
       this.sprite.animation('hurt')
       this.isJumping = true
       setTimeout(() => (this.isJumping = false), 400)
+
+      // TODO: map.checkInteractables() to see if player is within range of any and kick off interaction
     }
   }
 
