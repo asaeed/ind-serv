@@ -18,13 +18,12 @@ export default class Game {
       height: 600,
     })
 
-    this.map = new Map(this.stage) // map creates a layer
-
-    this.hud = new Hud(this.stage) // hud creates it's own layer on top
-
-    this.input = new Input(document) // keyboard events
-
-    this.player = new Player(this.map.layer, villagerMan, this.stage.width() / 2, this.stage.height() / 2)
+    // map creates a layer
+    this.map = new Map(this.stage, () => {
+      this.hud = new Hud(this.stage) // hud creates it's own layer on top
+      this.input = new Input(document) // keyboard events
+      this.player = new Player(this.map.layer, villagerMan, this.stage.width() / 2, this.stage.height() / 2)
+    })
   }
 
   update(tFrame) {

@@ -52,7 +52,8 @@ export default class Player extends Character {
       this.isJumping = true
       setTimeout(() => (this.isJumping = false), 400)
 
-      // TODO: map.checkInteractables() to see if player is within range of any and kick off interaction
+      // to see if player is within range of any and kick off interaction
+      map.checkInteractables(this.sprite.attrs.x, this.sprite.attrs.y)
     }
   }
 

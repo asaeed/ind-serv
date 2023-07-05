@@ -18,24 +18,53 @@ export default class Interactables {
     this.gameObjects = []
 
     // create characters
-    this.createCharacter(worker, 2, 2)
-    this.createCharacter(villagerWoman, 4, 2)
-    // this.createCharacter(villagerMan, 6, 2)
-    this.createCharacter(queen, 8, 2)
-    this.createCharacter(princess, 2, 4)
-    this.createCharacter(peasant, 4, 4)
-    this.createCharacter(oldWoman, 6, 4)
-    this.createCharacter(nobleWoman, 8, 4)
-    this.createCharacter(nobleMan, 13, 3)
+    this.createCharacter('worker', worker, 2, 2)
+    this.createCharacter('villagerWoman', villagerWoman, 4, 2)
+    // this.createCharacter('villagerMan', villagerMan, 6, 2)
+    this.createCharacter('queen', queen, 8, 2)
+    this.createCharacter('princess', princess, 2, 4)
+    this.createCharacter('peasant', peasant, 4, 4)
+    this.createCharacter('oldWoman', oldWoman, 6, 4)
+    this.createCharacter('nobleWoman', nobleWoman, 8, 4)
+    this.createCharacter('nobleMan', nobleMan, 13, 3)
   }
 
-  createCharacter(sprite, gridX, gridY) {
+  createCharacter(name, sprite, gridX, gridY) {
     const mult = this.map.tileSize * this.map.upScale
 
     this.gameObjects.push({
-      o: new Character(this.group, sprite, gridX * mult, gridY * mult),
+      // TODO: why is this magic number needed? bug somewhere?
+      o: new Character(this.group, sprite, gridX * mult + 32, gridY * mult),
       x: gridX,
       y: gridY,
+      name,
     })
+  }
+
+  isVacant(gridX, gridY) {
+    for (const go of this.gameObjects) {
+      if (go.x == gridX && go.y === gridY) {
+        return false
+      }
+    }
+    return true
+  }
+
+  getClosest(x, y) {
+    let lastHypSquared = 999999999999
+    let closestGo
+    for (const go of this.gameObjects) {
+      const xDist = go.o.sprite.x() - x
+      const yDist = go.o.sprite.y() - y
+      const hypSquared = xDist * xDist + yDist * yDist
+      // console.log(go.name, xDist, yDist, hypSquared)
+
+      if (hypSquared < lastHypSquared) {
+        lastHypSquared = hypSquared
+        closestGo = go
+      }
+    }
+
+    return lastHypSquared <= 5000 ? closestGo : null
   }
 }

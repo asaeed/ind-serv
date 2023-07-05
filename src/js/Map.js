@@ -3,7 +3,7 @@ import Interactables from './Interactables'
 import tileSheet from '../assets/img/DesertTileMap.png'
 
 export default class Map {
-  constructor(stage) {
+  constructor(stage, callback) {
     this.stage = stage
 
     // to be able to use tiny pixel sprites, turn off image smoothing
@@ -43,7 +43,7 @@ export default class Map {
     this.backgroundRect = new Konva.Rect({
       x: 0,
       y: 0,
-      width: this.stage.width(),
+      width: this.stage.width() + 100,
       height: this.stage.height(),
       fill: '#d6a054',
       listening: false,
@@ -51,6 +51,7 @@ export default class Map {
     this.imageGroup.add(this.backgroundRect)
 
     // add map tiles to stage
+    this.images = []
     const imageObj = new Image()
     imageObj.onload = () => {
       for (let y in this.tileMap) {
@@ -67,6 +68,7 @@ export default class Map {
             height: this.tileSize * this.upScale,
             listening: false,
           })
+          this.images.push(image)
           this.imageGroup.add(image)
         }
       }
@@ -76,20 +78,45 @@ export default class Map {
       // console.log(tile.attrs)
 
       this.interactables = new Interactables(this)
+      if (callback) callback()
     }
     imageObj.src = tileSheet
   }
 
   isVacant(x, y) {
-    // convert x and y from pixels to grid squares
-    const yAdjust = -14
-    const gridX = Math.floor((x - this.imageGroup.attrs.x) / (this.tileSize * this.upScale))
-    const gridY = Math.floor((y - this.imageGroup.attrs.y + yAdjust) / (this.tileSize * this.upScale)) + 1
+    const { gridX, gridY } = this.positionToCoords(x, y)
 
     // false if out of bounds
     if (!this.tileMap[gridY] || (!this.tileMap[gridY][gridX] && this.tileMap[gridY][gridX] !== 0)) return false
 
     // true if the location is inhabitable
-    return this.vacantTiles.indexOf(this.tileMap[gridY][gridX]) !== -1
+    const isInhabitable = this.vacantTiles.indexOf(this.tileMap[gridY][gridX]) !== -1
+    const isVacant = this.interactables.isVacant(gridX, gridY)
+
+    return isInhabitable && isVacant
+  }
+
+  checkInteractables(x, y) {
+    const { mapX, mapY } = this.positionOnMap(x, y)
+    const closest = this.interactables.getClosest(mapX, mapY + 14)
+    if (closest) console.log(closest.name)
+  }
+
+  positionToCoords(x, y) {
+    // convert x and y from pixels to grid squares
+    const { mapX, mapY } = this.positionOnMap(x, y)
+
+    const gridX = Math.floor(mapX / (this.tileSize * this.upScale))
+    const gridY = Math.floor(mapY / (this.tileSize * this.upScale)) + 1
+
+    return { gridX, gridY }
+  }
+
+  positionOnMap(x, y) {
+    const yAdjust = -14
+    const mapX = x - this.imageGroup.attrs.x
+    const mapY = y - this.imageGroup.attrs.y + yAdjust
+
+    return { mapX, mapY }
   }
 }
