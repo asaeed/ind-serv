@@ -4,12 +4,14 @@ import Map from './Map'
 import Player from './Player'
 import villagerMan from '../assets/img/MiniVillagerMan.png'
 import Hud from './Hud'
+import gameStore from './gameStore'
 
 export default class Game {
   constructor(document) {
     this.framesDiv = document.querySelector('.frame-num > .value')
     this.secondsDiv = document.querySelector('.seconds-passed > .value')
     this.directionDiv = document.querySelector('.direction > .value')
+    this.storeDiv = document.querySelector('.store > .value')
     this.startTime = Date.now()
 
     this.stage = new Konva.Stage({
@@ -24,6 +26,14 @@ export default class Game {
       this.input = new Input(document) // keyboard events
       this.player = new Player(this.map.layer, villagerMan, this.stage.width() / 2, this.stage.height() / 2)
     })
+
+    // TODO: for debug only
+    const unsubscribe = gameStore.subscribe(
+      (state) => {
+        this.storeDiv.innerHTML = JSON.stringify(gameStore.getState())
+      },
+      (state) => state
+    )
   }
 
   update(tFrame) {

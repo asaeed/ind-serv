@@ -101,7 +101,7 @@ export default class Map {
     const { mapX, mapY } = this.positionOnMap(x, y)
     const closest = this.interactables.getClosest(mapX, mapY + 14)
     if (closest) {
-      gameStore.setState({ showTextPanel: true })
+      gameStore.getState().showTextPanel()
       return closest.name
     }
   }

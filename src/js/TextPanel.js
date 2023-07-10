@@ -23,15 +23,14 @@ export default class TextPanel {
 
     const unsubscribe = gameStore.subscribe(
       (state) => {
-        console.log('showTextPanel:', state.showTextPanel)
-        // Perform any necessary actions or UI updates here
-        this.panel.opacity(1)
-
-        setTimeout(() => {
+        if (state.isTextPanelVisible === true) this.panel.opacity(1)
+        this.timeout = setTimeout(() => {
           this.panel.opacity(0)
+          state.hideTextPanel()
+          clearTimeout(this.timeout)
         }, 2000)
       },
-      (state) => state.showTextPanel // Selector function, returns the part of the state to subscribe to (optional)
+      (state) => state.isTextPanelVisible
     )
   }
 }

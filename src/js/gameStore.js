@@ -2,14 +2,13 @@ import { create } from 'zustand'
 
 const gameStore = create((set) => ({
   score: 0,
-  level: 1,
   lives: 3,
-  showTextPanel: false,
+  isTextPanelVisible: false,
 
   // actions
   increaseScore: () => set((state) => ({ score: state.score + 1 })),
-  decreaseLives: () => set((state) => ({ lives: state.lives - 1 })),
-  increaseLevel: () => set((state) => ({ level: state.level + 1 })),
+  showTextPanel: () => set((state) => ({ isTextPanelVisible: true })),
+  hideTextPanel: () => set((state) => ({ isTextPanelVisible: false })),
 }))
 
 export default gameStore
