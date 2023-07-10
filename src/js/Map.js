@@ -1,6 +1,7 @@
 import Konva from 'konva'
 import Interactables from './Interactables'
 import tileSheet from '../assets/img/DesertTileMap.png'
+import gameStore from './gameStore'
 
 export default class Map {
   constructor(stage, callback) {
@@ -99,7 +100,10 @@ export default class Map {
   checkInteractables(x, y) {
     const { mapX, mapY } = this.positionOnMap(x, y)
     const closest = this.interactables.getClosest(mapX, mapY + 14)
-    if (closest) console.log(closest.name)
+    if (closest) {
+      gameStore.setState({ showTextPanel: true })
+      return closest.name
+    }
   }
 
   positionToCoords(x, y) {
