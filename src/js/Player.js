@@ -53,7 +53,8 @@ export default class Player extends Character {
       setTimeout(() => (this.isJumping = false), 400)
 
       // to see if player is within range of any and kick off interaction
-      map.checkInteractables(this.sprite.attrs.x, this.sprite.attrs.y)
+      const closest = map.checkNpcs(this.sprite.attrs.x, this.sprite.attrs.y)
+      console.log(closest)
     }
   }
 

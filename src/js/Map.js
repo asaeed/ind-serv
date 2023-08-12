@@ -1,5 +1,5 @@
 import Konva from 'konva'
-import Interactables from './Interactables'
+import NpcController from './NpcController'
 import tileSheet from '../assets/img/DesertTileMap.png'
 import gameStore from './gameStore'
 
@@ -78,7 +78,7 @@ export default class Map {
       this.layer.batchDraw()
       // console.log(tile.attrs)
 
-      this.interactables = new Interactables(this)
+      this.npcController = new NpcController(this)
       if (callback) callback()
     }
     imageObj.src = tileSheet
@@ -92,14 +92,14 @@ export default class Map {
 
     // true if the location is inhabitable
     const isInhabitable = this.vacantTiles.indexOf(this.tileMap[gridY][gridX]) !== -1
-    const isVacant = this.interactables.isVacant(gridX, gridY)
+    const isVacant = this.npcController.isVacant(gridX, gridY)
 
     return isInhabitable && isVacant
   }
 
-  checkInteractables(x, y) {
+  checkNpcs(x, y) {
     const { mapX, mapY } = this.positionOnMap(x, y)
-    const closest = this.interactables.getClosest(mapX, mapY + 14)
+    const closest = this.npcController.getClosest(mapX, mapY + 14)
     if (closest) {
       gameStore.getState().showTextPanel()
       return closest.name

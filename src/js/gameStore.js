@@ -1,8 +1,10 @@
 import { create } from 'zustand'
+import npcData from '../data/npc.json' // Import the JSON file
 
 const gameStore = create((set) => ({
   score: 0,
   lives: 3,
+  npcs: npcData,
   isTextPanelVisible: false,
 
   // actions

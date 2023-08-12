@@ -9,8 +9,9 @@ import peasant from '../assets/img/MiniPeasant.png'
 import oldWoman from '../assets/img/MiniOldWoman.png'
 import nobleWoman from '../assets/img/MiniNobleWoman.png'
 import nobleMan from '../assets/img/MiniNobleMan.png'
+import gameStore from './gameStore'
 
-export default class Interactables {
+export default class NpcController {
   constructor(map) {
     this.map = map
     this.group = this.map.imageGroup
@@ -18,15 +19,9 @@ export default class Interactables {
     this.gameObjects = []
 
     // create characters
-    this.createCharacter('worker', worker, 2, 2)
-    this.createCharacter('villagerWoman', villagerWoman, 4, 2)
-    // this.createCharacter('villagerMan', villagerMan, 6, 2)
-    this.createCharacter('queen', queen, 8, 2)
-    this.createCharacter('princess', princess, 2, 4)
-    this.createCharacter('peasant', peasant, 4, 4)
-    this.createCharacter('oldWoman', oldWoman, 6, 4)
-    this.createCharacter('nobleWoman', nobleWoman, 8, 4)
-    this.createCharacter('nobleMan', nobleMan, 13, 3)
+    const npcs = gameStore.getState().npcs
+    for (const npc of npcs)
+      this.createCharacter(npc.name, require('../assets/img/' + npc.file), npc.position.x, npc.position.y)
   }
 
   createCharacter(name, sprite, gridX, gridY) {
