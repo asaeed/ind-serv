@@ -1,14 +1,4 @@
-import Konva from 'konva'
 import Character from './Character'
-import worker from '../assets/img/MiniWorker.png'
-import villagerWoman from '../assets/img/MiniVillagerWoman.png'
-import villagerMan from '../assets/img/MiniVillagerMan.png'
-import queen from '../assets/img/MiniQueen.png'
-import princess from '../assets/img/MiniPrincess.png'
-import peasant from '../assets/img/MiniPeasant.png'
-import oldWoman from '../assets/img/MiniOldWoman.png'
-import nobleWoman from '../assets/img/MiniNobleWoman.png'
-import nobleMan from '../assets/img/MiniNobleMan.png'
 import gameStore from './gameStore'
 
 export default class NpcController {
@@ -43,6 +33,15 @@ export default class NpcController {
       }
     }
     return true
+  }
+
+  checkDistance(x, y) {
+    const { mapX, mapY } = this.map.positionOnMap(x, y)
+    const closest = getClosest(mapX, mapY + 14)
+    if (closest) {
+      gameStore.getState().showTextPanel()
+      return closest.name
+    }
   }
 
   getClosest(x, y) {

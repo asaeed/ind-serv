@@ -1,5 +1,5 @@
 export default class Input {
-  constructor(document) {
+  constructor() {
     this.lastXDirection = 'right'
     this.directionPress = {
       up: 0,

@@ -14,7 +14,7 @@ import Game1 from './js/gameModule'
 // </div>
 // `
 
-const game = new Game(document)
+const game = new Game()
 game.mainLoop()
 // Game1.setup(document)
 // Game1.mainLoop()
