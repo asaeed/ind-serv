@@ -6,7 +6,7 @@ export default class NpcController {
     this.map = map
     this.group = this.map.imageGroup
 
-    this.gameObjects = []
+    this.npcs = []
 
     // create characters
     const npcData = gameStore.getState().npcData
@@ -15,11 +15,11 @@ export default class NpcController {
   }
 
   createCharacter(name, sprite, gridX, gridY) {
-    const mult = this.map.tileSize * this.map.upScale
+    const { x, y } = this.map.coordsToPosition(gridX, gridY)
 
-    this.gameObjects.push({
+    this.npcs.push({
       // TODO: why is this magic number needed? bug somewhere?
-      o: new Character(this.group, sprite, gridX * mult + 32, gridY * mult),
+      o: new Character(this.group, sprite, x, y),
       x: gridX,
       y: gridY,
       name,
@@ -27,7 +27,7 @@ export default class NpcController {
   }
 
   isVacant(gridX, gridY) {
-    for (const go of this.gameObjects) {
+    for (const go of this.npcs) {
       if (go.x == gridX && go.y === gridY) {
         return false
       }
@@ -35,30 +35,30 @@ export default class NpcController {
     return true
   }
 
-  checkDistance(x, y) {
-    const { mapX, mapY } = this.map.positionOnMap(x, y)
-    const closest = getClosest(mapX, mapY + 14)
-    if (closest) {
-      gameStore.getState().showTextPanel()
-      return closest.name
-    }
-  }
+  // checkDistance(x, y) {
+  //   const { mapX, mapY } = this.map.positionOnMap(x, y)
+  //   const closest = getClosest(mapX, mapY + 14)
+  //   if (closest) {
+  //     gameStore.getState().showTextPanel()
+  //     return closest.name
+  //   }
+  // }
 
   getClosest(x, y) {
     let lastHypSquared = 999999999999
-    let closestGo
-    for (const go of this.gameObjects) {
-      const xDist = go.o.sprite.x() - x
-      const yDist = go.o.sprite.y() - y
+    let closestNpc
+    for (const npc of this.npcs) {
+      const xDist = npc.o.sprite.x() - x
+      const yDist = npc.o.sprite.y() - y
       const hypSquared = xDist * xDist + yDist * yDist
-      // console.log(go.name, xDist, yDist, hypSquared)
+      // console.log(npc.name, xDist, yDist, hypSquared)
 
       if (hypSquared < lastHypSquared) {
         lastHypSquared = hypSquared
-        closestGo = go
+        closestNpc = npc
       }
     }
 
-    return lastHypSquared <= 5000 ? closestGo : null
+    return lastHypSquared <= 5000 ? closestNpc : null
   }
 }

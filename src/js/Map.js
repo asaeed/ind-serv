@@ -106,6 +106,12 @@ export default class Map {
     }
   }
 
+  coordsToPosition(gridX, gridY) {
+    // convert from grid square coordinates to x and y position
+    const mult = this.tileSize * this.upScale
+    return { x: gridX * mult + 32, y: gridY * mult }
+  }
+
   positionToCoords(x, y) {
     // convert x and y from pixels to grid squares
     const { mapX, mapY } = this.positionOnMap(x, y)
