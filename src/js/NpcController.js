@@ -9,8 +9,8 @@ export default class NpcController {
     this.gameObjects = []
 
     // create characters
-    const npcs = gameStore.getState().npcs
-    for (const npc of npcs)
+    const npcData = gameStore.getState().npcData
+    for (const npc of npcData)
       this.createCharacter(npc.name, require('../assets/img/' + npc.file), npc.position.x, npc.position.y)
   }
 

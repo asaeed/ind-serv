@@ -97,7 +97,7 @@ export default class Map {
     return isInhabitable && isVacant
   }
 
-  checkNpcs(x, y) {
+  checkProximity(x, y) {
     const { mapX, mapY } = this.positionOnMap(x, y)
     const closest = this.npcController.getClosest(mapX, mapY + 14)
     if (closest) {
