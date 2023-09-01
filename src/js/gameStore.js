@@ -5,13 +5,10 @@ const gameStore = create((set, get) => ({
   score: 0,
   numBricks: 0,
   npcData: npcData,
-  isTextPanelVisible: false,
   textPanelContent: null,
 
   // actions
   increaseScore: () => set((state) => ({ score: state.score + 1 })),
-  showTextPanel: () => set((state) => ({ isTextPanelVisible: true })),
-  hideTextPanel: () => set((state) => ({ isTextPanelVisible: false })),
 
   interactWith: (npcName) => {
     const { npcData, numBricks, textPanelContent } = get()
@@ -32,7 +29,6 @@ const gameStore = create((set, get) => ({
       }
     }
     set((state) => ({ textPanelContent: selectedSpeech }))
-    console.log(npcName, selectedSpeech)
   },
 }))
 

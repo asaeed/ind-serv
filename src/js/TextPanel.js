@@ -6,7 +6,7 @@ export default class TextPanel {
   constructor(layer) {
     this.layer = layer
 
-    const panelW = 720
+    const panelW = 700
     const panelH = 300
     const padding = 20
 
