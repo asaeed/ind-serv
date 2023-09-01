@@ -1,5 +1,6 @@
 import Character from './Character'
 import villagerMan from '../assets/img/MiniVillagerMan.png'
+import gameStore from './gameStore'
 
 export default class Player extends Character {
   constructor(map, input) {
@@ -57,8 +58,8 @@ export default class Player extends Character {
       setTimeout(() => (this.isJumping = false), 400)
 
       // to see if player is within range of any and kick off interaction
-      const closest = this.map.checkProximity(this.sprite.attrs.x, this.sprite.attrs.y)
-      console.log(closest)
+      const closestNpcName = this.map.checkProximity(this.sprite.attrs.x, this.sprite.attrs.y)
+      gameStore.getState().interactWith(closestNpcName)
     }
   }
 

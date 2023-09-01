@@ -1,7 +1,6 @@
 import Konva from 'konva'
 import NpcController from './NpcController'
 import tileSheet from '../assets/img/DesertTileMap.png'
-import gameStore from './gameStore'
 
 export default class Map {
   constructor(stage, callback) {
@@ -101,7 +100,6 @@ export default class Map {
     const { mapX, mapY } = this.positionOnMap(x, y)
     const closest = this.npcController.getClosest(mapX, mapY + 14)
     if (closest) {
-      gameStore.getState().showTextPanel()
       return closest.name
     }
   }

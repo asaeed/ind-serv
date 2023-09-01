@@ -5,11 +5,11 @@
     "position": { "x": 2, "y": 2 },
     "speech": [
       {
-        "maxBricks": 0,
+        "minBricks": 0,
         "text": "Make at least 10 bricks, then come see me"
       },
       {
-        "maxBricks": 10,
+        "minBricks": 10,
         "text": "Nice work you got 10 bricks"
       }
     ]
@@ -20,11 +20,11 @@
     "position": { "x": 4, "y": 2 },
     "speech": [
       {
-        "maxBricks": 0,
+        "minBricks": 0,
         "text": "I've been in debt to the kiln owner for years"
       },
       {
-        "maxBricks": 10,
+        "minBricks": 10,
         "text": "Sorry you have fallen into this trap"
       }
     ]
