@@ -6,30 +6,49 @@ export default class TextPanel {
   constructor(layer) {
     this.layer = layer
 
+    const panelW = 720
+    const panelH = 300
+    const padding = 20
+
+    this.group = new Konva.Group({
+      x: 156,
+      y: 380,
+      opacity: 0,
+    })
+
     const imageObj = new Image()
     imageObj.onload = () => {
       this.panel = new Konva.Image({
         image: imageObj,
-        x: 156,
-        y: 380,
+        x: 0,
+        y: 0,
         scaleX: 0.5,
         scaleY: 0.5,
-        opacity: 0,
       })
-      this.layer.add(this.panel)
-      this.layer.batchDraw()
+
+      this.panelText = new Konva.Text({
+        x: padding,
+        y: padding,
+        width: panelW - padding * 2,
+        text: '',
+        fontSize: 20,
+        lineHeight: 1.5,
+        fontFamily: 'Press Start 2P',
+        fill: 'green',
+      })
+
+      this.group.add(this.panel)
+      this.group.add(this.panelText)
+      this.layer.add(this.group)
     }
     imageObj.src = panelImagePath
 
     const unsubscribe = gameStore.subscribe(
       (state) => {
-        if (state.textPanelContent) this.panel.opacity(1)
-        else this.panel.opacity(0)
-        // this.timeout = setTimeout(() => {
-        //   this.panel.opacity(0)
-        //   state.hideTextPanel()
-        //   clearTimeout(this.timeout)
-        // }, 2000)
+        if (state.textPanelContent) {
+          this.panelText.text(state.textPanelContent)
+          this.group.opacity(1)
+        } else this.group.opacity(0)
       },
       (state) => state.textPanelContent
     )
