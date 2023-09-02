@@ -13,7 +13,7 @@ const gameStore = create((set, get) => ({
   interactWith: (npcName) => {
     const { npcData, numBricks, textPanelContent } = get()
     // if no npc in range or textpanel is open, close it
-    if (!npcName || textPanelContent !== null) {
+    if (textPanelContent !== null) {
       set((state) => ({ textPanelContent: null }))
       return
     }

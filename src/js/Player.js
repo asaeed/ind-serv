@@ -61,6 +61,11 @@ export default class Player extends Character {
       const closestNpcName = this.map.checkProximity(this.sprite.attrs.x, this.sprite.attrs.y)
       gameStore.getState().interactWith(closestNpcName)
     }
+
+    // reset text panel on movement
+    if ((press.up || press.down || press.left || press.right) && !this.isJumping) {
+      gameStore.getState().interactWith(undefined)
+    }
   }
 
   centerCamera(xFromCenter, yFromCenter, xThresh, yThresh, speed) {
