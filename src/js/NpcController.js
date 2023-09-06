@@ -17,8 +17,9 @@ export default class NpcController {
   createCharacter(name, sprite, gridX, gridY) {
     const { x, y } = this.map.coordsToPosition(gridX, gridY)
 
+    // using composition for npc objects is simpler
+    // could instead have Npc class inherit from Character
     this.npcs.push({
-      // TODO: why is this magic number needed? bug somewhere?
       o: new Character(this.group, sprite, x, y),
       x: gridX,
       y: gridY,

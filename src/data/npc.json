@@ -32,12 +32,32 @@
   {
     "name": "queen",
     "file": "MiniQueen.png",
-    "position": { "x": 8, "y": 2 }
+    "position": { "x": 8, "y": 2 },
+    "speech": [
+      {
+        "minBricks": 0,
+        "text": "Snap, snap, get back to work."
+      },
+      {
+        "minBricks": 10,
+        "text": "You make pretty good bricks, but not enough!"
+      }
+    ]
   },
   {
     "name": "princess",
     "file": "MiniPrincess.png",
-    "position": { "x": 2, "y": 4 }
+    "position": { "x": 2, "y": 4 },
+    "speech": [
+      {
+        "minBricks": 0,
+        "text": "Talk to my mom, I don't have time for you."
+      },
+      {
+        "minBricks": 10,
+        "text": "Talk to my dad, I don't have time for you."
+      }
+    ]
   },
   {
     "name": "peasant",
@@ -48,6 +68,11 @@
     "name": "oldWoman",
     "file": "MiniOldWoman.png",
     "position": { "x": 6, "y": 4 }
+  },
+  {
+    "name": "oldMan",
+    "file": "MiniOldMan.png",
+    "position": { "x": 3, "y": 7 }
   },
   {
     "name": "nobleWoman",
