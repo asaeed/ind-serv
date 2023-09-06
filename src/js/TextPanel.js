@@ -6,7 +6,7 @@ export default class TextPanel {
   constructor(layer) {
     this.layer = layer
 
-    const panelW = 700
+    const panelW = 690
     const panelH = 300
     const padding = 20
 
@@ -34,7 +34,7 @@ export default class TextPanel {
         fontSize: 20,
         lineHeight: 1.5,
         fontFamily: 'Press Start 2P',
-        fill: 'green',
+        fill: '#137391',
       })
 
       this.group.add(this.panel)
