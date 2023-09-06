@@ -127,4 +127,8 @@ export default class Map {
 
     return { mapX, mapY }
   }
+
+  update() {
+    this.npcController.update()
+  }
 }

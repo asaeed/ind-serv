@@ -72,7 +72,8 @@
   {
     "name": "oldMan",
     "file": "MiniOldMan.png",
-    "position": { "x": 3, "y": 7 }
+    "position": { "x": 3, "y": 7 },
+    "wander": 3
   },
   {
     "name": "nobleWoman",

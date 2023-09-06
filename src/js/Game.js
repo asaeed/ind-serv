@@ -41,6 +41,7 @@ export default class Game {
     this.directionDiv.innerHTML = JSON.stringify(this.input.directionPress)
 
     this.player.update()
+    this.map.update()
   }
 
   mainLoop() {
