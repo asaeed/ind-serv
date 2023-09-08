@@ -15,7 +15,7 @@ export default class NpcController {
 
     this.npcInterval = setInterval(() => {
       this.wanderNpcs()
-    }, 4000)
+    }, 3000)
   }
 
   createNpc(name, sprite, gridX, gridY, wander) {
@@ -29,6 +29,8 @@ export default class NpcController {
       gridX,
       gridY,
       wander,
+      originX: gridX,
+      originY: gridY,
       targetX: gridX,
       targetY: gridY,
     })
@@ -110,9 +112,11 @@ export default class NpcController {
           // if target reached, update gridX
           if (Math.abs(this.map.coordsToPosition(npc.targetX, npc.targetY).x - newX) < speed)
             npc.gridX = npc.gridX + directionX
-        }
+        } else console.log('not vacant to the ' + (directionX > 0 ? 'right' : 'left'))
       } else if (npc.gridY !== npc.targetY) {
         const directionY = npc.targetY > npc.gridY ? 1 : -1
+
+        // move if space is vacant
         const newY = npc.o.sprite.attrs.y + speed * directionY
         if (this.map.isVacant(npc.o.sprite.attrs.x, newY)) {
           npc.o.sprite.y(newY)
@@ -120,7 +124,7 @@ export default class NpcController {
           // if target reached, update gridY
           if (Math.abs(this.map.coordsToPosition(npc.targetX, npc.targetY).y - newY) < speed)
             npc.gridY = npc.gridY + directionY
-        }
+        } else console.log('not vacant ' + (directionY > 0 ? 'below' : 'above'))
       }
     }
   }
