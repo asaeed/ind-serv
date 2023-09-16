@@ -67,13 +67,14 @@
   {
     "name": "oldWoman",
     "file": "MiniOldWoman.png",
-    "position": { "x": 6, "y": 4 }
+    "position": { "x": 6, "y": 4 },
+    "wander": 1
   },
   {
     "name": "oldMan",
     "file": "MiniOldMan.png",
     "position": { "x": 3, "y": 7 },
-    "wander": 3
+    "wander": 2
   },
   {
     "name": "nobleWoman",

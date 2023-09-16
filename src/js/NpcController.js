@@ -81,10 +81,14 @@ export default class NpcController {
           // Move horizontally (left or right by one square)
           const deltaX = Math.random() < 0.5 ? -1 : 1
           npc.targetX = npc.gridX + deltaX
+          // if targetX is out of bounds, cancel it
+          if (npc.targetX > npc.originX + npc.wander || npc.targetX < npc.originX - npc.wander) npc.targetX = npc.gridX
         } else {
           // Move vertically (up or down by one square)
           const deltaY = Math.random() < 0.5 ? -1 : 1
           npc.targetY = npc.gridY + deltaY
+          // if targetY is out of bounds, cancel it
+          if (npc.targetY > npc.originY + npc.wander || npc.targetY < npc.originY - npc.wander) npc.targetY = npc.gridY
         }
 
         console.log(npc.name, npc.gridX, npc.gridY, npc.targetX, npc.targetY)
