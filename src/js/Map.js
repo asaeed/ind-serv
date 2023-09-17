@@ -83,9 +83,12 @@ export default class Map {
     imageObj.src = tileSheet
   }
 
-  isVacant(x, y) {
+  isPixelVacant(x, y) {
     const { gridX, gridY } = this.positionToCoords(x, y)
+    return this.isVacant(gridX, gridY)
+  }
 
+  isVacant(gridX, gridY) {
     // false if out of bounds
     if (!this.tileMap[gridY] || (!this.tileMap[gridY][gridX] && this.tileMap[gridY][gridX] !== 0)) return false
 

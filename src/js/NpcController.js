@@ -81,14 +81,16 @@ export default class NpcController {
           // Move horizontally (left or right by one square)
           const deltaX = Math.random() < 0.5 ? -1 : 1
           npc.targetX = npc.gridX + deltaX
-          // if targetX is out of bounds, cancel it
-          if (npc.targetX > npc.originX + npc.wander || npc.targetX < npc.originX - npc.wander) npc.targetX = npc.gridX
+          // if targetX is out of bounds or occupied, cancel it
+          const isOutOfRange = npc.targetX > npc.originX + npc.wander || npc.targetX < npc.originX - npc.wander
+          if (isOutOfRange || !this.map.isVacant(npc.targetX, npc.targetY)) npc.targetX = npc.gridX
         } else {
           // Move vertically (up or down by one square)
           const deltaY = Math.random() < 0.5 ? -1 : 1
           npc.targetY = npc.gridY + deltaY
-          // if targetY is out of bounds, cancel it
-          if (npc.targetY > npc.originY + npc.wander || npc.targetY < npc.originY - npc.wander) npc.targetY = npc.gridY
+          // if targetY is out of bounds or occupied, cancel it
+          const isOutOfRange = npc.targetY > npc.originY + npc.wander || npc.targetY < npc.originY - npc.wander
+          if (isOutOfRange || !this.map.isVacant(npc.targetX, npc.targetY)) npc.targetY = npc.gridY
         }
 
         console.log(npc.name, npc.gridX, npc.gridY, npc.targetX, npc.targetY)
@@ -110,25 +112,21 @@ export default class NpcController {
 
         // move if space is vacant
         const newX = npc.o.sprite.attrs.x + speed * directionX
-        if (this.map.isVacant(newX, npc.o.sprite.attrs.y)) {
-          npc.o.sprite.x(newX)
+        npc.o.sprite.x(newX)
 
-          // if target reached, update gridX
-          if (Math.abs(this.map.coordsToPosition(npc.targetX, npc.targetY).x - newX) < speed)
-            npc.gridX = npc.gridX + directionX
-        } else console.log('not vacant to the ' + (directionX > 0 ? 'right' : 'left'))
+        // if target reached, update gridX
+        if (Math.abs(this.map.coordsToPosition(npc.targetX, npc.targetY).x - newX) < speed)
+          npc.gridX = npc.gridX + directionX
       } else if (npc.gridY !== npc.targetY) {
         const directionY = npc.targetY > npc.gridY ? 1 : -1
 
         // move if space is vacant
         const newY = npc.o.sprite.attrs.y + speed * directionY
-        if (this.map.isVacant(npc.o.sprite.attrs.x, newY)) {
-          npc.o.sprite.y(newY)
+        npc.o.sprite.y(newY)
 
-          // if target reached, update gridY
-          if (Math.abs(this.map.coordsToPosition(npc.targetX, npc.targetY).y - newY) < speed)
-            npc.gridY = npc.gridY + directionY
-        } else console.log('not vacant ' + (directionY > 0 ? 'below' : 'above'))
+        // if target reached, update gridY
+        if (Math.abs(this.map.coordsToPosition(npc.targetX, npc.targetY).y - newY) < speed)
+          npc.gridY = npc.gridY + directionY
       }
     }
   }

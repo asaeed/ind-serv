@@ -22,22 +22,22 @@ export default class Player extends Character {
     const press = this.input.directionPress
     if (press.up) {
       const newY = this.sprite.attrs.y - this.speed
-      if (this.map.isVacant(this.sprite.attrs.x, newY)) this.sprite.y(newY)
+      if (this.map.isPixelVacant(this.sprite.attrs.x, newY)) this.sprite.y(newY)
     }
 
     if (press.down) {
       const newY = this.sprite.attrs.y + this.speed
-      if (this.map.isVacant(this.sprite.attrs.x, newY)) this.sprite.y(newY)
+      if (this.map.isPixelVacant(this.sprite.attrs.x, newY)) this.sprite.y(newY)
     }
 
     if (press.left) {
       const newX = this.sprite.attrs.x - this.speed
-      if (this.map.isVacant(newX, this.sprite.attrs.y)) this.sprite.x(newX)
+      if (this.map.isPixelVacant(newX, this.sprite.attrs.y)) this.sprite.x(newX)
     }
 
     if (press.right) {
       const newX = this.sprite.attrs.x + this.speed
-      if (this.map.isVacant(newX, this.sprite.attrs.y)) this.sprite.x(newX)
+      if (this.map.isPixelVacant(newX, this.sprite.attrs.y)) this.sprite.x(newX)
     }
 
     const xFromCenter = this.initX - this.sprite.attrs.x + 32
