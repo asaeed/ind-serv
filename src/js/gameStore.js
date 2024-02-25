@@ -1,9 +1,11 @@
 import { create } from 'zustand'
 import npcData from '../data/npc.json' // Import the JSON file
+import mapData from '../data/map.json' // Import the JSON file
 
 const gameStore = create((set, get) => ({
   score: 0,
   numBricks: 0,
+  mapData: mapData,
   npcData: npcData,
   textPanelContent: null,
 
