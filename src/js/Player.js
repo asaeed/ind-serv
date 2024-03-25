@@ -2,6 +2,13 @@ import Character from './Character'
 import villagerMan from '../assets/img/MiniVillagerMan.png'
 import gameStore from './gameStore'
 
+export const PlayerStates = {
+  STANDING: 'standing',
+  WALKING: 'walking',
+  TALKING: 'talking',
+  POKING: 'poking',
+}
+
 export default class Player extends Character {
   constructor(map, input) {
     super(map.layer, villagerMan, map.stage.width() / 2, map.stage.height() / 2)

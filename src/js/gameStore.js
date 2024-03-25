@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import npcData from '../data/npc.json' // Import the JSON file
 import mapData from '../data/map.json' // Import the JSON file
+import { PlayerStates } from './Player'
 
 const gameStore = create((set, get) => ({
   score: 0,
@@ -8,9 +9,15 @@ const gameStore = create((set, get) => ({
   mapData: mapData,
   npcData: npcData,
   textPanelContent: null,
+  playerState: PlayerStates.STANDING,
 
   // actions
   increaseScore: () => set((state) => ({ score: state.score + 1 })),
+
+  setPlayerState: (newState) => {
+    this.playerState = newState
+    console.log(`Player is now ${this.playerState}`)
+  },
 
   interactWith: (npcName) => {
     const { npcData, numBricks, textPanelContent } = get()
