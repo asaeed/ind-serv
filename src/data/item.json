@@ -1,0 +1,23 @@
+[
+  {
+    "type": "item",
+    "name": "shovel",
+    "file": "hot-spot-sprite.png",
+    "gridX": 2,
+    "gridY": 10,
+    "dialog": {
+      "text": "Use the shovel to pour mud into a mold?",
+      "options": ["yes", "no"]
+    }
+  },
+  {
+    "type": "item",
+    "name": "kiln",
+    "file": "hot-spot-sprite.png",
+    "gridX": 4,
+    "gridY": 10,
+    "dialog": {
+      "text": "Careful the brick kiln is really hot!"
+    }
+  }
+]

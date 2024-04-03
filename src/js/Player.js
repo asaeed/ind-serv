@@ -65,8 +65,8 @@ export default class Player extends Character {
       setTimeout(() => (this.isJumping = false), 400)
 
       // to see if player is within range of any and kick off interaction
-      const closestNpcName = this.map.checkProximity(this.sprite.attrs.x, this.sprite.attrs.y)
-      gameStore.getState().interactWith(closestNpcName)
+      const closestObject = this.map.checkProximity(this.sprite.attrs.x, this.sprite.attrs.y)
+      gameStore.getState().interactWith(closestObject)
     }
 
     // reset text panel on movement

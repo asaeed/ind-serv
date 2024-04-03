@@ -1,8 +1,10 @@
 [
   {
+    "type": "npc",
     "name": "worker",
     "file": "MiniWorker.png",
-    "position": { "x": 2, "y": 2 },
+    "gridX": 2,
+    "gridY": 2,
     "speech": [
       {
         "minBricks": 0,
@@ -15,9 +17,11 @@
     ]
   },
   {
+    "type": "npc",
     "name": "villagerWoman",
     "file": "MiniVillagerWoman.png",
-    "position": { "x": 4, "y": 2 },
+    "gridX": 4,
+    "gridY": 2,
     "speech": [
       {
         "minBricks": 0,
@@ -30,9 +34,11 @@
     ]
   },
   {
+    "type": "npc",
     "name": "queen",
     "file": "MiniQueen.png",
-    "position": { "x": 8, "y": 2 },
+    "gridX": 8,
+    "gridY": 2,
     "speech": [
       {
         "minBricks": 0,
@@ -45,9 +51,11 @@
     ]
   },
   {
+    "type": "npc",
     "name": "princess",
     "file": "MiniPrincess.png",
-    "position": { "x": 2, "y": 4 },
+    "gridX": 2,
+    "gridY": 4,
     "speech": [
       {
         "minBricks": 0,
@@ -60,30 +68,40 @@
     ]
   },
   {
+    "type": "npc",
     "name": "peasant",
     "file": "MiniPeasant.png",
-    "position": { "x": 4, "y": 4 }
+    "gridX": 4,
+    "gridY": 4
   },
   {
+    "type": "npc",
     "name": "oldWoman",
     "file": "MiniOldWoman.png",
-    "position": { "x": 6, "y": 4 },
+    "gridX": 6,
+    "gridY": 4,
     "wander": 2
   },
   {
+    "type": "npc",
     "name": "oldMan",
     "file": "MiniOldMan.png",
-    "position": { "x": 3, "y": 7 },
+    "gridX": 3,
+    "gridY": 7,
     "wander": 4
   },
   {
+    "type": "npc",
     "name": "nobleWoman",
     "file": "MiniNobleWoman.png",
-    "position": { "x": 8, "y": 4 }
+    "gridX": 8,
+    "gridY": 4
   },
   {
+    "type": "npc",
     "name": "nobleMan",
     "file": "MiniNobleMan.png",
-    "position": { "x": 13, "y": 3 }
+    "gridX": 13,
+    "gridY": 3
   }
 ]

@@ -1,5 +1,6 @@
 import Konva from 'konva'
 import NpcController from './NpcController'
+import ItemController from './ItemController'
 import tileSheet from '../assets/img/DesertTileMap.png'
 import gameStore from './gameStore'
 
@@ -64,6 +65,7 @@ export default class Map {
       // console.log(tile.attrs)
 
       this.npcController = new NpcController(this)
+      this.itemController = new ItemController(this)
       if (callback) callback()
     }
     imageObj.src = tileSheet
@@ -80,16 +82,24 @@ export default class Map {
 
     // true if the location is inhabitable
     const isInhabitable = this.vacantTiles.indexOf(this.tileMap[gridY][gridX]) !== -1
-    const isVacant = this.npcController.isVacant(gridX, gridY)
+    const isVacant = this.npcController.isVacant(gridX, gridY) && this.itemController.isVacant(gridX, gridY)
 
     return isInhabitable && isVacant
   }
 
   checkProximity(x, y) {
     const { mapX, mapY } = this.positionOnMap(x, y)
-    const closest = this.npcController.getClosest(mapX, mapY + 14)
-    if (closest) {
-      return closest.name
+    const closestNpc = this.npcController.getClosest(mapX, mapY + 14)
+    const closestItem = this.itemController.getClosest(mapX, mapY + 14)
+
+    // pick out closes object and if it's within a range, return it (else null)
+    const minDistSquared = 5000
+    if (closestNpc.distSq < closestItem.distSq && closestNpc.distSq <= minDistSquared) {
+      return closestNpc
+    } else if (closestItem.distSq <= minDistSquared) {
+      return closestItem
+    } else {
+      return null
     }
   }
 
@@ -119,5 +129,6 @@ export default class Map {
 
   update() {
     this.npcController.update()
+    this.itemController.update()
   }
 }

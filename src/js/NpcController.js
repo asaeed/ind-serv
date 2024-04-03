@@ -5,34 +5,30 @@ export default class NpcController {
   constructor(map) {
     this.map = map
     this.group = this.map.imageGroup
-
     this.npcs = []
 
     // create characters
     const npcData = gameStore.getState().npcData
-    for (const npc of npcData)
-      this.createNpc(npc.name, require('../assets/img/' + npc.file), npc.position.x, npc.position.y, npc.wander)
+    for (const npc of npcData) this.createNpc(npc)
 
     this.npcInterval = setInterval(() => {
       this.wanderNpcs()
     }, 3000)
   }
 
-  createNpc(name, sprite, gridX, gridY, wander) {
-    const { x, y } = this.map.coordsToPosition(gridX, gridY)
+  createNpc(npc) {
+    const { x, y } = this.map.coordsToPosition(npc.gridX, npc.gridY)
 
     // using composition for npc objects is simpler
     // could instead have Npc class inherit from Character
+    const sprite = require('../assets/img/' + npc.file)
     this.npcs.push({
+      ...npc,
       o: new Character(this.group, sprite, x, y),
-      name,
-      gridX,
-      gridY,
-      wander,
-      originX: gridX,
-      originY: gridY,
-      targetX: gridX,
-      targetY: gridY,
+      originX: npc.gridX,
+      originY: npc.gridY,
+      targetX: npc.gridX,
+      targetY: npc.gridY,
     })
   }
 
@@ -66,10 +62,11 @@ export default class NpcController {
       if (hypSquared < lastHypSquared) {
         lastHypSquared = hypSquared
         closestNpc = npc
+        closestNpc.distSq = hypSquared
       }
     }
 
-    return lastHypSquared <= 5000 ? closestNpc : null
+    return closestNpc
   }
 
   wanderNpcs() {

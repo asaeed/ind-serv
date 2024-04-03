@@ -1,6 +1,7 @@
 import { create } from 'zustand'
-import npcData from '../data/npc.json' // Import the JSON file
-import mapData from '../data/map.json' // Import the JSON file
+import npcData from '../data/npc.json'
+import mapData from '../data/map.json'
+import itemData from '../data/item.json'
 import { PlayerStates } from './Player'
 
 const gameStore = create((set, get) => ({
@@ -8,6 +9,7 @@ const gameStore = create((set, get) => ({
   numBricks: 0,
   mapData: mapData,
   npcData: npcData,
+  itemData: itemData,
   textPanelContent: null,
   playerState: PlayerStates.STANDING,
 
@@ -19,25 +21,33 @@ const gameStore = create((set, get) => ({
     console.log(`Player is now ${this.playerState}`)
   },
 
-  interactWith: (npcName) => {
-    const { npcData, numBricks, textPanelContent } = get()
-    // if no npc in range or textpanel is open, close it
+  interactWith: (gameObject) => {
+    const { numBricks, textPanelContent } = get()
+    // if no npc or item in range or textpanel is open, close it
     if (textPanelContent !== null) {
       set((state) => ({ textPanelContent: null }))
       return
     }
 
-    let selectedSpeech = null
-    if (npcName) {
-      const npc = npcData.find((n) => n.name === npcName)
-      selectedSpeech = '...'
-      for (let i = 0; i < npc.speech?.length; i++) {
-        if (numBricks >= npc.speech[i].minBricks) {
-          selectedSpeech = npc.speech[i].text
-        } else break
+    if (gameObject) {
+      if (gameObject.type === 'npc') {
+        const npc = gameObject
+        let selectedSpeech = null
+
+        selectedSpeech = '...'
+        for (let i = 0; i < npc.speech?.length; i++) {
+          if (numBricks >= npc.speech[i].minBricks) {
+            selectedSpeech = npc.speech[i].text
+          } else break
+        }
+
+        set((state) => ({ textPanelContent: selectedSpeech }))
+      } else {
+        const item = gameObject
+        console.log(item)
+        set((state) => ({ textPanelContent: item.dialog.text }))
       }
     }
-    set((state) => ({ textPanelContent: selectedSpeech }))
   },
 }))
 
