@@ -26,7 +26,7 @@ const gameStore = create((set, get) => ({
     const { numBricks, textPanelContent } = get()
     // if no npc or item in range or textpanel is open, close it
     if (textPanelContent !== null) {
-      set((state) => ({ textPanelContent: null }))
+      set((state) => ({ textPanelContent: null, textPanelOptions: [] }))
       return
     }
 
