@@ -29,7 +29,11 @@ export default class Game {
     // TODO: for debug only
     const unsubscribe = gameStore.subscribe(
       (state) => {
-        this.storeDiv.innerHTML = JSON.stringify(gameStore.getState())
+        const s = JSON.parse(JSON.stringify(state))
+        s.mapData = undefined
+        s.npcData = undefined
+        s.itemData = undefined
+        this.storeDiv.innerText = JSON.stringify(s, null, 4)
       },
       (state) => state
     )
@@ -38,10 +42,10 @@ export default class Game {
   update(tFrame) {
     this.framesDiv.innerHTML = tFrame
     this.secondsDiv.innerHTML = (Date.now() - this.startTime) / 1000
-    this.directionDiv.innerHTML = JSON.stringify(this.input.directionPress)
+    // this.directionDiv.innerHTML = JSON.stringify(this.input.directionPress)
 
-    this.player.update()
-    this.map.update()
+    this.player && this.player.update()
+    this.map && this.map.update()
   }
 
   mainLoop() {

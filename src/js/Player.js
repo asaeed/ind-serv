@@ -89,6 +89,11 @@ export default class Player extends Character {
     }
   }
 
+  // TODO:
+  switchSprites(newSprite) {
+    this.sprite = newSprite
+  }
+
   // centerCameraAnim(xFromCenter, yFromCenter) {
   //   // if user has strayed more than threshold and animation is not already running
   //   if ((Math.abs(yFromCenter) > 10 || Math.abs(xFromCenter) > 10) && !this.isCentering) {

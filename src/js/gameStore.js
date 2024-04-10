@@ -11,6 +11,7 @@ const gameStore = create((set, get) => ({
   npcData: npcData,
   itemData: itemData,
   textPanelContent: null,
+  textPanelOptions: [],
   playerState: PlayerStates.STANDING,
 
   // actions
@@ -45,7 +46,10 @@ const gameStore = create((set, get) => ({
       } else {
         const item = gameObject
         console.log(item)
-        set((state) => ({ textPanelContent: item.dialog.text }))
+        set((state) => ({
+          textPanelContent: item.dialog.text,
+          textPanelOptions: item.dialog.options,
+        }))
       }
     }
   },

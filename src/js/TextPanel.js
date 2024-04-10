@@ -46,11 +46,15 @@ export default class TextPanel {
     const unsubscribe = gameStore.subscribe(
       (state) => {
         if (state.textPanelContent) {
-          this.panelText.text(state.textPanelContent)
+          this.panelText.text(this.formatText(state.textPanelContent, state.textPanelOptions || []))
           this.group.opacity(1)
         } else this.group.opacity(0)
       },
       (state) => state.textPanelContent
     )
+  }
+
+  formatText(content, options) {
+    return `${content}\n ${options.map((o) => `-> ${o}`)}`
   }
 }

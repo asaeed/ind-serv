@@ -2,7 +2,7 @@
   {
     "type": "item",
     "name": "shovel",
-    "file": "hot-spot-sprite.png",
+    "file": "shovel-3.png",
     "gridX": 2,
     "gridY": 10,
     "dialog": {
@@ -13,7 +13,7 @@
   {
     "type": "item",
     "name": "kiln",
-    "file": "hot-spot-sprite.png",
+    "file": "MiniQueen.png",
     "gridX": 4,
     "gridY": 10,
     "dialog": {
