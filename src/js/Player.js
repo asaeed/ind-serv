@@ -1,4 +1,4 @@
-import Character from './Character'
+import SpriteAnimated from './SpriteAnimated'
 import villagerMan from '../assets/img/MiniVillagerMan.png'
 import gameStore from './gameStore'
 
@@ -9,7 +9,7 @@ export const PlayerStates = {
   POKING: 'poking',
 }
 
-export default class Player extends Character {
+export default class Player extends SpriteAnimated {
   constructor(map, input) {
     super(map.layer, villagerMan, map.stage.width() / 2, map.stage.height() / 2)
     this.map = map

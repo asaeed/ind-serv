@@ -128,7 +128,7 @@ export default class Map {
   }
 
   update() {
-    this.npcController.update()
-    this.itemController.update()
+    this.npcController && this.npcController.update()
+    this.itemController && this.itemController.update()
   }
 }

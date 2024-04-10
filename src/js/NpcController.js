@@ -1,4 +1,4 @@
-import Character from './Character'
+import SpriteAnimated from './SpriteAnimated'
 import gameStore from './gameStore'
 
 export default class NpcController {
@@ -20,11 +20,11 @@ export default class NpcController {
     const { x, y } = this.map.coordsToPosition(npc.gridX, npc.gridY)
 
     // using composition for npc objects is simpler
-    // could instead have Npc class inherit from Character
+    // could instead have Npc class inherit from SpriteAnimated
     const sprite = require('../assets/img/' + npc.file)
     this.npcs.push({
       ...npc,
-      o: new Character(this.group, sprite, x, y),
+      o: new SpriteAnimated(this.group, sprite, x, y),
       originX: npc.gridX,
       originY: npc.gridY,
       targetX: npc.gridX,

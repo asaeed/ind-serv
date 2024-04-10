@@ -1,4 +1,4 @@
-import Character from './Character'
+import SpriteStatic from './SpriteStatic'
 import gameStore from './gameStore'
 
 export default class ItemController {
@@ -7,7 +7,7 @@ export default class ItemController {
     this.group = this.map.imageGroup
     this.items = []
 
-    // create characters
+    // create items
     const itemData = gameStore.getState().itemData
     for (const item of itemData) this.createItem(item)
   }
@@ -17,7 +17,7 @@ export default class ItemController {
     const sprite = require('../assets/img/' + item.file)
 
     this.items.push({
-      o: new Character(this.group, sprite, x, y),
+      o: new SpriteStatic(this.group, sprite, x, y),
       ...item,
     })
   }
@@ -35,8 +35,8 @@ export default class ItemController {
     let lastHypSquared = 999999999999
     let closestItem
     for (const item of this.items) {
-      const xDist = item.o.sprite.x() - x
-      const yDist = item.o.sprite.y() - y
+      const xDist = item.o.image.x() - x
+      const yDist = item.o.image.y() - y
       const hypSquared = xDist * xDist + yDist * yDist
       // console.log(item.name, xDist, yDist, hypSquared)
 
