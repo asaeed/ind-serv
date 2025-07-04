@@ -10,11 +10,8 @@ export default class SpriteStatic {
     const w = 32
     const h = 32
 
-    console.log('in constructor')
-
     const imageObj = new Image()
     imageObj.onload = () => {
-      console.log('image onload')
       this.image = new Konva.Image({
         x: this.x,
         y: this.y,
@@ -27,7 +24,6 @@ export default class SpriteStatic {
       this.group.add(this.image)
       // console.log(this.image.attrs)
     }
-    console.log('setting image path')
     imageObj.src = imagePath
   }
 

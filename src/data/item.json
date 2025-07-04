@@ -3,11 +3,11 @@
     "type": "item",
     "name": "shovel",
     "file": "shovel-4.png",
-    "gridX": 2,
-    "gridY": 10,
+    "gridX": 6,
+    "gridY": 5,
     "dialog": {
-      "text": "Use the shovel to pour mud into a mold?",
-      "options": ["yes", "no"]
+      "text": "Use shovel to extract mud?",
+      "options": ["Confirm"]
     }
   },
   {

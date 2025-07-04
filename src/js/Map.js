@@ -2,7 +2,7 @@ import Konva from 'konva'
 import NpcController from './NpcController'
 import ItemController from './ItemController'
 import tileSheet from '../assets/img/DesertTileMap.png'
-import gameStore from './gameStore'
+import gameStore from './state/gameStore'
 
 export default class Map {
   constructor(stage, callback) {

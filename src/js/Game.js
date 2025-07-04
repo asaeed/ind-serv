@@ -3,7 +3,7 @@ import Input from './Input'
 import Map from './Map'
 import Player from './Player'
 import Hud from './Hud'
-import gameStore from './gameStore'
+import gameStore from './state/gameStore'
 
 export default class Game {
   constructor() {

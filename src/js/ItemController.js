@@ -1,5 +1,5 @@
 import SpriteStatic from './SpriteStatic'
-import gameStore from './gameStore'
+import gameStore from './state/gameStore'
 
 export default class ItemController {
   constructor(map) {

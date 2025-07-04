@@ -1,5 +1,5 @@
 import SpriteAnimated from './SpriteAnimated'
-import gameStore from './gameStore'
+import gameStore from './state/gameStore'
 
 export default class NpcController {
   constructor(map) {
@@ -90,7 +90,7 @@ export default class NpcController {
           if (isOutOfRange || !this.map.isVacant(npc.targetX, npc.targetY)) npc.targetY = npc.gridY
         }
 
-        console.log(npc.name, npc.gridX, npc.gridY, npc.targetX, npc.targetY)
+        // console.log(npc.name, npc.gridX, npc.gridY, npc.targetX, npc.targetY)
       }
     }
   }

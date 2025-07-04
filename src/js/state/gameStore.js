@@ -1,24 +1,31 @@
 import { create } from 'zustand'
-import npcData from '../data/npc.json'
-import mapData from '../data/map.json'
-import itemData from '../data/item.json'
-import { PlayerStates } from './Player'
+import npcData from '../../data/npc.json'
+import mapData from '../../data/map.json'
+import itemData from '../../data/item.json'
+import { PlayerStates } from '../Player'
+
+const createTime = 1000
 
 const gameStore = create((set, get) => ({
   score: 0,
+  creatingMud: false,
+  numMud: 0,
+  numMolded: 0,
+  numBaked: 0,
   numBricks: 0,
   mapData: mapData,
   npcData: npcData,
   itemData: itemData,
   textPanelContent: null,
   textPanelOptions: [],
+  textPanelOptionIdx: 0,
   playerState: PlayerStates.STANDING,
 
   // actions
   increaseScore: () => set((state) => ({ score: state.score + 1 })),
 
   setPlayerState: (newState) => {
-    this.playerState = newState
+    playerState = newState
     console.log(`Player is now ${this.playerState}`)
   },
 
@@ -43,13 +50,29 @@ const gameStore = create((set, get) => ({
         }
 
         set((state) => ({ textPanelContent: selectedSpeech }))
-      } else {
+      } else if (gameObject.type === 'item') {
         const item = gameObject
-        console.log(item)
-        set((state) => ({
-          textPanelContent: item.dialog.text,
-          textPanelOptions: item.dialog.options,
-        }))
+        const { numMud, creatingMud } = get()
+
+        // first time show dialog
+        if (numMud === 0) {
+          set((state) => ({
+            textPanelContent: item.dialog.text,
+            textPanelOptions: item.dialog.options || [],
+          }))
+        }
+
+        if (gameObject.name === 'shovel' && !creatingMud) {
+          // kick off mud creation.
+          set((state) => ({ creatingMud: true }))
+
+          setTimeout(() => {
+            set((state) => ({
+              creatingMud: false,
+              numMud: state.numMud + 1,
+            }))
+          }, createTime)
+        }
       }
     }
   },

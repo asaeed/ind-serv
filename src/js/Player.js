@@ -1,6 +1,6 @@
 import SpriteAnimated from './SpriteAnimated'
 import villagerMan from '../assets/img/MiniVillagerMan.png'
-import gameStore from './gameStore'
+import gameStore from './state/gameStore'
 
 export const PlayerStates = {
   STANDING: 'standing',
@@ -70,8 +70,11 @@ export default class Player extends SpriteAnimated {
     }
 
     // reset text panel on movement
-    if ((press.up || press.down || press.left || press.right) && !this.isJumping) {
-      gameStore.getState().interactWith(undefined)
+    if (gameStore.getState().textPanelContent) {
+      // move to dismiss
+      if ((press.up || press.down || press.left || press.right) && !this.isJumping) {
+        gameStore.getState().interactWith(undefined)
+      }
     }
   }
 
