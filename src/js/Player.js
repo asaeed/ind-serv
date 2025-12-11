@@ -1,13 +1,7 @@
 import SpriteAnimated from './SpriteAnimated'
 import villagerMan from '../assets/img/MiniVillagerMan.png'
 import gameStore from './state/gameStore'
-
-export const PlayerStates = {
-  STANDING: 'standing',
-  WALKING: 'walking',
-  TALKING: 'talking',
-  POKING: 'poking',
-}
+import playerStore from './state/playerStore'
 
 export default class Player extends SpriteAnimated {
   constructor(map, input) {
@@ -16,34 +10,36 @@ export default class Player extends SpriteAnimated {
     this.input = input
     this.initX = map.stage.width() / 2
     this.initY = map.stage.height() / 2
-    this.speed = 4
-    this.isJumping = false
   }
 
   update() {
     if (!this.sprite) return
 
-    this.facingDirection = this.input.lastXDirection
-    if (this.sprite) this.sprite.scaleX(this.scale * (this.facingDirection === 'right' ? 1 : -1))
+    const { facingDirection, isJumping, speed, setFacingDirection, setIsJumping } = playerStore.getState()
+
+    if (this.input.lastXDirection !== facingDirection) {
+      setFacingDirection(this.input.lastXDirection)
+    }
+    if (this.sprite) this.sprite.scaleX(this.scale * (facingDirection === 'right' ? 1 : -1))
 
     const press = this.input.directionPress
     if (press.up) {
-      const newY = this.sprite.attrs.y - this.speed
+      const newY = this.sprite.attrs.y - speed
       if (this.map.isPixelVacant(this.sprite.attrs.x, newY)) this.sprite.y(newY)
     }
 
     if (press.down) {
-      const newY = this.sprite.attrs.y + this.speed
+      const newY = this.sprite.attrs.y + speed
       if (this.map.isPixelVacant(this.sprite.attrs.x, newY)) this.sprite.y(newY)
     }
 
     if (press.left) {
-      const newX = this.sprite.attrs.x - this.speed
+      const newX = this.sprite.attrs.x - speed
       if (this.map.isPixelVacant(newX, this.sprite.attrs.y)) this.sprite.x(newX)
     }
 
     if (press.right) {
-      const newX = this.sprite.attrs.x + this.speed
+      const newX = this.sprite.attrs.x + speed
       if (this.map.isPixelVacant(newX, this.sprite.attrs.y)) this.sprite.x(newX)
     }
 
@@ -51,18 +47,18 @@ export default class Player extends SpriteAnimated {
     const yFromCenter = this.initY - this.sprite.attrs.y - 32
 
     if (press.up || press.down || press.left || press.right) {
-      if (!this.isJumping) this.sprite.animation('walk')
-      this.centerCamera(xFromCenter, yFromCenter, 100, 50, this.speed)
+      if (!isJumping) this.sprite.animation('walk')
+      this.centerCamera(xFromCenter, yFromCenter, 100, 50, speed)
     } else {
-      if (!this.isJumping) this.sprite.animation('idle')
-      this.centerCamera(xFromCenter, yFromCenter, 10, 10, this.speed / 2)
+      if (!isJumping) this.sprite.animation('idle')
+      this.centerCamera(xFromCenter, yFromCenter, 10, 10, speed / 2)
     }
 
     // interaction should fire once, last for the animation duration of 400
-    if (this.input.interactPress && !this.isJumping) {
+    if (this.input.interactPress && !isJumping) {
       this.sprite.animation('hurt')
-      this.isJumping = true
-      setTimeout(() => (this.isJumping = false), 400)
+      setIsJumping(true)
+      setTimeout(() => setIsJumping(false), 400)
 
       // to see if player is within range of any and kick off interaction
       const closestObject = this.map.checkProximity(this.sprite.attrs.x, this.sprite.attrs.y)
@@ -72,7 +68,7 @@ export default class Player extends SpriteAnimated {
     // reset text panel on movement
     if (gameStore.getState().textPanelContent) {
       // move to dismiss
-      if ((press.up || press.down || press.left || press.right) && !this.isJumping) {
+      if ((press.up || press.down || press.left || press.right) && !isJumping) {
         gameStore.getState().interactWith(undefined)
       }
     }

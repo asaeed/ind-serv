@@ -2,7 +2,6 @@ import { create } from 'zustand'
 import npcData from '../../data/npc.json'
 import mapData from '../../data/map.json'
 import itemData from '../../data/item.json'
-import { PlayerStates } from '../Player'
 
 const createTime = 1000
 
@@ -19,15 +18,9 @@ const gameStore = create((set, get) => ({
   textPanelContent: null,
   textPanelOptions: [],
   textPanelOptionIdx: 0,
-  playerState: PlayerStates.STANDING,
 
   // actions
   increaseScore: () => set((state) => ({ score: state.score + 1 })),
-
-  setPlayerState: (newState) => {
-    playerState = newState
-    console.log(`Player is now ${this.playerState}`)
-  },
 
   interactWith: (gameObject) => {
     const { numBricks, textPanelContent } = get()
