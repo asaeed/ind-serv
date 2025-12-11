@@ -4,14 +4,14 @@ var startTime
 var stopMain
 
 export const setup = (document) => {
-  framesDiv = document.querySelector('.frame-num > .value')
-  secondsDiv = document.querySelector('.seconds-passed > .value')
+  // framesDiv = document.querySelector('.frame-num > .value')
+  // secondsDiv = document.querySelector('.seconds-passed > .value')
   startTime = Date.now()
 }
 
 export const update = (tFrame) => {
-  framesDiv.innerHTML = tFrame
-  secondsDiv.innerHTML = (Date.now() - startTime) / 1000
+  // framesDiv.innerHTML = tFrame
+  // secondsDiv.innerHTML = (Date.now() - startTime) / 1000
 }
 
 export const mainLoop = () => {

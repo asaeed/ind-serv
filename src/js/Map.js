@@ -1,6 +1,7 @@
 import Konva from 'konva'
 import NpcController from './controllers/NpcController'
 import ItemController from './controllers/ItemController'
+import HudController from './controllers/HudController'
 import tileSheet from '../assets/img/DesertTileMap.png'
 import gameStore from './state/gameStore'
 
@@ -89,6 +90,7 @@ export default class Map {
 
       this.npcController = new NpcController(this)
       this.itemController = new ItemController(this)
+      this.hudController = new HudController(this.stage)
 
       // start NPC wandering after both controllers are initialized
       this.npcController.startWandering()
@@ -157,5 +159,6 @@ export default class Map {
   update() {
     this.npcController && this.npcController.update()
     this.itemController && this.itemController.update()
+    this.hudController && this.hudController.update()
   }
 }

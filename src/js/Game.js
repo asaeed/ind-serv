@@ -7,9 +7,9 @@ import gameStore from './state/gameStore'
 
 export default class Game {
   constructor() {
-    this.framesDiv = document.querySelector('.frame-num > .value')
-    this.secondsDiv = document.querySelector('.seconds-passed > .value')
-    this.directionDiv = document.querySelector('.direction > .value')
+    // this.framesDiv = document.querySelector('.frame-num > .value')
+    // this.secondsDiv = document.querySelector('.seconds-passed > .value')
+    // this.directionDiv = document.querySelector('.direction > .value')
     this.storeDiv = document.querySelector('.store > .value')
     this.startTime = Date.now()
 
@@ -40,8 +40,8 @@ export default class Game {
   }
 
   update(tFrame) {
-    this.framesDiv.innerHTML = tFrame
-    this.secondsDiv.innerHTML = (Date.now() - this.startTime) / 1000
+    // this.framesDiv.innerHTML = tFrame
+    // this.secondsDiv.innerHTML = (Date.now() - this.startTime) / 1000
     // this.directionDiv.innerHTML = JSON.stringify(this.input.directionPress)
 
     this.player && this.player.update()

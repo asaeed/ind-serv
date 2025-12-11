@@ -5,6 +5,7 @@ import itemData from '../../data/item.json'
 
 const gameStore = create((set, get) => ({
   score: 0,
+  debt: 1000,
   creatingMud: false,
   numMud: 0,
   numMolded: 0,
