@@ -92,29 +92,29 @@ export default class NpcController {
     // if there's a target location that differs from current location, move towards it
     for (let npc of this.npcs) {
       // only move one direction at a time
-      if (npc.gridX !== npc.targetX) {
-        // make sure it's facing the right direction
-        const directionX = npc.targetX > npc.gridX ? 1 : -1
-        npc.o.facingDirection = directionX > 0 ? 'right' : 'left'
+      const axis = npc.gridX !== npc.targetX ? 'x' : npc.gridY !== npc.targetY ? 'y' : null
+      if (!axis) continue
+
+      const isX = axis === 'x'
+      const gridProp = isX ? 'gridX' : 'gridY'
+      const targetProp = isX ? 'targetX' : 'targetY'
+      const direction = npc[targetProp] > npc[gridProp] ? 1 : -1
+
+      // make sure it's facing the right direction (only for horizontal movement)
+      if (isX) {
+        npc.o.facingDirection = direction > 0 ? 'right' : 'left'
         npc.o.sprite.scaleX(npc.o.scale * (npc.o.facingDirection === 'right' ? 1 : -1))
+      }
 
-        // move if space is vacant
-        const newX = npc.o.sprite.attrs.x + speed * directionX
-        npc.o.sprite.x(newX)
+      // move sprite
+      const currentPos = npc.o.sprite.attrs[axis]
+      const newPos = currentPos + speed * direction
+      npc.o.sprite[axis](newPos)
 
-        // if target reached, update gridX
-        if (Math.abs(this.map.coordsToPosition(npc.targetX, npc.targetY).x - newX) < speed)
-          npc.gridX = npc.gridX + directionX
-      } else if (npc.gridY !== npc.targetY) {
-        const directionY = npc.targetY > npc.gridY ? 1 : -1
-
-        // move if space is vacant
-        const newY = npc.o.sprite.attrs.y + speed * directionY
-        npc.o.sprite.y(newY)
-
-        // if target reached, update gridY
-        if (Math.abs(this.map.coordsToPosition(npc.targetX, npc.targetY).y - newY) < speed)
-          npc.gridY = npc.gridY + directionY
+      // if target reached, update grid position
+      const targetPixel = this.map.coordsToPosition(npc.targetX, npc.targetY)[axis]
+      if (Math.abs(targetPixel - newPos) < speed) {
+        npc[gridProp] = npc[gridProp] + direction
       }
     }
   }

@@ -8,6 +8,13 @@
     "dialog": {
       "text": "Use shovel to extract mud?",
       "options": ["Confirm"]
+    },
+    "action": {
+      "type": "create",
+      "creates": "numMud",
+      "duration": 1000,
+      "checkState": "creatingMud",
+      "showOnFirstUse": true
     }
   },
   {

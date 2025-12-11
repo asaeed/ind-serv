@@ -3,8 +3,6 @@ import npcData from '../../data/npc.json'
 import mapData from '../../data/map.json'
 import itemData from '../../data/item.json'
 
-const createTime = 1000
-
 const gameStore = create((set, get) => ({
   score: 0,
   creatingMud: false,
@@ -12,9 +10,9 @@ const gameStore = create((set, get) => ({
   numMolded: 0,
   numBaked: 0,
   numBricks: 0,
-  mapData: mapData,
-  npcData: npcData,
-  itemData: itemData,
+  mapData,
+  npcData,
+  itemData,
   textPanelContent: null,
   textPanelOptions: [],
   textPanelOptionIdx: 0,
@@ -45,26 +43,31 @@ const gameStore = create((set, get) => ({
         set((state) => ({ textPanelContent: selectedSpeech }))
       } else if (gameObject.type === 'item') {
         const item = gameObject
-        const { numMud, creatingMud } = get()
 
-        // first time show dialog
-        if (numMud === 0) {
-          set((state) => ({
-            textPanelContent: item.dialog.text,
-            textPanelOptions: item.dialog.options || [],
-          }))
+        // show dialog on first use if configured
+        if (item.action?.showOnFirstUse) {
+          const currentCount = get()[item.action.creates]
+          if (currentCount === 0) {
+            set(() => ({
+              textPanelContent: item.dialog.text,
+              textPanelOptions: item.dialog.options || [],
+            }))
+          }
         }
 
-        if (gameObject.name === 'shovel' && !creatingMud) {
-          // kick off mud creation.
-          set((state) => ({ creatingMud: true }))
+        // handle item action if configured
+        if (item.action?.type === 'create') {
+          const isCreating = get()[item.action.checkState]
+          if (!isCreating) {
+            set(() => ({ [item.action.checkState]: true }))
 
-          setTimeout(() => {
-            set((state) => ({
-              creatingMud: false,
-              numMud: state.numMud + 1,
-            }))
-          }, createTime)
+            setTimeout(() => {
+              set((state) => ({
+                [item.action.checkState]: false,
+                [item.action.creates]: state[item.action.creates] + 1,
+              }))
+            }, item.action.duration)
+          }
         }
       }
     }
