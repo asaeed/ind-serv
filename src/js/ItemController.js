@@ -1,5 +1,6 @@
 import SpriteStatic from './SpriteStatic'
 import gameStore from './state/gameStore'
+import Map from './Map'
 
 export default class ItemController {
   constructor(map) {
@@ -32,22 +33,12 @@ export default class ItemController {
   }
 
   getClosest(x, y) {
-    let lastHypSquared = 999999999999
-    let closestItem
-    for (const item of this.items) {
-      const xDist = item.o.image.x() - x
-      const yDist = item.o.image.y() - y
-      const hypSquared = xDist * xDist + yDist * yDist
-      // console.log(item.name, xDist, yDist, hypSquared)
-
-      if (hypSquared < lastHypSquared) {
-        lastHypSquared = hypSquared
-        closestItem = item
-        closestItem.distSq = hypSquared
-      }
-    }
-
-    return closestItem
+    const positions = this.items.map((item) => ({
+      ...item,
+      x: item.o.image.x(),
+      y: item.o.image.y(),
+    }))
+    return Map.findClosest(positions, x, y)
   }
 
   update() {}

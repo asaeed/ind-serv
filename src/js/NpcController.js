@@ -1,5 +1,6 @@
 import SpriteAnimated from './SpriteAnimated'
 import gameStore from './state/gameStore'
+import Map from './Map'
 
 export default class NpcController {
   constructor(map) {
@@ -51,22 +52,12 @@ export default class NpcController {
   // }
 
   getClosest(x, y) {
-    let lastHypSquared = 999999999999
-    let closestNpc
-    for (const npc of this.npcs) {
-      const xDist = npc.o.sprite.x() - x
-      const yDist = npc.o.sprite.y() - y
-      const hypSquared = xDist * xDist + yDist * yDist
-      // console.log(npc.name, xDist, yDist, hypSquared)
-
-      if (hypSquared < lastHypSquared) {
-        lastHypSquared = hypSquared
-        closestNpc = npc
-        closestNpc.distSq = hypSquared
-      }
-    }
-
-    return closestNpc
+    const positions = this.npcs.map((npc) => ({
+      ...npc,
+      x: npc.o.sprite.x(),
+      y: npc.o.sprite.y(),
+    }))
+    return Map.findClosest(positions, x, y)
   }
 
   wanderNpcs() {

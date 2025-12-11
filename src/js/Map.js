@@ -5,6 +5,29 @@ import tileSheet from '../assets/img/DesertTileMap.png'
 import gameStore from './state/gameStore'
 
 export default class Map {
+  // Finds the closest position from an array based on distance from x,y coordinates
+  static findClosest(positions, x, y) {
+    let closest = null
+    let minDistSq = Infinity
+
+    for (const pos of positions) {
+      const xDist = pos.x - x
+      const yDist = pos.y - y
+      const distSq = xDist * xDist + yDist * yDist
+
+      if (distSq < minDistSq) {
+        minDistSq = distSq
+        closest = pos
+      }
+    }
+
+    if (closest) {
+      closest.distSq = minDistSq
+    }
+
+    return closest
+  }
+
   constructor(stage, callback) {
     this.stage = stage
 
