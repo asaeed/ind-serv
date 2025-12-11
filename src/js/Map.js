@@ -1,6 +1,6 @@
 import Konva from 'konva'
-import NpcController from './NpcController'
-import ItemController from './ItemController'
+import NpcController from './controllers/NpcController'
+import ItemController from './controllers/ItemController'
 import tileSheet from '../assets/img/DesertTileMap.png'
 import gameStore from './state/gameStore'
 

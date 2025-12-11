@@ -1,4 +1,4 @@
-import SpriteAnimated from './SpriteAnimated'
+import SpriteAnimated from './sprites/SpriteAnimated'
 import villagerMan from '../assets/img/MiniVillagerMan.png'
 import gameStore from './state/gameStore'
 import playerStore from './state/playerStore'
@@ -15,7 +15,9 @@ export default class Player extends SpriteAnimated {
   update() {
     if (!this.sprite) return
 
-    const { facingDirection, isJumping, speed, setFacingDirection, setIsJumping } = playerStore.getState()
+    const playerState = playerStore.getState()
+    const gameState = gameStore.getState()
+    const { facingDirection, isJumping, speed, setFacingDirection, setIsJumping } = playerState
 
     if (this.input.lastXDirection !== facingDirection) {
       setFacingDirection(this.input.lastXDirection)
@@ -62,14 +64,14 @@ export default class Player extends SpriteAnimated {
 
       // to see if player is within range of any and kick off interaction
       const closestObject = this.map.checkProximity(this.sprite.attrs.x, this.sprite.attrs.y)
-      gameStore.getState().interactWith(closestObject)
+      gameState.interactWith(closestObject)
     }
 
     // reset text panel on movement
-    if (gameStore.getState().textPanelContent) {
+    if (gameState.textPanelContent) {
       // move to dismiss
       if ((press.up || press.down || press.left || press.right) && !isJumping) {
-        gameStore.getState().interactWith(undefined)
+        gameState.interactWith(undefined)
       }
     }
   }

@@ -1,6 +1,6 @@
-import SpriteAnimated from './SpriteAnimated'
-import gameStore from './state/gameStore'
-import Map from './Map'
+import SpriteAnimated from '../sprites/SpriteAnimated'
+import gameStore from '../state/gameStore'
+import Map from '../Map'
 
 export default class NpcController {
   constructor(map) {
@@ -22,7 +22,7 @@ export default class NpcController {
 
     // using composition for npc objects is simpler
     // could instead have Npc class inherit from SpriteAnimated
-    const sprite = require('../assets/img/' + npc.file)
+    const sprite = require('../../assets/img/' + npc.file)
     this.npcs.push({
       ...npc,
       o: new SpriteAnimated(this.group, sprite, x, y),

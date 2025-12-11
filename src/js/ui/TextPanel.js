@@ -1,6 +1,6 @@
 import Konva from 'konva'
-import gameStore from './state/gameStore'
-import panelImagePath from '../assets/img/textboxblue20.png'
+import gameStore from '../state/gameStore'
+import panelImagePath from '../../assets/img/textboxblue20.png'
 
 export default class TextPanel {
   constructor(layer) {

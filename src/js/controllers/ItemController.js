@@ -1,6 +1,6 @@
-import SpriteStatic from './SpriteStatic'
-import gameStore from './state/gameStore'
-import Map from './Map'
+import SpriteStatic from '../sprites/SpriteStatic'
+import gameStore from '../state/gameStore'
+import Map from '../Map'
 
 export default class ItemController {
   constructor(map) {
@@ -15,7 +15,7 @@ export default class ItemController {
 
   createItem(item) {
     const { x, y } = this.map.coordsToPosition(item.gridX, item.gridY)
-    const sprite = require('../assets/img/' + item.file)
+    const sprite = require('../../assets/img/' + item.file)
 
     this.items.push({
       o: new SpriteStatic(this.group, sprite, x, y),

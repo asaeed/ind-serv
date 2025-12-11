@@ -2,7 +2,7 @@ import Konva from 'konva'
 import Input from './Input'
 import Map from './Map'
 import Player from './Player'
-import Hud from './Hud'
+import Hud from './ui/Hud'
 import gameStore from './state/gameStore'
 
 export default class Game {
