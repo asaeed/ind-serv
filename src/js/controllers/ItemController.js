@@ -1,12 +1,15 @@
+import Konva from 'konva'
 import SpriteStatic from '../sprites/SpriteStatic'
 import gameStore from '../state/gameStore'
-import Map from '../Map'
+import MapClass from '../Map'
 
 export default class ItemController {
   constructor(map) {
     this.map = map
     this.group = this.map.imageGroup
     this.items = []
+    this.particles = []
+    this.progressBars = new Map()
 
     // create items
     const itemData = gameStore.getState().itemData
@@ -38,8 +41,137 @@ export default class ItemController {
       x: item.o.image.x(),
       y: item.o.image.y(),
     }))
-    return Map.findClosest(positions, x, y)
+    return MapClass.findClosest(positions, x, y)
   }
 
-  update() {}
+  createProgressBar(item) {
+    // only create if image is loaded and has position methods
+    if (!item.o?.image || typeof item.o.image.x !== 'function') return
+
+    // configurable progress bar properties
+    const barWidth = 32
+    const barHeight = 4
+    const barOffsetX = 4
+    const barOffsetY = -8
+
+    const x = item.o.image.x() + barOffsetX
+    const y = item.o.image.y() + barOffsetY
+
+    // background
+    const bg = new Konva.Rect({
+      x: x - barWidth / 2,
+      y: y,
+      width: barWidth,
+      height: barHeight,
+      fill: '#333',
+      opacity: 0.8,
+    })
+
+    // progress fill
+    const fill = new Konva.Rect({
+      x: x - barWidth / 2,
+      y: y,
+      width: 0,
+      height: barHeight,
+      fill: '#3ff086ff',
+    })
+
+    this.group.add(bg)
+    this.group.add(fill)
+
+    this.progressBars.set(item.name, {
+      bg,
+      fill,
+      barWidth,
+      startTime: Date.now(),
+      duration: item.action.duration,
+    })
+  }
+
+  removeProgressBar(itemName) {
+    const bar = this.progressBars.get(itemName)
+    if (bar) {
+      bar.bg.destroy()
+      bar.fill.destroy()
+      this.progressBars.delete(itemName)
+    }
+  }
+
+  createParticles(x, y, count = 8) {
+    // create small circular particles that float upward and fade out
+    for (let i = 0; i < count; i++) {
+      const angle = (Math.PI * 2 * i) / count
+      const speed = 2 + Math.random() * 3
+
+      const particle = new Konva.Circle({
+        x: x,
+        y: y + 32,
+        radius: 2 + Math.random() * 2,
+        fill: '#8B4513',
+        opacity: 1,
+      })
+
+      this.group.add(particle)
+
+      this.particles.push({
+        shape: particle,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 0,
+        life: 30,
+        maxLife: 30,
+      })
+    }
+  }
+
+  update() {
+    const gameState = gameStore.getState()
+
+    // update item visual states based on actions
+    for (const item of this.items) {
+      if (item.action?.type === 'create' && item.o?.image) {
+        const wasCreating = item.wasCreating || false
+        const isCreating = gameState[item.action.checkState]
+
+        if (item.o.image.opacity) {
+          item.o.image.opacity(isCreating ? 0.5 : 1)
+        }
+
+        // show progress bar when creating starts
+        if (!wasCreating && isCreating) {
+          this.createProgressBar(item)
+        }
+
+        // trigger particle effect when creation completes
+        if (wasCreating && !isCreating) {
+          this.createParticles(item.o.image.x(), item.o.image.y())
+          this.removeProgressBar(item.name)
+        }
+
+        item.wasCreating = isCreating
+      }
+    }
+
+    // update progress bars
+    for (const bar of this.progressBars.values()) {
+      const elapsed = Date.now() - bar.startTime
+      const progress = Math.min(elapsed / bar.duration, 1)
+      bar.fill.width(bar.barWidth * progress)
+    }
+
+    // update particles
+    for (let i = this.particles.length - 1; i >= 0; i--) {
+      const p = this.particles[i]
+
+      p.shape.x(p.shape.x() + p.vx)
+      p.shape.y(p.shape.y() + p.vy)
+      p.life--
+
+      p.shape.opacity(p.life / p.maxLife)
+
+      if (p.life <= 0) {
+        p.shape.destroy()
+        this.particles.splice(i, 1)
+      }
+    }
+  }
 }

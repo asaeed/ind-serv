@@ -89,6 +89,10 @@ export default class Map {
 
       this.npcController = new NpcController(this)
       this.itemController = new ItemController(this)
+
+      // start NPC wandering after both controllers are initialized
+      this.npcController.startWandering()
+
       if (callback) callback()
     }
     imageObj.src = tileSheet

@@ -11,7 +11,9 @@ export default class NpcController {
     // create characters
     const npcData = gameStore.getState().npcData
     for (const npc of npcData) this.createNpc(npc)
+  }
 
+  startWandering() {
     this.npcInterval = setInterval(() => {
       this.wanderNpcs()
     }, 3000)
