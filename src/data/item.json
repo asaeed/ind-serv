@@ -5,9 +5,15 @@
     "file": "shovel-4.png",
     "gridX": 6,
     "gridY": 5,
+    "offsetX": 0,
+    "offsetY": 0,
+    "scale": 1,
+    "blocksWidth": 1,
+    "blocksHeight": 1,
+    "particleColor": "#8B4513",
+    "barOffsetX": 8,
     "dialog": {
-      "text": "Use shovel to extract mud?",
-      "options": ["Confirm"]
+      "text": "Use shovel to extract mud."
     },
     "action": {
       "type": "create",
@@ -20,11 +26,26 @@
   {
     "type": "item",
     "name": "kiln",
-    "file": "MiniQueen.png",
+    "file": "brick-kiln-5.png",
     "gridX": 4,
     "gridY": 10,
+    "offsetX": 4,
+    "offsetY": -4,
+    "scale": 1.6,
+    "blocksWidth": 2,
+    "blocksHeight": 2,
+    "particleColor": "white",
+    "barOffsetX": 28,
     "dialog": {
-      "text": "Careful the brick kiln is really hot!"
+      "text": "Bake molded mud in the kiln."
+    },
+    "action": {
+      "type": "convert",
+      "consumes": "numMudMolded",
+      "creates": "numMudBaked",
+      "duration": 2000,
+      "checkState": "bakingMud",
+      "showOnFirstUse": true
     }
   }
 ]

@@ -1,9 +1,10 @@
 import Konva from 'konva'
 
 export default class SpriteStatic {
-  constructor(group, imagePath, x, y) {
+  constructor(group, imagePath, x, y, scaleMultiplier = 1) {
     this.group = group
-    this.scale = 0.35
+    this.baseScale = 0.35
+    this.scale = this.baseScale * scaleMultiplier
     this.x = x
     this.y = y
 

@@ -79,8 +79,8 @@ export default class HudController {
 
     // create text elements for each stage
     this.mudText = this.createStageText(pipelineY + 25, 'Mud Shoveled:', this.stageColors.mud)
-    this.moldedText = this.createStageText(pipelineY + 47, 'Mud Molded:', this.stageColors.molded)
-    this.bakedText = this.createStageText(pipelineY + 69, 'Mud Baked:', this.stageColors.baked)
+    this.mudMoldedText = this.createStageText(pipelineY + 47, 'Mud Molded:', this.stageColors.molded)
+    this.mudBakedText = this.createStageText(pipelineY + 69, 'Mud Baked:', this.stageColors.baked)
     this.bricksText = this.createStageText(pipelineY + 91, 'Bricks Made:', this.stageColors.bricks)
 
     this.layer.batchDraw()
@@ -120,8 +120,8 @@ export default class HudController {
 
     // update production pipeline
     this.mudText.value.text(gameState.numMud.toString())
-    this.moldedText.value.text(gameState.numMolded.toString())
-    this.bakedText.value.text(gameState.numBaked.toString())
+    this.mudMoldedText.value.text(gameState.numMudMolded.toString())
+    this.mudBakedText.value.text(gameState.numMudBaked.toString())
     this.bricksText.value.text(gameState.numBricks.toString())
 
     this.layer.batchDraw()

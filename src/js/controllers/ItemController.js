@@ -20,27 +20,64 @@ export default class ItemController {
     const { x, y } = this.map.coordsToPosition(item.gridX, item.gridY)
     const sprite = require('../../assets/img/' + item.file)
 
+    // apply offsets and scale from item configuration (defaults if not specified)
+    const offsetX = item.offsetX || 0
+    const offsetY = item.offsetY || 0
+    const scale = item.scale || 1
+
     this.items.push({
-      o: new SpriteStatic(this.group, sprite, x, y),
+      o: new SpriteStatic(this.group, sprite, x + offsetX, y + offsetY, scale),
       ...item,
     })
   }
 
   isVacant(gridX, gridY) {
     for (const item of this.items) {
-      if (item.gridX == gridX && item.gridY === gridY) {
-        return false
+      const blocksWidth = item.blocksWidth || 1
+      const blocksHeight = item.blocksHeight || 1
+
+      // check if gridX, gridY falls within the item's blocked area
+      for (let dx = 0; dx < blocksWidth; dx++) {
+        for (let dy = 0; dy < blocksHeight; dy++) {
+          if (item.gridX + dx === gridX && item.gridY + dy === gridY) {
+            return false
+          }
+        }
       }
     }
     return true
   }
 
   getClosest(x, y) {
-    const positions = this.items.map((item) => ({
-      ...item,
-      x: item.o.image.x(),
-      y: item.o.image.y(),
-    }))
+    // for multi-cell items, create interaction points for each cell they occupy
+    const positions = []
+
+    for (const item of this.items) {
+      const blocksWidth = item.blocksWidth || 1
+      const blocksHeight = item.blocksHeight || 1
+
+      // for single-cell items, use the sprite position
+      if (blocksWidth === 1 && blocksHeight === 1) {
+        positions.push({
+          ...item,
+          x: item.o.image.x(),
+          y: item.o.image.y(),
+        })
+      } else {
+        // for multi-cell items, create an interaction point at the center of each cell
+        for (let dx = 0; dx < blocksWidth; dx++) {
+          for (let dy = 0; dy < blocksHeight; dy++) {
+            const { x: cellX, y: cellY } = this.map.coordsToPosition(item.gridX + dx, item.gridY + dy)
+            positions.push({
+              ...item,
+              x: cellX,
+              y: cellY,
+            })
+          }
+        }
+      }
+    }
+
     return MapClass.findClosest(positions, x, y)
   }
 
@@ -48,18 +85,20 @@ export default class ItemController {
     // only create if image is loaded and has position methods
     if (!item.o?.image || typeof item.o.image.x !== 'function') return
 
-    // configurable progress bar properties
-    const barWidth = 32
+    // calculate bar width based on sprite width for multi-cell items
+    const spriteWidth = item.o.image.width() * item.o.image.scaleX()
+    const barWidth = spriteWidth || 32
     const barHeight = 4
-    const barOffsetX = 4
+    const barOffsetX = item.barOffsetX || 0
     const barOffsetY = -8
 
-    const x = item.o.image.x() + barOffsetX
+    // center the progress bar on the sprite
+    const centerX = item.o.image.x() + barOffsetX
     const y = item.o.image.y() + barOffsetY
 
     // background
     const bg = new Konva.Rect({
-      x: x - barWidth / 2,
+      x: centerX - barWidth / 2,
       y: y,
       width: barWidth,
       height: barHeight,
@@ -69,7 +108,7 @@ export default class ItemController {
 
     // progress fill
     const fill = new Konva.Rect({
-      x: x - barWidth / 2,
+      x: centerX - barWidth / 2,
       y: y,
       width: 0,
       height: barHeight,
@@ -97,17 +136,21 @@ export default class ItemController {
     }
   }
 
-  createParticles(x, y, count = 8) {
-    // create small circular particles that float upward and fade out
+  createParticles(x, y, count = 8, color = '#8B4513') {
+    // create small square particles that float upward and fade out
     for (let i = 0; i < count; i++) {
       const angle = (Math.PI * 2 * i) / count
       const speed = 2 + Math.random() * 3
+      const size = 3 + Math.random() * 3
 
-      const particle = new Konva.Circle({
+      const particle = new Konva.Rect({
         x: x,
         y: y + 32,
-        radius: 2 + Math.random() * 2,
-        fill: '#8B4513',
+        width: size,
+        height: size,
+        offsetX: size / 2,
+        offsetY: size / 2,
+        fill: color,
         opacity: 1,
       })
 
@@ -128,26 +171,34 @@ export default class ItemController {
 
     // update item visual states based on actions
     for (const item of this.items) {
-      if (item.action?.type === 'create' && item.o?.image) {
-        const wasCreating = item.wasCreating || false
-        const isCreating = gameState[item.action.checkState]
+      const actionType = item.action?.type
+      if ((actionType === 'create' || actionType === 'convert') && item.o?.image) {
+        const wasActive = item.wasActive || false
+        const isActive = gameState[item.action.checkState]
 
         if (item.o.image.opacity) {
-          item.o.image.opacity(isCreating ? 0.5 : 1)
+          item.o.image.opacity(isActive ? 0.5 : 1)
         }
 
-        // show progress bar when creating starts
-        if (!wasCreating && isCreating) {
+        // show progress bar when action starts
+        if (!wasActive && isActive) {
           this.createProgressBar(item)
         }
 
-        // trigger particle effect when creation completes
-        if (wasCreating && !isCreating) {
-          this.createParticles(item.o.image.x(), item.o.image.y())
+        // trigger particle effect when action completes
+        if (wasActive && !isActive) {
+          // calculate center position for multi-cell items
+          const blocksWidth = item.blocksWidth || 1
+          const blocksHeight = item.blocksHeight || 1
+          const centerGridX = item.gridX + (blocksWidth - 1) / 2
+          const centerGridY = item.gridY + (blocksHeight - 1) / 2
+          const { x: centerX, y: centerY } = this.map.coordsToPosition(centerGridX, centerGridY)
+
+          this.createParticles(centerX, centerY, 8, item.particleColor)
           this.removeProgressBar(item.name)
         }
 
-        item.wasCreating = isCreating
+        item.wasActive = isActive
       }
     }
 

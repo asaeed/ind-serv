@@ -7,9 +7,10 @@ const gameStore = create((set, get) => ({
   score: 0,
   debt: 1000,
   creatingMud: false,
+  bakingMud: false,
   numMud: 0,
-  numMolded: 0,
-  numBaked: 0,
+  numMudMolded: 5,
+  numMudBaked: 0,
   numBricks: 0,
   mapData,
   npcData,
@@ -47,12 +48,14 @@ const gameStore = create((set, get) => ({
 
         // show dialog on first use if configured
         if (item.action?.showOnFirstUse) {
-          const currentCount = get()[item.action.creates]
-          if (currentCount === 0) {
+          const hasUsedBefore = get()[`hasUsed_${item.name}`]
+          if (!hasUsedBefore) {
             set(() => ({
               textPanelContent: item.dialog.text,
               textPanelOptions: item.dialog.options || [],
+              [`hasUsed_${item.name}`]: true,
             }))
+            return // don't execute action when showing dialog
           }
         }
 
@@ -68,6 +71,33 @@ const gameStore = create((set, get) => ({
                 [item.action.creates]: state[item.action.creates] + 1,
               }))
             }, item.action.duration)
+          }
+        } else if (item.action?.type === 'convert') {
+          const isConverting = get()[item.action.checkState]
+          const hasResource = get()[item.action.consumes] > 0
+
+          if (!isConverting && hasResource) {
+            set(() => ({ [item.action.checkState]: true }))
+
+            setTimeout(() => {
+              set((state) => ({
+                [item.action.checkState]: false,
+                [item.action.consumes]: state[item.action.consumes] - 1,
+                [item.action.creates]: state[item.action.creates] + 1,
+              }))
+            }, item.action.duration)
+          } else if (!isConverting && !hasResource) {
+            // show "no resources" dialog
+            // convert camelCase to readable format: numMudMolded -> "mud molded"
+            const resourceName = item.action.consumes
+              .replace('num', '')
+              .replace(/([A-Z])/g, ' $1')
+              .toLowerCase()
+              .trim()
+            set(() => ({
+              textPanelContent: `No ${resourceName} to convert.`,
+              textPanelOptions: [],
+            }))
           }
         }
       }
