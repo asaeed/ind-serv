@@ -1,6 +1,6 @@
 import Konva from 'konva'
-import gameStore from './gameStore'
-import panelImagePath from '../assets/img/textboxblue20.png'
+import gameStore from '../state/gameStore'
+import panelImagePath from '../../assets/img/textboxblue20.png'
 
 export default class TextPanel {
   constructor(layer) {
@@ -46,11 +46,15 @@ export default class TextPanel {
     const unsubscribe = gameStore.subscribe(
       (state) => {
         if (state.textPanelContent) {
-          this.panelText.text(state.textPanelContent)
+          this.panelText.text(this.formatText(state.textPanelContent, state.textPanelOptions, state.textPanelOptionIdx))
           this.group.opacity(1)
         } else this.group.opacity(0)
       },
       (state) => state.textPanelContent
     )
+  }
+
+  formatText(content, options, idx) {
+    return `${content}\n\n${options.map((o, i) => `  ${i === idx ? '->' : '  '} ${o}`).join('\n')}`
   }
 }

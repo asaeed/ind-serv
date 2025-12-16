@@ -1,9 +1,33 @@
 import Konva from 'konva'
-import NpcController from './NpcController'
+import NpcController from './controllers/NpcController'
+import ItemController from './controllers/ItemController'
 import tileSheet from '../assets/img/DesertTileMap.png'
-import gameStore from './gameStore'
+import gameStore from './state/gameStore'
 
 export default class Map {
+  // Finds the closest position from an array based on distance from x,y coordinates
+  static findClosest(positions, x, y) {
+    let closest = null
+    let minDistSq = Infinity
+
+    for (const pos of positions) {
+      const xDist = pos.x - x
+      const yDist = pos.y - y
+      const distSq = xDist * xDist + yDist * yDist
+
+      if (distSq < minDistSq) {
+        minDistSq = distSq
+        closest = pos
+      }
+    }
+
+    if (closest) {
+      closest.distSq = minDistSq
+    }
+
+    return closest
+  }
+
   constructor(stage, callback) {
     this.stage = stage
 
@@ -64,6 +88,11 @@ export default class Map {
       // console.log(tile.attrs)
 
       this.npcController = new NpcController(this)
+      this.itemController = new ItemController(this)
+
+      // start NPC wandering after both controllers are initialized
+      this.npcController.startWandering()
+
       if (callback) callback()
     }
     imageObj.src = tileSheet
@@ -80,16 +109,24 @@ export default class Map {
 
     // true if the location is inhabitable
     const isInhabitable = this.vacantTiles.indexOf(this.tileMap[gridY][gridX]) !== -1
-    const isVacant = this.npcController.isVacant(gridX, gridY)
+    const isVacant = this.npcController.isVacant(gridX, gridY) && this.itemController.isVacant(gridX, gridY)
 
     return isInhabitable && isVacant
   }
 
   checkProximity(x, y) {
     const { mapX, mapY } = this.positionOnMap(x, y)
-    const closest = this.npcController.getClosest(mapX, mapY + 14)
-    if (closest) {
-      return closest.name
+    const closestNpc = this.npcController.getClosest(mapX, mapY + 14)
+    const closestItem = this.itemController.getClosest(mapX, mapY + 14)
+
+    // pick out closes object and if it's within a range, return it (else null)
+    const minDistSquared = 5000
+    if (closestNpc.distSq < closestItem.distSq && closestNpc.distSq <= minDistSquared) {
+      return closestNpc
+    } else if (closestItem.distSq <= minDistSquared) {
+      return closestItem
+    } else {
+      return null
     }
   }
 
@@ -118,6 +155,7 @@ export default class Map {
   }
 
   update() {
-    this.npcController.update()
+    this.npcController && this.npcController.update()
+    this.itemController && this.itemController.update()
   }
 }

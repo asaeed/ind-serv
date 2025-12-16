@@ -1,0 +1,101 @@
+[
+  {
+    "type": "item",
+    "name": "shovel",
+    "file": "shovel-4.png",
+    "gridX": 7,
+    "gridY": 7,
+    "offsetX": -2,
+    "offsetY": 0,
+    "scale": 0.9,
+    "blocksWidth": 1,
+    "blocksHeight": 1,
+    "particleColor": "#8B4513",
+    "barOffsetX": 8,
+    "dialog": {
+      "text": "Use shovel to extract mud."
+    },
+    "action": {
+      "type": "create",
+      "creates": "numMud",
+      "duration": 1000,
+      "checkState": "creatingMud",
+      "showOnFirstUse": true
+    }
+  },
+  {
+    "type": "item",
+    "name": "mold",
+    "file": "brick-mold-3.png",
+    "gridX": 5,
+    "gridY": 8,
+    "offsetX": 16,
+    "offsetY": 0,
+    "scale": 3,
+    "blocksWidth": 1,
+    "blocksHeight": 1,
+    "particleColor": "#A0826D",
+    "barOffsetX": -20,
+    "dialog": {
+      "text": "Mold mud into bricks."
+    },
+    "action": {
+      "type": "convert",
+      "consumes": "numMud",
+      "creates": "numBricksMolded",
+      "duration": 1500,
+      "checkState": "moldingBricks",
+      "showOnFirstUse": true
+    }
+  },
+  {
+    "type": "item",
+    "name": "kiln",
+    "file": "brick-kiln-5.png",
+    "gridX": 4,
+    "gridY": 10,
+    "offsetX": 4,
+    "offsetY": -4,
+    "scale": 1.6,
+    "blocksWidth": 2,
+    "blocksHeight": 2,
+    "particleColor": "white",
+    "barOffsetX": 28,
+    "dialog": {
+      "text": "Bake molded bricks in the kiln."
+    },
+    "action": {
+      "type": "convert",
+      "consumes": "numBricksMolded",
+      "creates": "numBricksBaked",
+      "duration": 2000,
+      "checkState": "bakingBricks",
+      "showOnFirstUse": true
+    }
+  },
+  {
+    "type": "item",
+    "name": "truck",
+    "file": "truck-1.png",
+    "gridX": 7,
+    "gridY": 12,
+    "offsetX": 4,
+    "offsetY": 0,
+    "scale": 1.5,
+    "blocksWidth": 2,
+    "blocksHeight": 1,
+    "particleColor": "#CD853F",
+    "barOffsetX": 22,
+    "dialog": {
+      "text": "Load baked bricks onto the truck for shipping."
+    },
+    "action": {
+      "type": "convert",
+      "consumes": "numBricksBaked",
+      "creates": "numBricksShipped",
+      "duration": 1500,
+      "checkState": "shippingBricks",
+      "showOnFirstUse": true
+    }
+  }
+]

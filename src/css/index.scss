@@ -18,8 +18,24 @@ body {
   }
 }
 
-.canvas-container {
+.main-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 100px;
+}
+
+#canvas-container {
+  display: inline-block;
+  background-color: rgb(33, 24, 22);
+  border: 8px solid;
+  border-image: repeating-linear-gradient(45deg, #3a3a3a 0px, #3a3a3a 8px, #5a5a5a 8px, #5a5a5a 16px) 8;
+  box-shadow: 0 0 0 2px #222, 0 0 0 4px #666, 0 8px 16px rgba(0, 0, 0, 0.5);
+
   canvas {
+    display: block;
     background-color: white;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
   }
 }

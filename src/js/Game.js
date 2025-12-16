@@ -2,14 +2,14 @@ import Konva from 'konva'
 import Input from './Input'
 import Map from './Map'
 import Player from './Player'
-import Hud from './Hud'
-import gameStore from './gameStore'
+import Hud from './ui/Hud'
+import gameStore from './state/gameStore'
 
 export default class Game {
   constructor() {
-    this.framesDiv = document.querySelector('.frame-num > .value')
-    this.secondsDiv = document.querySelector('.seconds-passed > .value')
-    this.directionDiv = document.querySelector('.direction > .value')
+    // this.framesDiv = document.querySelector('.frame-num > .value')
+    // this.secondsDiv = document.querySelector('.seconds-passed > .value')
+    // this.directionDiv = document.querySelector('.direction > .value')
     this.storeDiv = document.querySelector('.store > .value')
     this.startTime = Date.now()
 
@@ -29,19 +29,24 @@ export default class Game {
     // TODO: for debug only
     const unsubscribe = gameStore.subscribe(
       (state) => {
-        this.storeDiv.innerHTML = JSON.stringify(gameStore.getState())
+        const s = JSON.parse(JSON.stringify(state))
+        s.mapData = undefined
+        s.npcData = undefined
+        s.itemData = undefined
+        this.storeDiv.innerText = JSON.stringify(s, null, 4)
       },
       (state) => state
     )
   }
 
   update(tFrame) {
-    this.framesDiv.innerHTML = tFrame
-    this.secondsDiv.innerHTML = (Date.now() - this.startTime) / 1000
-    this.directionDiv.innerHTML = JSON.stringify(this.input.directionPress)
+    // this.framesDiv.innerHTML = tFrame
+    // this.secondsDiv.innerHTML = (Date.now() - this.startTime) / 1000
+    // this.directionDiv.innerHTML = JSON.stringify(this.input.directionPress)
 
-    this.player.update()
-    this.map.update()
+    this.player && this.player.update()
+    this.map && this.map.update()
+    this.hud && this.hud.update()
   }
 
   mainLoop() {

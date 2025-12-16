@@ -1,6 +1,6 @@
 import Konva from 'konva'
 
-export default class Character {
+export default class SpriteAnimated {
   constructor(group, imagePath, x, y) {
     this.group = group
     this.scale = 4
