@@ -7,11 +7,13 @@ const gameStore = create((set, get) => ({
   score: 0,
   debt: 1000,
   creatingMud: false,
-  bakingMud: false,
-  numMud: 0,
-  numMudMolded: 5,
-  numMudBaked: 0,
-  numBricks: 0,
+  moldingBricks: false,
+  bakingBricks: false,
+  shippingBricks: false,
+  numMud: 4,
+  numBricksMolded: 4,
+  numBricksBaked: 4,
+  numBricksShipped: 0,
   mapData,
   npcData,
   itemData,
@@ -23,11 +25,18 @@ const gameStore = create((set, get) => ({
   increaseScore: () => set((state) => ({ score: state.score + 1 })),
 
   interactWith: (gameObject) => {
-    const { numBricks, textPanelContent } = get()
-    // if no npc or item in range or textpanel is open, close it
-    if (textPanelContent !== null) {
+    const { numBricksShipped, textPanelContent } = get()
+
+    // if text panel is open and it's an NPC dialog, just close it
+    if (textPanelContent !== null && (!gameObject || gameObject.type === 'npc')) {
       set((state) => ({ textPanelContent: null, textPanelOptions: [] }))
       return
+    }
+
+    // if text panel is open and it's an item, close it and continue to execute action
+    if (textPanelContent !== null && gameObject && gameObject.type === 'item') {
+      set((state) => ({ textPanelContent: null, textPanelOptions: [] }))
+      // continue to execute the action below
     }
 
     if (gameObject) {
@@ -37,7 +46,7 @@ const gameStore = create((set, get) => ({
 
         selectedSpeech = '...'
         for (let i = 0; i < npc.speech?.length; i++) {
-          if (numBricks >= npc.speech[i].minBricks) {
+          if (numBricksShipped >= npc.speech[i].minBricks) {
             selectedSpeech = npc.speech[i].text
           } else break
         }

@@ -46,6 +46,7 @@ export default class Game {
 
     this.player && this.player.update()
     this.map && this.map.update()
+    this.hud && this.hud.update()
   }
 
   mainLoop() {
