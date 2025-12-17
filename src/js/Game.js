@@ -4,19 +4,14 @@ import Map from './Map'
 import Player from './Player'
 import Hud from './ui/Hud'
 import gameStore from './state/gameStore'
+import { GAME_CONFIG } from './constants'
 
 export default class Game {
   constructor() {
-    // this.framesDiv = document.querySelector('.frame-num > .value')
-    // this.secondsDiv = document.querySelector('.seconds-passed > .value')
-    // this.directionDiv = document.querySelector('.direction > .value')
-    this.storeDiv = document.querySelector('.store > .value')
-    this.startTime = Date.now()
-
     this.stage = new Konva.Stage({
       container: 'canvas-container',
-      width: 1000,
-      height: 600,
+      width: GAME_CONFIG.CANVAS_WIDTH,
+      height: GAME_CONFIG.CANVAS_HEIGHT,
     })
 
     // map creates a layer
@@ -26,24 +21,25 @@ export default class Game {
       this.player = new Player(this.map, this.input)
     })
 
-    // TODO: for debug only
-    const unsubscribe = gameStore.subscribe(
-      (state) => {
-        const s = JSON.parse(JSON.stringify(state))
-        s.mapData = undefined
-        s.npcData = undefined
-        s.itemData = undefined
-        this.storeDiv.innerText = JSON.stringify(s, null, 4)
-      },
-      (state) => state
-    )
+    // Debug output (development only)
+    if (process.env.NODE_ENV !== 'production') {
+      this.storeDiv = document.querySelector('.store > .value')
+      if (this.storeDiv) {
+        gameStore.subscribe(
+          (state) => {
+            const s = JSON.parse(JSON.stringify(state))
+            s.mapData = undefined
+            s.npcData = undefined
+            s.itemData = undefined
+            this.storeDiv.innerText = JSON.stringify(s, null, 4)
+          },
+          (state) => state
+        )
+      }
+    }
   }
 
   update(tFrame) {
-    // this.framesDiv.innerHTML = tFrame
-    // this.secondsDiv.innerHTML = (Date.now() - this.startTime) / 1000
-    // this.directionDiv.innerHTML = JSON.stringify(this.input.directionPress)
-
     this.player && this.player.update()
     this.map && this.map.update()
     this.hud && this.hud.update()
@@ -51,8 +47,7 @@ export default class Game {
 
   mainLoop() {
     let msPrev = window.performance.now()
-    const fps = 60
-    const msPerFrame = 1000 / fps
+    const msPerFrame = 1000 / GAME_CONFIG.TARGET_FPS
     const main = (tFrame) => {
       this.stopMain = window.requestAnimationFrame(main)
 

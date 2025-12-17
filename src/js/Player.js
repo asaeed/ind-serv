@@ -2,6 +2,7 @@ import SpriteAnimated from './sprites/SpriteAnimated'
 import villagerMan from '../assets/img/MiniVillagerMan.png'
 import gameStore from './state/gameStore'
 import playerStore from './state/playerStore'
+import { INTERACTION } from './constants'
 
 export default class Player extends SpriteAnimated {
   constructor(map, input) {
@@ -45,8 +46,8 @@ export default class Player extends SpriteAnimated {
       if (this.map.isPixelVacant(newX, this.sprite.attrs.y)) this.sprite.x(newX)
     }
 
-    const xFromCenter = this.initX - this.sprite.attrs.x + 32
-    const yFromCenter = this.initY - this.sprite.attrs.y - 32
+    const xFromCenter = this.initX - this.sprite.attrs.x + INTERACTION.CAMERA_OFFSET_X
+    const yFromCenter = this.initY - this.sprite.attrs.y - INTERACTION.CAMERA_OFFSET_X
 
     if (press.up || press.down || press.left || press.right) {
       if (!isJumping) this.sprite.animation('walk')

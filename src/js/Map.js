@@ -3,6 +3,7 @@ import NpcController from './controllers/NpcController'
 import ItemController from './controllers/ItemController'
 import tileSheet from '../assets/img/DesertTileMap.png'
 import gameStore from './state/gameStore'
+import { GAME_CONFIG, INTERACTION } from './constants'
 
 export default class Map {
   // Finds the closest position from an array based on distance from x,y coordinates
@@ -40,8 +41,8 @@ export default class Map {
 
     this.tileMap = gameStore.getState().mapData
     this.vacantTiles = [0, 1, 2, 6, 14, 28, 61, 62, 63, 64, 65, 66, 109, 186, 187]
-    this.tileSize = 16
-    this.upScale = 4
+    this.tileSize = GAME_CONFIG.TILE_SIZE
+    this.upScale = GAME_CONFIG.UPSCALE_FACTOR
 
     // every tile/sprite that's stuck to the map goes in a single group
     this.imageGroup = new Konva.Group({
@@ -116,8 +117,8 @@ export default class Map {
 
   checkProximity(x, y) {
     const { mapX, mapY } = this.positionOnMap(x, y)
-    const closestNpc = this.npcController.getClosest(mapX, mapY + 14)
-    const closestItem = this.itemController.getClosest(mapX, mapY + 14)
+    const closestNpc = this.npcController.getClosest(mapX, mapY + INTERACTION.POSITION_OFFSET_Y)
+    const closestItem = this.itemController.getClosest(mapX, mapY + INTERACTION.POSITION_OFFSET_Y)
 
     // pick out closes object and if it's within a range, return it (else null)
     const minDistSquared = 5000
@@ -133,7 +134,7 @@ export default class Map {
   coordsToPosition(gridX, gridY) {
     // convert from grid square coordinates to x and y position
     const mult = this.tileSize * this.upScale
-    return { x: gridX * mult + 32, y: gridY * mult }
+    return { x: gridX * mult + INTERACTION.CAMERA_OFFSET_X, y: gridY * mult }
   }
 
   positionToCoords(x, y) {
@@ -147,7 +148,7 @@ export default class Map {
   }
 
   positionOnMap(x, y) {
-    const yAdjust = -14
+    const yAdjust = -INTERACTION.POSITION_OFFSET_Y
     const mapX = x - this.imageGroup.attrs.x
     const mapY = y - this.imageGroup.attrs.y + yAdjust
 

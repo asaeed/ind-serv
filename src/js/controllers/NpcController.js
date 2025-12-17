@@ -1,6 +1,7 @@
 import SpriteAnimated from '../sprites/SpriteAnimated'
 import gameStore from '../state/gameStore'
 import Map from '../Map'
+import { NPC_CONFIG } from '../constants'
 
 export default class NpcController {
   constructor(map) {
@@ -16,7 +17,7 @@ export default class NpcController {
   startWandering() {
     this.npcInterval = setInterval(() => {
       this.wanderNpcs()
-    }, 3000)
+    }, NPC_CONFIG.WANDER_INTERVAL)
   }
 
   createNpc(npc) {
@@ -37,7 +38,7 @@ export default class NpcController {
 
   isVacant(gridX, gridY) {
     for (const npc of this.npcs) {
-      if (npc.gridX == gridX && npc.gridY === gridY) {
+      if (npc.gridX === gridX && npc.gridY === gridY) {
         return false
       }
     }
