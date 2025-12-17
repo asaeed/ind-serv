@@ -43,4 +43,9 @@ export default class Input {
   keyUpHandler = (e) => {
     this.handleKey(e, 0)
   }
+
+  dispose() {
+    document.removeEventListener('keydown', this.keyDownHandler, false)
+    document.removeEventListener('keyup', this.keyUpHandler, false)
+  }
 }

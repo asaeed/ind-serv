@@ -2,14 +2,15 @@ import Konva from 'konva'
 import SpriteStatic from '../sprites/SpriteStatic'
 import gameStore from '../state/gameStore'
 import MapClass from '../Map'
+import Particles from '../sprites/Particles'
 
 export default class ItemController {
   constructor(map) {
     this.map = map
     this.group = this.map.imageGroup
     this.items = []
-    this.particles = []
     this.progressBars = new Map()
+    this.particles = new Particles(this.group)
 
     // create items
     const itemData = gameStore.getState().itemData
@@ -25,8 +26,17 @@ export default class ItemController {
     const offsetY = item.offsetY || 0
     const scale = item.scale || 1
 
+    // pre-calculate center position for multi-cell items (for particle effects)
+    const blocksWidth = item.blocksWidth || 1
+    const blocksHeight = item.blocksHeight || 1
+    const centerGridX = item.gridX + (blocksWidth - 1) / 2
+    const centerGridY = item.gridY + (blocksHeight - 1) / 2
+    const { x: centerX, y: centerY } = this.map.coordsToPosition(centerGridX, centerGridY)
+
     this.items.push({
       o: new SpriteStatic(this.group, sprite, x + offsetX, y + offsetY, scale),
+      centerX,
+      centerY,
       ...item,
     })
   }
@@ -136,36 +146,6 @@ export default class ItemController {
     }
   }
 
-  createParticles(x, y, count = 8, color = '#8B4513') {
-    // create small square particles that float upward and fade out
-    for (let i = 0; i < count; i++) {
-      const angle = (Math.PI * 2 * i) / count
-      const speed = 2 + Math.random() * 3
-      const size = 3 + Math.random() * 3
-
-      const particle = new Konva.Rect({
-        x: x,
-        y: y + 32,
-        width: size,
-        height: size,
-        offsetX: size / 2,
-        offsetY: size / 2,
-        fill: color,
-        opacity: 1,
-      })
-
-      this.group.add(particle)
-
-      this.particles.push({
-        shape: particle,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed - 0,
-        life: 30,
-        maxLife: 30,
-      })
-    }
-  }
-
   update() {
     const gameState = gameStore.getState()
 
@@ -187,14 +167,15 @@ export default class ItemController {
 
         // trigger particle effect when action completes
         if (wasActive && !isActive) {
-          // calculate center position for multi-cell items
-          const blocksWidth = item.blocksWidth || 1
-          const blocksHeight = item.blocksHeight || 1
-          const centerGridX = item.gridX + (blocksWidth - 1) / 2
-          const centerGridY = item.gridY + (blocksHeight - 1) / 2
-          const { x: centerX, y: centerY } = this.map.coordsToPosition(centerGridX, centerGridY)
-
-          this.createParticles(centerX, centerY, 8, item.particleColor)
+          this.particles.createParticles(item.centerX, item.centerY, 8, item.particleColor, {
+            speedMin: 2,
+            speedMax: 5,
+            sizeMin: 3,
+            sizeMax: 6,
+            life: 30,
+            yOffset: 32,
+            gravityY: 0,
+          })
           this.removeProgressBar(item.name)
         }
 
@@ -210,19 +191,6 @@ export default class ItemController {
     }
 
     // update particles
-    for (let i = this.particles.length - 1; i >= 0; i--) {
-      const p = this.particles[i]
-
-      p.shape.x(p.shape.x() + p.vx)
-      p.shape.y(p.shape.y() + p.vy)
-      p.life--
-
-      p.shape.opacity(p.life / p.maxLife)
-
-      if (p.life <= 0) {
-        p.shape.destroy()
-        this.particles.splice(i, 1)
-      }
-    }
+    this.particles.update()
   }
 }

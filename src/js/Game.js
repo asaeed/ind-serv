@@ -68,4 +68,21 @@ export default class Game {
     }
     main()
   }
+
+  dispose() {
+    // stop the animation loop
+    if (this.stopMain) {
+      window.cancelAnimationFrame(this.stopMain)
+    }
+
+    // cleanup input event listeners
+    if (this.input && this.input.dispose) {
+      this.input.dispose()
+    }
+
+    // destroy konva stage (this also destroys all layers and shapes)
+    if (this.stage) {
+      this.stage.destroy()
+    }
+  }
 }
