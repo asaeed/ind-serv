@@ -10,8 +10,6 @@ export default class Player extends SpriteAnimated {
     input,
     characterId = 'player',
     spriteImage = null,
-    gridX = null,
-    gridY = null,
     characterController = null,
     screenX = null,
     screenY = null
@@ -19,12 +17,8 @@ export default class Player extends SpriteAnimated {
     const sprite = spriteImage || villagerMan
 
     const hasScreenPos = screenX !== null && screenY !== null
-    const hasGridPos = gridX !== null && gridY !== null
-
     const initialPos = hasScreenPos
       ? { x: screenX, y: screenY }
-      : hasGridPos
-      ? map.coordsToPosition(gridX, gridY)
       : { x: map.stage.width() / 2, y: map.stage.height() / 2 }
 
     super(map.layer, sprite, initialPos.x, initialPos.y)

@@ -23,8 +23,8 @@ export default class CharacterController {
     })
   }
 
-  createCharacter(characterId, sprite = null, gridX = null, gridY = null) {
-    const player = new Player(this.map, this.input, characterId, sprite, gridX, gridY, this)
+  createCharacter(characterId, sprite = null) {
+    const player = new Player(this.map, this.input, characterId, sprite, this)
     this.characters.set(characterId, player)
     return player
   }
@@ -44,31 +44,20 @@ export default class CharacterController {
     const npcToRecruit = npcController.npcs.find((npc) => npc.name === npcName)
 
     if (npcToRecruit) {
-      // Get NPC's current grid position for logic/reference
+      // Keep NPC's grid position for freezing its AI after recruitment
       const gridX = npcToRecruit.gridX
       const gridY = npcToRecruit.gridY
 
       // Load the sprite dynamically from the NPC's file
       const npcSprite = require('../../assets/img/' + npcToRecruit.file)
 
-      // Calculate NPC's screen position (where we want the player to appear)
-      // NPC sprite position is relative to imageGroup, so add imageGroup offset to get screen position
+      // Spawn the controllable character exactly where the NPC is currently drawn.
+      // NPC sprite position is relative to imageGroup, so add imageGroup offset to get screen position.
       const npcScreenX = npcToRecruit.o.sprite.x() + this.map.imageGroup.x()
       const npcScreenY = npcToRecruit.o.sprite.y() + this.map.imageGroup.y()
 
       // Create player at the NPC's screen position
-      // Pass both grid coords (for reference) and screen coords (for positioning)
-      const player = new Player(
-        this.map,
-        this.input,
-        npcName,
-        npcSprite,
-        gridX,
-        gridY,
-        this,
-        npcScreenX,
-        npcScreenY
-      )
+      const player = new Player(this.map, this.input, npcName, npcSprite, this, npcScreenX, npcScreenY)
 
       this.characters.set(npcName, player)
 
