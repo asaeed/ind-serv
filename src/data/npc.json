@@ -22,10 +22,11 @@
     "file": "MiniVillagerWoman.png",
     "gridX": 4,
     "gridY": 2,
+    "recruitable": true,
     "speech": [
       {
         "minBricks": 0,
-        "text": "I've been in debt to the kiln owner for years"
+        "text": "I've been in debt to the kiln owner for years. Maybe we can help each other? (Press SPACE to recruit)"
       },
       {
         "minBricks": 10,

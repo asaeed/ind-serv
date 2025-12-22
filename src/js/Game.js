@@ -1,7 +1,7 @@
 import Konva from 'konva'
 import Input from './Input'
 import Map from './Map'
-import Player from './Player'
+import CharacterController from './controllers/CharacterController'
 import Hud from './ui/Hud'
 import gameStore from './state/gameStore'
 import { GAME_CONFIG } from './constants'
@@ -18,7 +18,7 @@ export default class Game {
     this.map = new Map(this.stage, () => {
       this.hud = new Hud(this.stage) // hud creates it's own layer on top
       this.input = new Input() // keyboard events
-      this.player = new Player(this.map, this.input)
+      this.characterController = new CharacterController(this.map, this.input)
     })
 
     // Debug output (development only)
@@ -31,6 +31,7 @@ export default class Game {
             s.mapData = undefined
             s.npcData = undefined
             s.itemData = undefined
+            s.tracking = undefined // Hide tracking data from debug output
             this.storeDiv.innerText = JSON.stringify(s, null, 4)
           },
           (state) => state
@@ -40,7 +41,7 @@ export default class Game {
   }
 
   update(tFrame) {
-    this.player && this.player.update()
+    this.characterController && this.characterController.update()
     this.map && this.map.update()
     this.hud && this.hud.update()
   }
@@ -68,6 +69,11 @@ export default class Game {
     // stop the animation loop
     if (this.stopMain) {
       window.cancelAnimationFrame(this.stopMain)
+    }
+
+    // cleanup character controller
+    if (this.characterController && this.characterController.dispose) {
+      this.characterController.dispose()
     }
 
     // cleanup input event listeners

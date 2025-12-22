@@ -8,6 +8,7 @@ export default class Input {
       right: 0,
     }
     this.interactPress = 0
+    this.switchCharacterPress = 0
 
     document.addEventListener('keydown', this.keyDownHandler, false)
     document.addEventListener('keyup', this.keyUpHandler, false)
@@ -32,6 +33,9 @@ export default class Input {
         break
       case ' ':
         this.interactPress = value
+        break
+      case 'Tab':
+        this.switchCharacterPress = value
         break
     }
   }

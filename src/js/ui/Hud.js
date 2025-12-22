@@ -77,6 +77,27 @@ export default class Hud {
     })
     this.layer.add(this.debtValue)
 
+    // money display
+    this.moneyLabel = new Konva.Text({
+      x: this.padding + 155,
+      y: this.padding + 15,
+      text: 'MONEY',
+      fontSize: 8,
+      fontFamily: this.fontFamily,
+      fill: '#888',
+    })
+    this.layer.add(this.moneyLabel)
+
+    this.moneyValue = new Konva.Text({
+      x: this.padding + 155,
+      y: this.padding + 35,
+      text: '$0',
+      fontSize: this.debtFontSize,
+      fontFamily: this.fontFamily,
+      fill: '#3ff086ff',
+    })
+    this.layer.add(this.moneyValue)
+
     // production pipeline section
     const pipelineY = this.padding + 85
 
@@ -150,8 +171,9 @@ export default class Hud {
   update() {
     const gameState = gameStore.getState()
 
-    // update debt
+    // update debt and money
     this.debtValue.text(`$${gameState.debt}`)
+    this.moneyValue.text(`$${gameState.money}`)
 
     // update production pipeline with particle effects
     this.updateValue(this.mudText.value, gameState.numMud, this.previousValues.numMud)

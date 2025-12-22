@@ -38,6 +38,9 @@ export default class NpcController {
 
   isVacant(gridX, gridY) {
     for (const npc of this.npcs) {
+      // Skip recruited NPCs - they're now player-controlled characters
+      if (npc.recruited) continue
+
       if (npc.gridX === gridX && npc.gridY === gridY) {
         return false
       }
@@ -65,6 +68,9 @@ export default class NpcController {
 
   wanderNpcs() {
     for (const npc of this.npcs) {
+      // Skip recruited NPCs
+      if (npc.recruited) continue
+
       if (npc.wander) {
         const direction = Math.random() < 0.5 ? 'horizontal' : 'vertical'
 
@@ -94,6 +100,9 @@ export default class NpcController {
 
     // if there's a target location that differs from current location, move towards it
     for (let npc of this.npcs) {
+      // Skip recruited NPCs (they're now controlled by CharacterController)
+      if (npc.recruited) continue
+
       // only move one direction at a time
       const axis = npc.gridX !== npc.targetX ? 'x' : npc.gridY !== npc.targetY ? 'y' : null
       if (!axis) continue
