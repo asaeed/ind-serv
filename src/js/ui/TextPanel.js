@@ -55,6 +55,7 @@ export default class TextPanel {
   }
 
   formatText(content, options, idx) {
-    return `${content}\n\n${options.map((o, i) => `  ${i === idx ? '->' : '  '} ${o}`).join('\n')}`
+    const body = typeof content === 'string' ? content : content?.text
+    return `${body}\n\n${options.map((o, i) => `  ${i === idx ? '->' : '  '} ${o}`).join('\n')}`
   }
 }

@@ -37,23 +37,21 @@ const gameStore = create((set, get) => ({
     const { numBricksShipped, textPanelContent } = get()
     const playerStore = require('./playerStore').default
 
-    const isAutoProduction = Boolean(characterId)
+    // characterId is passed for per-character interactions.
+    // Background auto-production also passes characterId. We'll distinguish those cases below.
+    const hasCharacter = Boolean(characterId)
 
     // If text panel is open and it's an NPC dialog, just close it.
     // But don't let background auto-production close panels.
     if (textPanelContent !== null && (!gameObject || gameObject.type === 'npc')) {
-      if (!isAutoProduction) {
-        set(() => ({ textPanelContent: null, textPanelOptions: [] }))
-      }
+      // NPC dialogs are only opened via manual interaction; auto-production shouldn't be invoking NPC dialogs.
+      set(() => ({ textPanelContent: null, textPanelOptions: [] }))
       return
     }
 
-    // If text panel is open and it's an item, close it and continue to execute action.
-    // But don't let background auto-production close panels.
     if (textPanelContent !== null && gameObject && gameObject.type === 'item') {
-      if (!isAutoProduction) {
-        set(() => ({ textPanelContent: null, textPanelOptions: [] }))
-      }
+      // Keep the panel open by default; item dialogs are dismissed by an explicit user action.
+      // Auto-production background ticks must not close panels.
       // continue to execute the action below
     }
 

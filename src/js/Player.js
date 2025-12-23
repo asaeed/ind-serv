@@ -113,6 +113,13 @@ export default class Player extends SpriteAnimated {
       if (closestObject && closestObject.type === 'item') {
         playerState.startAutoProduction(this.characterId, closestObject.name)
         this.autoProductionCancelledFor = null // Clear cancelled flag when manually starting
+
+        // If we just started auto-production, close the panel.
+        // This is intentionally done here (at the source of the user input),
+        // so background auto-production ticks never close panels.
+        if (gameState.textPanelContent) {
+          gameState.interactWith(undefined)
+        }
       }
     }
 
@@ -137,11 +144,11 @@ export default class Player extends SpriteAnimated {
       // Detect when a new action starts during auto-production and play animation
       const wasActionInProgress = this.lastActionState[closestObject.name] || false
       if (!wasActionInProgress && isActionInProgress && !isInteracting && !inInteractionWindow) {
-      this.sprite.animation('hurt')
-      this.sprite.frameIndex(0)
-      this.interactionUntil = Date.now() + 400
-      setIsInteracting(true)
-      setTimeout(() => setIsInteracting(false), 400)
+        this.sprite.animation('hurt')
+        this.sprite.frameIndex(0)
+        this.interactionUntil = Date.now() + 400
+        setIsInteracting(true)
+        setTimeout(() => setIsInteracting(false), 400)
       }
 
       // Track action state for next frame
@@ -149,13 +156,13 @@ export default class Player extends SpriteAnimated {
     } else if (isMoving && isNearItem) {
       // Moving while near item - cancel auto-production and mark item
       if (currentAutoProduction) {
-      this.autoProductionCancelledFor = currentAutoProduction
-      playerState.stopAutoProduction(this.characterId)
+        this.autoProductionCancelledFor = currentAutoProduction
+        playerState.stopAutoProduction(this.characterId)
       }
     } else {
       // Not near item - clear everything
       if (currentAutoProduction) {
-      playerState.stopAutoProduction(this.characterId)
+        playerState.stopAutoProduction(this.characterId)
       }
       this.lastActionState = {}
       this.autoProductionCancelledFor = null // Reset when leaving item area
