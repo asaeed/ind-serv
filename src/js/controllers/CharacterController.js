@@ -142,9 +142,7 @@ export default class CharacterController {
       if (id !== activeCharacterId && character.sprite) {
         // Keep idle animation for inactive characters
         const playerState = playerStore.getState().characters[id]
-        if (playerState && !playerState.isJumping) {
-          character.sprite.animation('idle')
-        }
+        if (playerState && !playerState.isInteracting) character.sprite.animation('idle')
       }
     }
   }

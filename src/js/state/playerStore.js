@@ -14,7 +14,7 @@ const playerStore = create((set, get) => ({
       id: 'player',
       playerState: PlayerStates.STANDING,
       facingDirection: 'right',
-      isJumping: false,
+      isInteracting: false,
       speed: 4,
       controllable: true,
       autoProductionItem: null, // Track per-character auto-production
@@ -29,8 +29,8 @@ const playerStore = create((set, get) => ({
   get facingDirection() {
     return get().characters[get().activeCharacterId]?.facingDirection
   },
-  get isJumping() {
-    return get().characters[get().activeCharacterId]?.isJumping
+  get isInteracting() {
+    return get().characters[get().activeCharacterId]?.isInteracting
   },
   get speed() {
     return get().characters[get().activeCharacterId]?.speed
@@ -58,12 +58,12 @@ const playerStore = create((set, get) => ({
     }))
   },
 
-  setIsJumping: (jumping) => {
+  setIsInteracting: (interacting) => {
     const activeId = get().activeCharacterId
     set((state) => ({
       characters: {
         ...state.characters,
-        [activeId]: { ...state.characters[activeId], isJumping: jumping },
+        [activeId]: { ...state.characters[activeId], isInteracting: interacting },
       },
     }))
   },
@@ -87,7 +87,7 @@ const playerStore = create((set, get) => ({
           id,
           playerState: PlayerStates.STANDING,
           facingDirection: 'right',
-          isJumping: false,
+          isInteracting: false,
           speed: 4,
           controllable: true,
           autoProductionItem: null,

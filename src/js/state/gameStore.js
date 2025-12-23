@@ -37,15 +37,23 @@ const gameStore = create((set, get) => ({
     const { numBricksShipped, textPanelContent } = get()
     const playerStore = require('./playerStore').default
 
-    // if text panel is open and it's an NPC dialog, just close it
+    const isAutoProduction = Boolean(characterId)
+
+    // If text panel is open and it's an NPC dialog, just close it.
+    // But don't let background auto-production close panels.
     if (textPanelContent !== null && (!gameObject || gameObject.type === 'npc')) {
-      set((state) => ({ textPanelContent: null, textPanelOptions: [] }))
+      if (!isAutoProduction) {
+        set(() => ({ textPanelContent: null, textPanelOptions: [] }))
+      }
       return
     }
 
-    // if text panel is open and it's an item, close it and continue to execute action
+    // If text panel is open and it's an item, close it and continue to execute action.
+    // But don't let background auto-production close panels.
     if (textPanelContent !== null && gameObject && gameObject.type === 'item') {
-      set((state) => ({ textPanelContent: null, textPanelOptions: [] }))
+      if (!isAutoProduction) {
+        set(() => ({ textPanelContent: null, textPanelOptions: [] }))
+      }
       // continue to execute the action below
     }
 

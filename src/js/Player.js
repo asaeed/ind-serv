@@ -31,6 +31,7 @@ export default class Player extends SpriteAnimated {
     this.lastActionState = {}
     this.autoProductionCancelledFor = null
     this.lastInteractPress = 0
+    this.interactionUntil = 0
   }
 
   update() {
@@ -43,7 +44,7 @@ export default class Player extends SpriteAnimated {
     const activeCharacterId = playerState.activeCharacterId
     if (this.characterId !== activeCharacterId) return
 
-    const { isJumping, speed, setIsJumping } = playerState
+    const { isInteracting, speed, setIsInteracting } = playerState
     const press = this.input.directionPress
 
     const store = playerStore.getState()
@@ -82,11 +83,13 @@ export default class Player extends SpriteAnimated {
     const xFromCenter = this.initX - this.sprite.attrs.x + INTERACTION.CAMERA_OFFSET_X
     const yFromCenter = this.initY - this.sprite.attrs.y - INTERACTION.CAMERA_OFFSET_X
 
+    const inInteractionWindow = Date.now() < this.interactionUntil
+
     if (press.up || press.down || press.left || press.right) {
-      if (!isJumping) this.sprite.animation('walk')
+      if (!isInteracting && !inInteractionWindow) this.sprite.animation('walk')
       this.centerCamera(xFromCenter, yFromCenter, 100, 50, speed)
     } else {
-      if (!isJumping) this.sprite.animation('idle')
+      if (!isInteracting && !inInteractionWindow) this.sprite.animation('idle')
       this.centerCamera(xFromCenter, yFromCenter, 10, 10, speed / 2)
     }
 
@@ -94,10 +97,13 @@ export default class Player extends SpriteAnimated {
     const interactJustPressed = this.input.interactPress && !this.lastInteractPress
     this.lastInteractPress = this.input.interactPress
 
-    if (interactJustPressed && !isJumping) {
+    if (interactJustPressed && !isInteracting && !inInteractionWindow) {
       this.sprite.animation('hurt')
-      setIsJumping(true)
-      setTimeout(() => setIsJumping(false), 400)
+      this.sprite.frameIndex(0)
+
+      this.interactionUntil = Date.now() + 400
+      setIsInteracting(true)
+      setTimeout(() => setIsInteracting(false), 400)
 
       // to see if player is within range of any and kick off interaction
       const closestObject = this.map.checkProximity(this.sprite.attrs.x, this.sprite.attrs.y)
@@ -113,7 +119,7 @@ export default class Player extends SpriteAnimated {
     // reset text panel on movement
     if (gameState.textPanelContent) {
       // move to dismiss
-      if ((press.up || press.down || press.left || press.right) && !isJumping) {
+      if ((press.up || press.down || press.left || press.right) && !isInteracting && !inInteractionWindow) {
         gameState.interactWith(undefined)
       }
     }
@@ -130,10 +136,12 @@ export default class Player extends SpriteAnimated {
 
       // Detect when a new action starts during auto-production and play animation
       const wasActionInProgress = this.lastActionState[closestObject.name] || false
-      if (!wasActionInProgress && isActionInProgress && !isJumping) {
+      if (!wasActionInProgress && isActionInProgress && !isInteracting && !inInteractionWindow) {
       this.sprite.animation('hurt')
-      setIsJumping(true)
-      setTimeout(() => setIsJumping(false), 400)
+      this.sprite.frameIndex(0)
+      this.interactionUntil = Date.now() + 400
+      setIsInteracting(true)
+      setTimeout(() => setIsInteracting(false), 400)
       }
 
       // Track action state for next frame

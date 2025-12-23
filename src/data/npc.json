@@ -73,7 +73,18 @@
     "name": "peasant",
     "file": "MiniPeasant.png",
     "gridX": 4,
-    "gridY": 4
+    "gridY": 4,
+    "recruitable": true,
+    "speech": [
+      {
+        "minBricks": 0,
+        "text": "Cousin! I knew I'd find you out here. This place is draining the life out of us."
+      },
+      {
+        "minBricks": 10,
+        "text": "Keep your head down, cousin. We'll work our way out together."
+      }
+    ]
   },
   {
     "type": "npc",
