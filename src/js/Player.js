@@ -30,6 +30,7 @@ export default class Player extends SpriteAnimated {
     this.initY = map.stage.height() / 2
     this.lastActionState = {}
     this.autoProductionCancelledFor = null
+    this.lastInteractPress = 0
   }
 
   update() {
@@ -89,8 +90,11 @@ export default class Player extends SpriteAnimated {
       this.centerCamera(xFromCenter, yFromCenter, 10, 10, speed / 2)
     }
 
-    // interaction should fire once, last for the animation duration of 400
-    if (this.input.interactPress && !isJumping) {
+    // interaction should fire once per keypress, last for the animation duration of 400
+    const interactJustPressed = this.input.interactPress && !this.lastInteractPress
+    this.lastInteractPress = this.input.interactPress
+
+    if (interactJustPressed && !isJumping) {
       this.sprite.animation('hurt')
       setIsJumping(true)
       setTimeout(() => setIsJumping(false), 400)
@@ -126,10 +130,10 @@ export default class Player extends SpriteAnimated {
 
       // Detect when a new action starts during auto-production and play animation
       const wasActionInProgress = this.lastActionState[closestObject.name] || false
-      if (currentAutoProduction === closestObject.name && !wasActionInProgress && isActionInProgress && !isJumping) {
-        this.sprite.animation('hurt')
-        setIsJumping(true)
-        setTimeout(() => setIsJumping(false), 400)
+      if (!wasActionInProgress && isActionInProgress && !isJumping) {
+      this.sprite.animation('hurt')
+      setIsJumping(true)
+      setTimeout(() => setIsJumping(false), 400)
       }
 
       // Track action state for next frame
@@ -137,13 +141,13 @@ export default class Player extends SpriteAnimated {
     } else if (isMoving && isNearItem) {
       // Moving while near item - cancel auto-production and mark item
       if (currentAutoProduction) {
-        this.autoProductionCancelledFor = currentAutoProduction
-        playerState.stopAutoProduction(this.characterId)
+      this.autoProductionCancelledFor = currentAutoProduction
+      playerState.stopAutoProduction(this.characterId)
       }
     } else {
       // Not near item - clear everything
       if (currentAutoProduction) {
-        playerState.stopAutoProduction(this.characterId)
+      playerState.stopAutoProduction(this.characterId)
       }
       this.lastActionState = {}
       this.autoProductionCancelledFor = null // Reset when leaving item area
