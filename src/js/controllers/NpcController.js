@@ -11,7 +11,11 @@ export default class NpcController {
 
     // create characters
     const npcData = gameStore.getState().npcData
-    for (const npc of npcData) this.createNpc(npc)
+    for (const npc of npcData) {
+      // npc.json can include non-NPC config records (e.g., player spawn).
+      // Treat records with a sprite file as NPCs.
+      if (npc && npc.file) this.createNpc(npc)
+    }
   }
 
   startWandering() {
@@ -28,6 +32,7 @@ export default class NpcController {
     const sprite = require('../../assets/img/' + npc.file)
     this.npcs.push({
       ...npc,
+      type: 'npc',
       o: new SpriteAnimated(this.group, sprite, x, y),
       originX: npc.gridX,
       originY: npc.gridY,

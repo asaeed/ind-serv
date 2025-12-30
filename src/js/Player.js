@@ -3,6 +3,7 @@ import villagerMan from '../assets/img/MiniVillagerMan.png'
 import gameStore from './state/gameStore'
 import playerStore from './state/playerStore'
 import { INTERACTION } from './constants'
+import npcData from '../data/npc.json'
 
 export default class Player extends SpriteAnimated {
   constructor(
@@ -17,9 +18,22 @@ export default class Player extends SpriteAnimated {
     const sprite = spriteImage || villagerMan
 
     const hasScreenPos = screenX !== null && screenY !== null
-    const initialPos = hasScreenPos
-      ? { x: screenX, y: screenY }
-      : { x: map.stage.width() / 2, y: map.stage.height() / 2 }
+
+    // Default spawn should match a world/map location (not viewport center).
+    // Configure in npc.json as { name: "player", gridX, gridY }.
+    const playerSpawn = Array.isArray(npcData)
+      ? npcData.find((n) => n && n.isInitialCharacter) || npcData.find((n) => n && n.name === 'player')
+      : null
+    let spawnPos = null
+
+    if (playerSpawn && Number.isFinite(playerSpawn.gridX) && Number.isFinite(playerSpawn.gridY)) {
+      spawnPos = map.coordsToPosition(playerSpawn.gridX, playerSpawn.gridY)
+    } else {
+      // Fallback if config is missing: spawn at map origin.
+      spawnPos = map.coordsToPosition(0, 0)
+    }
+
+    const initialPos = hasScreenPos ? { x: screenX, y: screenY } : spawnPos
 
     super(map.layer, sprite, initialPos.x, initialPos.y)
     this.map = map
@@ -36,6 +50,10 @@ export default class Player extends SpriteAnimated {
 
   update() {
     if (!this.sprite) return
+
+    // Keep camera centering aligned with the current viewport.
+    this.initX = this.map.stage.width() / 2
+    this.initY = this.map.stage.height() / 2
 
     const playerState = playerStore.getState()
     const gameState = gameStore.getState()

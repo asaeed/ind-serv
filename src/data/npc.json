@@ -1,6 +1,11 @@
 [
   {
-    "type": "npc",
+    "name": "player",
+    "gridX": 4,
+    "gridY": 6,
+    "isInitialCharacter": true
+  },
+  {
     "name": "worker",
     "file": "MiniWorker.png",
     "gridX": 2,
@@ -17,7 +22,6 @@
     ]
   },
   {
-    "type": "npc",
     "name": "villagerWoman",
     "file": "MiniVillagerWoman.png",
     "gridX": 4,
@@ -35,7 +39,6 @@
     ]
   },
   {
-    "type": "npc",
     "name": "queen",
     "file": "MiniQueen.png",
     "gridX": 8,
@@ -52,7 +55,6 @@
     ]
   },
   {
-    "type": "npc",
     "name": "princess",
     "file": "MiniPrincess.png",
     "gridX": 2,
@@ -69,7 +71,6 @@
     ]
   },
   {
-    "type": "npc",
     "name": "peasant",
     "file": "MiniPeasant.png",
     "gridX": 4,
@@ -87,7 +88,6 @@
     ]
   },
   {
-    "type": "npc",
     "name": "oldWoman",
     "file": "MiniOldWoman.png",
     "gridX": 6,
@@ -95,7 +95,6 @@
     "wander": 2
   },
   {
-    "type": "npc",
     "name": "oldMan",
     "file": "MiniOldMan.png",
     "gridX": 3,
@@ -103,14 +102,12 @@
     "wander": 4
   },
   {
-    "type": "npc",
     "name": "nobleWoman",
     "file": "MiniNobleWoman.png",
     "gridX": 8,
     "gridY": 4
   },
   {
-    "type": "npc",
     "name": "nobleMan",
     "file": "MiniNobleMan.png",
     "gridX": 13,

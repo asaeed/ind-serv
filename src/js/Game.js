@@ -3,6 +3,7 @@ import Input from './Input'
 import Map from './Map'
 import CharacterController from './controllers/CharacterController'
 import Hud from './ui/Hud'
+import TouchControls from './ui/TouchControls'
 import gameStore from './state/gameStore'
 import { GAME_CONFIG } from './constants'
 
@@ -14,10 +15,17 @@ export default class Game {
       height: GAME_CONFIG.CANVAS_HEIGHT,
     })
 
+    this._handleResize = this._handleResize.bind(this)
+    this._handleResize()
+    window.addEventListener('resize', this._handleResize)
+    window.addEventListener('orientationchange', this._handleResize)
+
     // map creates a layer
     this.map = new Map(this.stage, () => {
       this.hud = new Hud(this.stage) // hud creates it's own layer on top
       this.input = new Input() // keyboard events
+      this.touchControls = new TouchControls(this.input)
+      this.touchControls.init()
       this.characterController = new CharacterController(this.map, this.input)
     })
 
@@ -81,9 +89,45 @@ export default class Game {
       this.input.dispose()
     }
 
+    if (this.touchControls && this.touchControls.dispose) {
+      this.touchControls.dispose()
+    }
+
     // destroy konva stage (this also destroys all layers and shapes)
     if (this.stage) {
       this.stage.destroy()
     }
+
+    window.removeEventListener('resize', this._handleResize)
+    window.removeEventListener('orientationchange', this._handleResize)
+  }
+
+  _handleResize() {
+    const container = document.getElementById('canvas-container')
+    if (!container || !this.stage) return
+
+    const isMobileLayout = window.matchMedia && window.matchMedia('(max-width: 820px)').matches
+    if (!isMobileLayout) {
+      // Restore original desktop sizing.
+      this.stage.width(GAME_CONFIG.CANVAS_WIDTH)
+      this.stage.height(GAME_CONFIG.CANVAS_HEIGHT)
+      this.stage.batchDraw()
+      return
+    }
+
+    // Mobile: use the container's CSS-driven size (fullscreen)
+    const { width, height } = container.getBoundingClientRect()
+    if (!width || !height) return
+
+    this.stage.width(Math.floor(width))
+    this.stage.height(Math.floor(height))
+
+    // Keep pixel art crisp when stretching.
+    const canvas = container.querySelector('canvas')
+    if (canvas) {
+      canvas.style.imageRendering = 'pixelated'
+    }
+
+    this.stage.batchDraw()
   }
 }

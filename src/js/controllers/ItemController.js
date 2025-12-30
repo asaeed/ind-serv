@@ -39,6 +39,7 @@ export default class ItemController {
       centerX,
       centerY,
       ...item,
+      type: 'item',
     })
   }
 

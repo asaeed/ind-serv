@@ -14,28 +14,46 @@ export default class Input {
     document.addEventListener('keyup', this.keyUpHandler, false)
   }
 
+  setDirection(direction, value) {
+    if (!Object.prototype.hasOwnProperty.call(this.directionPress, direction)) return
+    this.directionPress[direction] = value
+    if (direction === 'left') this.lastXDirection = 'left'
+    if (direction === 'right') this.lastXDirection = 'right'
+  }
+
+  setInteract(value) {
+    this.interactPress = value
+  }
+
+  setSwitchCharacter(value) {
+    this.switchCharacterPress = value
+  }
+
   handleKey(e, value) {
-    e.preventDefault()
     switch (e.key) {
       case 'ArrowUp':
-        this.directionPress.up = value
+        e.preventDefault()
+        this.setDirection('up', value)
         break
       case 'ArrowDown':
-        this.directionPress.down = value
+        e.preventDefault()
+        this.setDirection('down', value)
         break
       case 'ArrowLeft':
-        this.directionPress.left = value
-        this.lastXDirection = 'left'
+        e.preventDefault()
+        this.setDirection('left', value)
         break
       case 'ArrowRight':
-        this.directionPress.right = value
-        this.lastXDirection = 'right'
+        e.preventDefault()
+        this.setDirection('right', value)
         break
       case ' ':
-        this.interactPress = value
+        e.preventDefault()
+        this.setInteract(value)
         break
       case 'Tab':
-        this.switchCharacterPress = value
+        e.preventDefault()
+        this.setSwitchCharacter(value)
         break
     }
   }
