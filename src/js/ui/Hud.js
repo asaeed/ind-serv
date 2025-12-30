@@ -1,6 +1,7 @@
 import Konva from 'konva'
 import gameStore from '../state/gameStore'
 import TextPanel from './TextPanel'
+import Particles from '../sprites/Particles'
 
 export default class Hud {
   constructor(stage) {
@@ -11,6 +12,7 @@ export default class Hud {
     // configurable HUD properties
     this.padding = 20
     this.fontSize = 10
+    this.valueFontSize = 14
     this.lineHeight = 24
     this.debtFontSize = 20
     this.fontFamily = 'Press Start 2P'
@@ -21,9 +23,19 @@ export default class Hud {
     this.stageColors = {
       mud: '#8B4513',
       molded: '#A0826D',
-      baked: '#D2691E',
+      baked: 'white',
       bricks: '#CD853F',
     }
+
+    // track previous values for particle effects
+    this.previousValues = {
+      numMud: 0,
+      numBricksMolded: 0,
+      numBricksBaked: 0,
+      numBricksShipped: 0,
+    }
+
+    this.particles = new Particles(this.layer)
 
     this.createHUD()
   }
@@ -65,6 +77,27 @@ export default class Hud {
     })
     this.layer.add(this.debtValue)
 
+    // money display
+    this.moneyLabel = new Konva.Text({
+      x: this.padding + 155,
+      y: this.padding + 15,
+      text: 'MONEY',
+      fontSize: 8,
+      fontFamily: this.fontFamily,
+      fill: '#888',
+    })
+    this.layer.add(this.moneyLabel)
+
+    this.moneyValue = new Konva.Text({
+      x: this.padding + 155,
+      y: this.padding + 35,
+      text: '$0',
+      fontSize: this.debtFontSize,
+      fontFamily: this.fontFamily,
+      fill: '#3ff086ff',
+    })
+    this.layer.add(this.moneyValue)
+
     // production pipeline section
     const pipelineY = this.padding + 85
 
@@ -103,9 +136,9 @@ export default class Hud {
 
     const valueText = new Konva.Text({
       x: this.padding + 180,
-      y: y,
+      y: y - 2,
       text: '0',
-      fontSize: this.fontSize,
+      fontSize: this.valueFontSize,
       fontFamily: this.fontFamily,
       fill: color,
       align: 'right',
@@ -116,17 +149,46 @@ export default class Hud {
     return { label: labelText, value: valueText }
   }
 
+  updateValue(textObj, currentValue, previousValue) {
+    textObj.text(currentValue.toString())
+
+    // create particles if value increased
+    if (currentValue > previousValue) {
+      const x = textObj.x() + textObj.width() / 2 + 22
+      const y = textObj.y() + textObj.height() / 2 + 4
+      const color = textObj.fill()
+      this.particles.createParticles(x, y, 6, color, {
+        speedMin: 1,
+        speedMax: 3,
+        sizeMin: 2,
+        sizeMax: 4,
+        life: 20,
+        gravityY: -1,
+      })
+    }
+  }
+
   update() {
     const gameState = gameStore.getState()
 
-    // update debt
+    // update debt and money
     this.debtValue.text(`$${gameState.debt}`)
+    this.moneyValue.text(`$${gameState.money}`)
 
-    // update production pipeline
-    this.mudText.value.text(gameState.numMud.toString())
-    this.bricksMoldedText.value.text(gameState.numBricksMolded.toString())
-    this.bricksBakedText.value.text(gameState.numBricksBaked.toString())
-    this.bricksShippedText.value.text(gameState.numBricksShipped.toString())
+    // update production pipeline with particle effects
+    this.updateValue(this.mudText.value, gameState.numMud, this.previousValues.numMud)
+    this.updateValue(this.bricksMoldedText.value, gameState.numBricksMolded, this.previousValues.numBricksMolded)
+    this.updateValue(this.bricksBakedText.value, gameState.numBricksBaked, this.previousValues.numBricksBaked)
+    this.updateValue(this.bricksShippedText.value, gameState.numBricksShipped, this.previousValues.numBricksShipped)
+
+    // store current values for next frame
+    this.previousValues.numMud = gameState.numMud
+    this.previousValues.numBricksMolded = gameState.numBricksMolded
+    this.previousValues.numBricksBaked = gameState.numBricksBaked
+    this.previousValues.numBricksShipped = gameState.numBricksShipped
+
+    // update particles
+    this.particles.update()
 
     this.layer.batchDraw()
   }

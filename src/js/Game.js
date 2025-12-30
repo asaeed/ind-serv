@@ -1,58 +1,62 @@
 import Konva from 'konva'
 import Input from './Input'
 import Map from './Map'
-import Player from './Player'
+import CharacterController from './controllers/CharacterController'
 import Hud from './ui/Hud'
+import TouchControls from './ui/TouchControls'
 import gameStore from './state/gameStore'
+import { GAME_CONFIG } from './constants'
 
 export default class Game {
   constructor() {
-    // this.framesDiv = document.querySelector('.frame-num > .value')
-    // this.secondsDiv = document.querySelector('.seconds-passed > .value')
-    // this.directionDiv = document.querySelector('.direction > .value')
-    this.storeDiv = document.querySelector('.store > .value')
-    this.startTime = Date.now()
-
     this.stage = new Konva.Stage({
       container: 'canvas-container',
-      width: 1000,
-      height: 600,
+      width: GAME_CONFIG.CANVAS_WIDTH,
+      height: GAME_CONFIG.CANVAS_HEIGHT,
     })
+
+    this._handleResize = this._handleResize.bind(this)
+    this._handleResize()
+    window.addEventListener('resize', this._handleResize)
+    window.addEventListener('orientationchange', this._handleResize)
 
     // map creates a layer
     this.map = new Map(this.stage, () => {
       this.hud = new Hud(this.stage) // hud creates it's own layer on top
       this.input = new Input() // keyboard events
-      this.player = new Player(this.map, this.input)
+      this.touchControls = new TouchControls(this.input)
+      this.touchControls.init()
+      this.characterController = new CharacterController(this.map, this.input)
     })
 
-    // TODO: for debug only
-    const unsubscribe = gameStore.subscribe(
-      (state) => {
-        const s = JSON.parse(JSON.stringify(state))
-        s.mapData = undefined
-        s.npcData = undefined
-        s.itemData = undefined
-        this.storeDiv.innerText = JSON.stringify(s, null, 4)
-      },
-      (state) => state
-    )
+    // Debug output (development only)
+    if (process.env.NODE_ENV !== 'production') {
+      this.storeDiv = document.querySelector('.store > .value')
+      if (this.storeDiv) {
+        gameStore.subscribe(
+          (state) => {
+            const s = JSON.parse(JSON.stringify(state))
+            s.mapData = undefined
+            s.npcData = undefined
+            s.itemData = undefined
+            s.tracking = undefined // Hide tracking data from debug output
+            this.storeDiv.innerText = JSON.stringify(s, null, 4)
+          },
+          (state) => state
+        )
+      }
+    }
   }
 
   update(tFrame) {
-    // this.framesDiv.innerHTML = tFrame
-    // this.secondsDiv.innerHTML = (Date.now() - this.startTime) / 1000
-    // this.directionDiv.innerHTML = JSON.stringify(this.input.directionPress)
-
-    this.player && this.player.update()
+    this.characterController && this.characterController.update()
     this.map && this.map.update()
     this.hud && this.hud.update()
   }
 
   mainLoop() {
     let msPrev = window.performance.now()
-    const fps = 60
-    const msPerFrame = 1000 / fps
+    const msPerFrame = 1000 / GAME_CONFIG.TARGET_FPS
     const main = (tFrame) => {
       this.stopMain = window.requestAnimationFrame(main)
 
@@ -67,5 +71,63 @@ export default class Game {
       msPrev = msNow - excessTime
     }
     main()
+  }
+
+  dispose() {
+    // stop the animation loop
+    if (this.stopMain) {
+      window.cancelAnimationFrame(this.stopMain)
+    }
+
+    // cleanup character controller
+    if (this.characterController && this.characterController.dispose) {
+      this.characterController.dispose()
+    }
+
+    // cleanup input event listeners
+    if (this.input && this.input.dispose) {
+      this.input.dispose()
+    }
+
+    if (this.touchControls && this.touchControls.dispose) {
+      this.touchControls.dispose()
+    }
+
+    // destroy konva stage (this also destroys all layers and shapes)
+    if (this.stage) {
+      this.stage.destroy()
+    }
+
+    window.removeEventListener('resize', this._handleResize)
+    window.removeEventListener('orientationchange', this._handleResize)
+  }
+
+  _handleResize() {
+    const container = document.getElementById('canvas-container')
+    if (!container || !this.stage) return
+
+    const isMobileLayout = window.matchMedia && window.matchMedia('(max-width: 820px)').matches
+    if (!isMobileLayout) {
+      // Restore original desktop sizing.
+      this.stage.width(GAME_CONFIG.CANVAS_WIDTH)
+      this.stage.height(GAME_CONFIG.CANVAS_HEIGHT)
+      this.stage.batchDraw()
+      return
+    }
+
+    // Mobile: use the container's CSS-driven size (fullscreen)
+    const { width, height } = container.getBoundingClientRect()
+    if (!width || !height) return
+
+    this.stage.width(Math.floor(width))
+    this.stage.height(Math.floor(height))
+
+    // Keep pixel art crisp when stretching.
+    const canvas = container.querySelector('canvas')
+    if (canvas) {
+      canvas.style.imageRendering = 'pixelated'
+    }
+
+    this.stage.batchDraw()
   }
 }

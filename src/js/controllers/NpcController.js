@@ -1,6 +1,7 @@
 import SpriteAnimated from '../sprites/SpriteAnimated'
 import gameStore from '../state/gameStore'
 import Map from '../Map'
+import { NPC_CONFIG } from '../constants'
 
 export default class NpcController {
   constructor(map) {
@@ -10,13 +11,17 @@ export default class NpcController {
 
     // create characters
     const npcData = gameStore.getState().npcData
-    for (const npc of npcData) this.createNpc(npc)
+    for (const npc of npcData) {
+      // npc.json can include non-NPC config records (e.g., player spawn).
+      // Treat records with a sprite file as NPCs.
+      if (npc && npc.file) this.createNpc(npc)
+    }
   }
 
   startWandering() {
     this.npcInterval = setInterval(() => {
       this.wanderNpcs()
-    }, 3000)
+    }, NPC_CONFIG.WANDER_INTERVAL)
   }
 
   createNpc(npc) {
@@ -27,6 +32,7 @@ export default class NpcController {
     const sprite = require('../../assets/img/' + npc.file)
     this.npcs.push({
       ...npc,
+      type: 'npc',
       o: new SpriteAnimated(this.group, sprite, x, y),
       originX: npc.gridX,
       originY: npc.gridY,
@@ -37,7 +43,10 @@ export default class NpcController {
 
   isVacant(gridX, gridY) {
     for (const npc of this.npcs) {
-      if (npc.gridX == gridX && npc.gridY === gridY) {
+      // Skip recruited NPCs - they're now player-controlled characters
+      if (npc.recruited) continue
+
+      if (npc.gridX === gridX && npc.gridY === gridY) {
         return false
       }
     }
@@ -64,6 +73,9 @@ export default class NpcController {
 
   wanderNpcs() {
     for (const npc of this.npcs) {
+      // Skip recruited NPCs
+      if (npc.recruited) continue
+
       if (npc.wander) {
         const direction = Math.random() < 0.5 ? 'horizontal' : 'vertical'
 
@@ -93,6 +105,9 @@ export default class NpcController {
 
     // if there's a target location that differs from current location, move towards it
     for (let npc of this.npcs) {
+      // Skip recruited NPCs (they're now controlled by CharacterController)
+      if (npc.recruited) continue
+
       // only move one direction at a time
       const axis = npc.gridX !== npc.targetX ? 'x' : npc.gridY !== npc.targetY ? 'y' : null
       if (!axis) continue

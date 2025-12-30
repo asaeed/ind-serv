@@ -1,6 +1,5 @@
 [
   {
-    "type": "item",
     "name": "shovel",
     "file": "shovel-4.png",
     "gridX": 7,
@@ -24,7 +23,6 @@
     }
   },
   {
-    "type": "item",
     "name": "mold",
     "file": "brick-mold-3.png",
     "gridX": 5,
@@ -49,7 +47,6 @@
     }
   },
   {
-    "type": "item",
     "name": "kiln",
     "file": "brick-kiln-5.png",
     "gridX": 4,
@@ -74,7 +71,6 @@
     }
   },
   {
-    "type": "item",
     "name": "truck",
     "file": "truck-1.png",
     "gridX": 7,

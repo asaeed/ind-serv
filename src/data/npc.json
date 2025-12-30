@@ -1,6 +1,11 @@
 [
   {
-    "type": "npc",
+    "name": "player",
+    "gridX": 4,
+    "gridY": 6,
+    "isInitialCharacter": true
+  },
+  {
     "name": "worker",
     "file": "MiniWorker.png",
     "gridX": 2,
@@ -17,15 +22,15 @@
     ]
   },
   {
-    "type": "npc",
     "name": "villagerWoman",
     "file": "MiniVillagerWoman.png",
     "gridX": 4,
     "gridY": 2,
+    "recruitable": true,
     "speech": [
       {
         "minBricks": 0,
-        "text": "I've been in debt to the kiln owner for years"
+        "text": "I've been in debt to the kiln owner for years. Maybe we can help each other? (Press SPACE to recruit)"
       },
       {
         "minBricks": 10,
@@ -34,7 +39,6 @@
     ]
   },
   {
-    "type": "npc",
     "name": "queen",
     "file": "MiniQueen.png",
     "gridX": 8,
@@ -51,7 +55,6 @@
     ]
   },
   {
-    "type": "npc",
     "name": "princess",
     "file": "MiniPrincess.png",
     "gridX": 2,
@@ -68,14 +71,23 @@
     ]
   },
   {
-    "type": "npc",
     "name": "peasant",
     "file": "MiniPeasant.png",
     "gridX": 4,
-    "gridY": 4
+    "gridY": 4,
+    "recruitable": true,
+    "speech": [
+      {
+        "minBricks": 0,
+        "text": "Cousin! I knew I'd find you out here. This place is draining the life out of us."
+      },
+      {
+        "minBricks": 10,
+        "text": "Keep your head down, cousin. We'll work our way out together."
+      }
+    ]
   },
   {
-    "type": "npc",
     "name": "oldWoman",
     "file": "MiniOldWoman.png",
     "gridX": 6,
@@ -83,7 +95,6 @@
     "wander": 2
   },
   {
-    "type": "npc",
     "name": "oldMan",
     "file": "MiniOldMan.png",
     "gridX": 3,
@@ -91,14 +102,12 @@
     "wander": 4
   },
   {
-    "type": "npc",
     "name": "nobleWoman",
     "file": "MiniNobleWoman.png",
     "gridX": 8,
     "gridY": 4
   },
   {
-    "type": "npc",
     "name": "nobleMan",
     "file": "MiniNobleMan.png",
     "gridX": 13,
