@@ -117,8 +117,12 @@ export default class Map {
 
   checkProximity(x, y) {
     const { mapX, mapY } = this.positionOnMap(x, y)
-    const closestNpc = this.npcController.getClosest(mapX, mapY + INTERACTION.POSITION_OFFSET_Y)
-    const closestItem = this.itemController.getClosest(mapX, mapY + INTERACTION.POSITION_OFFSET_Y)
+    const closestNpc = this.npcController.getClosest(mapX, mapY + INTERACTION.POSITION_OFFSET_Y) || {
+      distSq: Infinity,
+    }
+    const closestItem = this.itemController.getClosest(mapX, mapY + INTERACTION.POSITION_OFFSET_Y) || {
+      distSq: Infinity,
+    }
 
     // pick out closes object and if it's within a range, return it (else null)
     const minDistSquared = 5000

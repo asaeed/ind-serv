@@ -22,6 +22,7 @@ const gameStore = create((set, get) => ({
   textPanelContent: null,
   textPanelOptions: [],
   textPanelOptionIdx: 0,
+  activeNpcDialogName: null,
   recruitedNpcs: [], // Array of recruited NPC names
 
   // Organized tracking data (keeps store clean)
@@ -45,7 +46,7 @@ const gameStore = create((set, get) => ({
     // But don't let background auto-production close panels.
     if (textPanelContent !== null && (!gameObject || gameObject.type === 'npc')) {
       // NPC dialogs are only opened via manual interaction; auto-production shouldn't be invoking NPC dialogs.
-      set(() => ({ textPanelContent: null, textPanelOptions: [] }))
+      set(() => ({ textPanelContent: null, textPanelOptions: [], activeNpcDialogName: null }))
       return
     }
 
@@ -61,27 +62,13 @@ const gameStore = create((set, get) => ({
 
         // Handle recruitable NPC
         if (npc.recruitable && !get().recruitedNpcs.includes(npc.name)) {
-          const hasSeenDialog = get().tracking.dialogsSeen[npc.name]
-          if (hasSeenDialog) {
-            // Second interaction - recruit them
-            get().recruitNpc(npc.name)
-            set((state) => ({
-              textPanelContent: `${npc.name} has joined you! Press TAB to switch between characters.`,
-              tracking: {
-                ...state.tracking,
-                dialogsSeen: { ...state.tracking.dialogsSeen, [npc.name]: true },
-              },
-            }))
-            return
-          } else {
-            // First interaction - show dialog
-            set((state) => ({
-              tracking: {
-                ...state.tracking,
-                dialogsSeen: { ...state.tracking.dialogsSeen, [npc.name]: true },
-              },
-            }))
-          }
+          // Mark dialog as seen; actual recruiting is triggered via TAB.
+          set((state) => ({
+            tracking: {
+              ...state.tracking,
+              dialogsSeen: { ...state.tracking.dialogsSeen, [npc.name]: true },
+            },
+          }))
         }
 
         let selectedSpeech = null
@@ -92,7 +79,7 @@ const gameStore = create((set, get) => ({
           } else break
         }
 
-        set((state) => ({ textPanelContent: selectedSpeech }))
+        set((state) => ({ textPanelContent: selectedSpeech, activeNpcDialogName: npc.name }))
       } else if (gameObject.type === 'item') {
         const item = gameObject
 
@@ -103,6 +90,7 @@ const gameStore = create((set, get) => ({
             set((state) => ({
               textPanelContent: item.dialog.text,
               textPanelOptions: item.dialog.options || [],
+              activeNpcDialogName: null,
               tracking: {
                 ...state.tracking,
                 itemsUsed: { ...state.tracking.itemsUsed, [item.name]: true },
@@ -200,6 +188,7 @@ const gameStore = create((set, get) => ({
             set(() => ({
               textPanelContent: `No ${resourceName} to convert.`,
               textPanelOptions: [],
+              activeNpcDialogName: null,
             }))
           }
         }
@@ -218,6 +207,25 @@ const gameStore = create((set, get) => ({
     playerStore.getState().addCharacter(npcName, {
       sprite: null, // Will be set by CharacterController
     })
+  },
+
+  // Recruit NPC from a deliberate user input (TAB / mobile B)
+  recruitNpcFromInput: (npcName) => {
+    if (!npcName) return
+    if (get().recruitedNpcs.includes(npcName)) return
+
+    get().recruitNpc(npcName)
+
+    set((state) => ({
+      textPanelContent: `${npcName} has joined you! Press TAB to switch between characters.`,
+      textPanelOptions: [],
+      textPanelOptionIdx: 0,
+      activeNpcDialogName: null,
+      tracking: {
+        ...state.tracking,
+        dialogsSeen: { ...state.tracking.dialogsSeen, [npcName]: true },
+      },
+    }))
   },
 }))
 

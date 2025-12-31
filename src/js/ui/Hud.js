@@ -41,15 +41,15 @@ export default class Hud {
   }
 
   createHUD() {
-    const hudWidth = 280
-    const hudHeight = 200
+    this.hudWidth = 280
+    this.hudHeight = 200
 
     // background panel
     this.bg = new Konva.Rect({
       x: this.padding,
       y: this.padding,
-      width: hudWidth,
-      height: hudHeight,
+      width: this.hudWidth,
+      height: this.hudHeight,
       fill: this.bgColor,
       opacity: this.bgOpacity,
       cornerRadius: 8,
@@ -119,6 +119,7 @@ export default class Hud {
 
     // add text panel for dialogs
     this.textPanel = new TextPanel(this.layer)
+    this.textPanel.layout({ topOffset: this.padding + this.hudHeight + 12 })
 
     this.layer.batchDraw()
   }
@@ -189,6 +190,11 @@ export default class Hud {
 
     // update particles
     this.particles.update()
+
+    // Keep text panel positioned correctly on mobile/resizes.
+    if (this.textPanel && this.textPanel.layout) {
+      this.textPanel.layout({ topOffset: this.padding + this.hudHeight + 12 })
+    }
 
     this.layer.batchDraw()
   }

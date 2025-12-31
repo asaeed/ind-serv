@@ -6,9 +6,12 @@ export default class TextPanel {
   constructor(layer) {
     this.layer = layer
 
-    const panelW = 690
-    const panelH = 300
-    const padding = 20
+    this.panelW = 690
+    this.panelH = 300
+    this.padding = 20
+    this.basePanelScale = 0.5
+
+    this.topOffset = 0
 
     this.group = new Konva.Group({
       x: 156,
@@ -22,14 +25,14 @@ export default class TextPanel {
         image: imageObj,
         x: 0,
         y: 0,
-        scaleX: 0.5,
-        scaleY: 0.5,
+        scaleX: this.basePanelScale,
+        scaleY: this.basePanelScale,
       })
 
       this.panelText = new Konva.Text({
-        x: padding,
-        y: padding,
-        width: panelW - padding * 2,
+        x: this.padding,
+        y: this.padding,
+        width: this.panelW - this.padding * 2,
         text: '',
         fontSize: 20,
         lineHeight: 1.5,
@@ -40,6 +43,9 @@ export default class TextPanel {
       this.group.add(this.panel)
       this.group.add(this.panelText)
       this.layer.add(this.group)
+
+      // Initial layout once assets are ready.
+      this.layout()
     }
     imageObj.src = panelImagePath
 
@@ -48,10 +54,38 @@ export default class TextPanel {
         if (state.textPanelContent) {
           this.panelText.text(this.formatText(state.textPanelContent, state.textPanelOptions, state.textPanelOptionIdx))
           this.group.opacity(1)
+          this.layout()
         } else this.group.opacity(0)
       },
       (state) => state.textPanelContent
     )
+  }
+
+  layout({ topOffset } = {}) {
+    if (typeof topOffset === 'number') this.topOffset = topOffset
+
+    const stage = this.layer?.getStage?.()
+    if (!stage) return
+
+    const isMobile = window.matchMedia && window.matchMedia('(max-width: 820px)').matches
+
+    if (!isMobile) {
+      // Keep original desktop placement.
+      this.group.scale({ x: 1, y: 1 })
+      this.group.position({ x: 156, y: 380 })
+      return
+    }
+
+    const marginX = 12
+    const availableW = Math.max(0, stage.width() - marginX * 2)
+    const scale = this.panelW > 0 ? Math.min(1, availableW / this.panelW) : 1
+
+    this.group.scale({ x: scale, y: scale })
+
+    const x = Math.max(marginX, (stage.width() - this.panelW * scale) / 2)
+    const y = Math.max(12, this.topOffset)
+
+    this.group.position({ x, y })
   }
 
   formatText(content, options, idx) {
