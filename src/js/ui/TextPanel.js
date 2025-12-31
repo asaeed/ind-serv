@@ -8,7 +8,8 @@ export default class TextPanel {
 
     this.panelW = 690
     this.panelH = 300
-    this.padding = 20
+    this.paddingX = 20
+    this.paddingY = 12
     this.basePanelScale = 0.5
 
     this.topOffset = 0
@@ -30,9 +31,9 @@ export default class TextPanel {
       })
 
       this.panelText = new Konva.Text({
-        x: this.padding,
-        y: this.padding,
-        width: this.panelW - this.padding * 2,
+        x: this.paddingX,
+        y: this.paddingY,
+        width: this.panelW - this.paddingX * 2,
         text: '',
         fontSize: 20,
         lineHeight: 1.5,

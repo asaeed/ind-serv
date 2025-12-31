@@ -3,6 +3,11 @@ import npcData from '../../data/npc.json'
 import mapData from '../../data/map.json'
 import itemData from '../../data/item.json'
 
+const getSwitchKeyLabel = () => {
+  const isMobile = window.matchMedia && window.matchMedia('(max-width: 820px)').matches
+  return isMobile ? 'B' : 'Tab'
+}
+
 const gameStore = create((set, get) => ({
   score: 0,
   debt: 1000,
@@ -77,6 +82,13 @@ const gameStore = create((set, get) => ({
           if (numBricksShipped >= npc.speech[i].minBricks) {
             selectedSpeech = npc.speech[i].text
           } else break
+        }
+
+        // Dynamically append switch hint for recruitable characters.
+        // (Do not store this string in npc.json.)
+        if (npc.recruitable && !get().recruitedNpcs.includes(npc.name)) {
+          const keyLabel = getSwitchKeyLabel()
+          selectedSpeech = `${selectedSpeech}\n\nPress ${keyLabel} to switch to this character.`
         }
 
         set((state) => ({ textPanelContent: selectedSpeech, activeNpcDialogName: npc.name }))
@@ -216,8 +228,10 @@ const gameStore = create((set, get) => ({
 
     get().recruitNpc(npcName)
 
+    const keyLabel = getSwitchKeyLabel()
+
     set((state) => ({
-      textPanelContent: `${npcName} has joined you! Press TAB to switch between characters.`,
+      textPanelContent: `${npcName} has joined you! Press ${keyLabel} to switch between characters.`,
       textPanelOptions: [],
       textPanelOptionIdx: 0,
       activeNpcDialogName: null,
