@@ -63,11 +63,14 @@ export default class NpcController {
   // }
 
   getClosest(x, y) {
-    const positions = this.npcs.map((npc) => ({
-      ...npc,
-      x: npc.o.sprite.x(),
-      y: npc.o.sprite.y(),
-    }))
+    const positions = this.npcs
+      // Recruited NPCs are now playable characters; exclude them from interaction proximity.
+      .filter((npc) => !npc.recruited)
+      .map((npc) => ({
+        ...npc,
+        x: npc.o.sprite.x(),
+        y: npc.o.sprite.y(),
+      }))
     return Map.findClosest(positions, x, y)
   }
 

@@ -1,6 +1,8 @@
 import Player from '../Player'
 import playerStore from '../state/playerStore'
 import gameStore from '../state/gameStore'
+import Particles from '../sprites/Particles'
+import { PARTICLE_CONFIG } from '../constants'
 
 export default class CharacterController {
   constructor(map, input) {
@@ -8,6 +10,8 @@ export default class CharacterController {
     this.input = input
     this.characters = new Map()
     this.lastSwitchPress = 0
+    // Spawn switch particles in imageGroup space so they move with camera pans.
+    this.particles = new Particles(this.map.imageGroup)
 
     // Create the initial player character
     this.createCharacter('player')
@@ -73,6 +77,10 @@ export default class CharacterController {
       npcToRecruit.targetY = gridY
       npcToRecruit.recruited = true
 
+      // Trigger switch particles immediately at the NPC's current position.
+      // (New player sprite may not be loaded yet.)
+      this._triggerSwitchParticlesAtLocal(npcToRecruit.o.sprite.x(), npcToRecruit.o.sprite.y())
+
       // Automatically switch to the newly recruited character
       this.switchToCharacter(npcName)
     }
@@ -88,10 +96,35 @@ export default class CharacterController {
     // Switch in the store
     playerStore.getState().switchCharacter(characterId)
 
+    // Trigger a particle burst on the character we just switched to.
+    if (targetCharacter.sprite) this._triggerSwitchParticles(targetCharacter)
+
     // Pan camera to the new character (only if sprite is loaded)
     if (targetCharacter.sprite) {
       this.panCameraTo(targetCharacter)
     }
+  }
+
+  _triggerSwitchParticles(character) {
+    if (!character?.sprite) return
+
+    // Character sprites are on the map layer (stage space). Convert to imageGroup-local coords.
+    const localX = character.sprite.attrs.x - this.map.imageGroup.x()
+    const localY = character.sprite.attrs.y - this.map.imageGroup.y()
+
+    this._triggerSwitchParticlesAtLocal(localX, localY)
+  }
+
+  _triggerSwitchParticlesAtLocal(localX, localY) {
+    this.particles.createParticles(localX, localY, 8, undefined, {
+      speedMin: PARTICLE_CONFIG.DEFAULT_SPEED_MIN,
+      speedMax: PARTICLE_CONFIG.DEFAULT_SPEED_MAX,
+      sizeMin: PARTICLE_CONFIG.DEFAULT_SIZE_MIN,
+      sizeMax: PARTICLE_CONFIG.DEFAULT_SIZE_MAX,
+      life: PARTICLE_CONFIG.DEFAULT_LIFETIME,
+      yOffset: 28,
+      gravityY: 0,
+    })
   }
 
   panCameraTo(character) {
@@ -123,8 +156,40 @@ export default class CharacterController {
 
     // Handle Tab key for character switching
     if (this.input.switchCharacterPress && !this.lastSwitchPress) {
+      let consumedByRecruit = false
+      if (activeCharacter && activeCharacter.sprite) {
+        const gameState = gameStore.getState()
+        const closestObject = this.map.checkProximity(activeCharacter.sprite.attrs.x, activeCharacter.sprite.attrs.y)
+
+        const isRecruitableNpc =
+          closestObject &&
+          closestObject.type === 'npc' &&
+          closestObject.recruitable &&
+          !gameState.recruitedNpcs.includes(closestObject.name)
+
+        const isRecruitDialogOpenForNpc =
+          gameState.textPanelContent !== null &&
+          gameState.activeNpcDialogName &&
+          gameState.activeNpcDialogName === closestObject?.name
+
+        // Only allow recruiting while the NPC dialog panel is open (opened via SPACE interaction).
+        if (isRecruitableNpc && isRecruitDialogOpenForNpc) {
+          gameState.recruitNpcFromInput(closestObject.name)
+
+          // Ensure we immediately switch to the newly recruited character.
+          // (Don't rely on the store subscription ordering.)
+          if (!this.characters.has(closestObject.name)) {
+            this.recruitNpc(closestObject.name)
+          } else {
+            this.switchToCharacter(closestObject.name)
+          }
+
+          consumedByRecruit = true
+        }
+      }
+
       const controllableChars = playerStore.getState().getControllableCharacters()
-      if (controllableChars.length > 1) {
+      if (!consumedByRecruit && controllableChars.length > 1) {
         const currentIndex = controllableChars.findIndex((c) => c.id === activeCharacterId)
         const nextIndex = (currentIndex + 1) % controllableChars.length
         this.switchToCharacter(controllableChars[nextIndex].id)
@@ -145,6 +210,9 @@ export default class CharacterController {
         if (playerState && !playerState.isInteracting) character.sprite.animation('idle')
       }
     }
+
+    // Update switch particles
+    this.particles.update()
   }
 
   dispose() {

@@ -30,7 +30,7 @@
     "speech": [
       {
         "minBricks": 0,
-        "text": "I've been in debt to the kiln owner for years. Maybe we can help each other? (Press SPACE to recruit)"
+        "text": "I've been in debt to the kiln owner for years. Maybe we can help each other?"
       },
       {
         "minBricks": 10,
@@ -104,8 +104,8 @@
   {
     "name": "nobleWoman",
     "file": "MiniNobleWoman.png",
-    "gridX": 8,
-    "gridY": 4
+    "gridX": 12,
+    "gridY": 3
   },
   {
     "name": "nobleMan",
