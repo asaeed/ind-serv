@@ -1,4 +1,5 @@
 import gameStore from '../state/gameStore'
+import track from '../lib/analytics'
 
 // DOM overlay (not canvas): the "Accept your fate" button and end page need
 // real focusable links, so they live in index.html and are toggled here.
@@ -9,6 +10,14 @@ export default class EndGame {
 
     this.handleClick = this.handleClick.bind(this)
     this.fateButton.addEventListener('click', this.handleClick)
+
+    // which resource links get clicked is the end page's whole point
+    this.linksEl = this.endPage.querySelector('.end-page__links')
+    this.handleLinkClick = (e) => {
+      const a = e.target.closest('a')
+      if (a) track('resource_link_clicked', { url: a.href })
+    }
+    this.linksEl.addEventListener('click', this.handleLinkClick)
 
     this.unsubscribe = gameStore.subscribe((state) => {
       if (state.fateAvailable && !state.gameOver) {
@@ -38,5 +47,6 @@ export default class EndGame {
   dispose() {
     if (this.unsubscribe) this.unsubscribe()
     this.fateButton.removeEventListener('click', this.handleClick)
+    this.linksEl.removeEventListener('click', this.handleLinkClick)
   }
 }

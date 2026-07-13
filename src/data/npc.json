@@ -62,6 +62,7 @@
     "file": "MiniWorker.png",
     "gridX": 2,
     "gridY": 2,
+    "wander": 2,
     "speech": [
       {
         "minBricks": 0,

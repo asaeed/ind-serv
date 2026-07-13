@@ -1,3 +1,10 @@
+// Usage analytics (PostHog). Key is the public write-only project API key;
+// leave empty to disable tracking entirely.
+export const ANALYTICS = {
+  POSTHOG_KEY: '',
+  POSTHOG_HOST: 'https://us.i.posthog.com',
+}
+
 // Economy / narrative configuration
 export const ECONOMY = {
   STARTING_BRICK_PRICE: 10,
