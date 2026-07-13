@@ -38,6 +38,7 @@ export default class Game {
       window.gameStore = gameStore // console access for testing (e.g. fast-forwarding bricks)
       this.storeDiv = document.querySelector('.store > .value')
       if (this.storeDiv) {
+        this.storeDiv.parentElement.style.display = 'block' // hidden by default in CSS
         gameStore.subscribe(
           (state) => {
             const s = JSON.parse(JSON.stringify(state))

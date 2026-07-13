@@ -53,6 +53,10 @@ body {
   display: none;
 }
 
+.store {
+  display: none; // dev-only debug feed; Game.js un-hides it outside production
+}
+
 /* narrative end-game UI */
 
 .hidden {
