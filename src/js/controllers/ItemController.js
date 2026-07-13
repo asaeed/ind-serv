@@ -135,7 +135,8 @@ export default class ItemController {
       fill,
       barWidth,
       startTime: Date.now(),
-      duration: item.action.duration,
+      // effective duration is injury-scaled per acting character
+      duration: gameStore.getState().activeActionDurations[item.name] ?? item.action.duration,
     })
   }
 

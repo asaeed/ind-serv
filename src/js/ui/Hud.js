@@ -35,6 +35,10 @@ export default class Hud {
       numBricksShipped: 0,
     }
 
+    // displayed debt eases toward actual debt so event hits spin up
+    // wheel-of-fortune style (fast, then settling); payments tick down instantly
+    this.displayDebt = gameStore.getState().debt
+
     this.particles = new Particles(this.layer)
 
     this.createHUD()
@@ -70,7 +74,7 @@ export default class Hud {
     this.debtValue = new Konva.Text({
       x: this.padding + 15,
       y: this.padding + 35,
-      text: '$1000',
+      text: `$${gameStore.getState().debt}`,
       fontSize: this.debtFontSize,
       fontFamily: this.fontFamily,
       fill: this.debtColor,
@@ -173,7 +177,16 @@ export default class Hud {
     const gameState = gameStore.getState()
 
     // update debt and money
-    this.debtValue.text(`$${gameState.debt}`)
+    const targetDebt = gameState.debt
+    if (targetDebt < this.displayDebt) {
+      this.displayDebt = targetDebt // payments land instantly
+    } else if (targetDebt > this.displayDebt) {
+      // exponential ease-out reads as a spin-up that decelerates
+      this.displayDebt += Math.max(1, (targetDebt - this.displayDebt) * 0.08)
+      if (targetDebt - this.displayDebt < 1) this.displayDebt = targetDebt
+    }
+    this.debtValue.text(`$${Math.round(this.displayDebt)}`)
+    this.debtValue.fill(targetDebt > this.displayDebt ? '#ff1111' : this.debtColor)
     this.moneyValue.text(`$${gameState.money}`)
 
     // update production pipeline with particle effects

@@ -6,6 +6,58 @@
     "isInitialCharacter": true
   },
   {
+    "name": "kilnOwner",
+    "file": "MiniNobleMan.png",
+    "gridX": 12,
+    "gridY": 3,
+    "speech": [
+      {
+        "minBricks": 0,
+        "text": "Welcome! Work hard, pay what you owe, and walk free. The ledger never lies."
+      },
+      {
+        "minBricks": 10,
+        "text": "Fees are a normal part of any arrangement. It's all in the ledger."
+      },
+      {
+        "minBricks": 20,
+        "text": "Your family too? Wonderful. Many hands make light debt."
+      },
+      {
+        "minBricks": 45,
+        "text": "Accidents are unfortunate. Medical care isn't free, you understand."
+      },
+      {
+        "minBricks": 70,
+        "text": "Costs are up everywhere. Nothing I can do. It's all in the ledger."
+      }
+    ]
+  },
+  {
+    "name": "ownersWife",
+    "file": "MiniNobleWoman.png",
+    "gridX": 13,
+    "gridY": 3,
+    "speech": [
+      {
+        "minBricks": 0,
+        "text": "Isn't it marvelous? My husband gives these people purpose."
+      },
+      {
+        "minBricks": 25,
+        "text": "Why do they look so tired? The desert air is wonderfully refreshing."
+      },
+      {
+        "minBricks": 45,
+        "text": "Your wife should be more careful. Kiln repairs are terribly expensive."
+      },
+      {
+        "minBricks": 65,
+        "text": "Do tell your boy to mind the equipment. Replacement molds take weeks to arrive."
+      }
+    ]
+  },
+  {
     "name": "worker",
     "file": "MiniWorker.png",
     "gridX": 2,
@@ -13,77 +65,32 @@
     "speech": [
       {
         "minBricks": 0,
-        "text": "Make at least 10 bricks, then come see me"
+        "text": "Shovel the mud, mold it, bake it, ship it. Stand still at your station and your hands learn the rhythm."
       },
       {
         "minBricks": 10,
-        "text": "Nice work you got 10 bricks"
+        "text": "Ten bricks shipped. The truck takes them, the ledger counts them."
+      },
+      {
+        "minBricks": 45,
+        "text": "The kiln takes more than it gives. Watch your family."
       }
     ]
   },
   {
-    "name": "villagerWoman",
-    "file": "MiniVillagerWoman.png",
-    "gridX": 4,
-    "gridY": 2,
-    "recruitable": true,
+    "name": "oldMan",
+    "file": "MiniOldMan.png",
+    "gridX": 3,
+    "gridY": 7,
+    "wander": 4,
     "speech": [
       {
         "minBricks": 0,
-        "text": "I've been in debt to the kiln owner for years. Maybe we can help each other?"
+        "text": "Every brick on that truck pays down your debt. I've been counting mine for thirty years."
       },
       {
-        "minBricks": 10,
-        "text": "Sorry you have fallen into this trap"
-      }
-    ]
-  },
-  {
-    "name": "queen",
-    "file": "MiniQueen.png",
-    "gridX": 8,
-    "gridY": 2,
-    "speech": [
-      {
-        "minBricks": 0,
-        "text": "Snap, snap, get back to work."
-      },
-      {
-        "minBricks": 10,
-        "text": "You make pretty good bricks, but not enough!"
-      }
-    ]
-  },
-  {
-    "name": "princess",
-    "file": "MiniPrincess.png",
-    "gridX": 2,
-    "gridY": 4,
-    "speech": [
-      {
-        "minBricks": 0,
-        "text": "Talk to my mom, I don't have time for you."
-      },
-      {
-        "minBricks": 10,
-        "text": "Talk to my dad, I don't have time for you."
-      }
-    ]
-  },
-  {
-    "name": "peasant",
-    "file": "MiniPeasant.png",
-    "gridX": 4,
-    "gridY": 4,
-    "recruitable": true,
-    "speech": [
-      {
-        "minBricks": 0,
-        "text": "Cousin! I knew I'd find you out here. This place is draining the life out of us."
-      },
-      {
-        "minBricks": 10,
-        "text": "Keep your head down, cousin. We'll work our way out together."
+        "minBricks": 40,
+        "text": "The price drops when the owner says it drops. No one has ever seen this 'market'."
       }
     ]
   },
@@ -92,25 +99,52 @@
     "file": "MiniOldWoman.png",
     "gridX": 6,
     "gridY": 4,
-    "wander": 2
+    "wander": 2,
+    "speech": [
+      {
+        "minBricks": 0,
+        "text": "You came alone? They all come alone, at first."
+      },
+      {
+        "minBricks": 20,
+        "text": "Family at the same kiln can share the work. Stay close to them."
+      }
+    ]
   },
   {
-    "name": "oldMan",
-    "file": "MiniOldMan.png",
-    "gridX": 3,
-    "gridY": 7,
-    "wander": 4
+    "name": "wife",
+    "file": "MiniVillagerWoman.png",
+    "gridX": 4,
+    "gridY": 2,
+    "recruitable": true,
+    "appearAtBricks": 20,
+    "speech": [
+      {
+        "minBricks": 0,
+        "text": "We couldn't wait at home any longer. Let me help - we'll pay it off together."
+      },
+      {
+        "minBricks": 45,
+        "text": "The burn will heal. I can still work. I have to."
+      }
+    ]
   },
   {
-    "name": "nobleWoman",
-    "file": "MiniNobleWoman.png",
-    "gridX": 12,
-    "gridY": 3
-  },
-  {
-    "name": "nobleMan",
-    "file": "MiniNobleMan.png",
-    "gridX": 13,
-    "gridY": 3
+    "name": "son",
+    "file": "MiniPeasant.png",
+    "gridX": 4,
+    "gridY": 4,
+    "recruitable": true,
+    "appearAtBricks": 20,
+    "speech": [
+      {
+        "minBricks": 0,
+        "text": "Father! I'm strong enough to work now. Show me what to do."
+      },
+      {
+        "minBricks": 65,
+        "text": "I can still carry bricks with one hand. Don't look at me like that."
+      }
+    ]
   }
 ]
