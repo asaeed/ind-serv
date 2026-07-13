@@ -18,6 +18,7 @@ const playerStore = create((set, get) => ({
       speed: 4,
       controllable: true,
       autoProductionItem: null, // Track per-character auto-production
+      workSpeedMultiplier: 1, // halved permanently by injury events
     },
   },
   activeCharacterId: 'player',
@@ -91,6 +92,7 @@ const playerStore = create((set, get) => ({
           speed: 4,
           controllable: true,
           autoProductionItem: null,
+          workSpeedMultiplier: 1,
           ...characterData,
         },
       },
@@ -133,6 +135,20 @@ const playerStore = create((set, get) => ({
 
   getAutoProductionItem: (characterId) => {
     return get().characters[characterId]?.autoProductionItem
+  },
+
+  // Injuries
+  setWorkSpeedMultiplier: (characterId, multiplier) => {
+    set((state) => ({
+      characters: {
+        ...state.characters,
+        [characterId]: { ...state.characters[characterId], workSpeedMultiplier: multiplier },
+      },
+    }))
+  },
+
+  getWorkSpeedMultiplier: (characterId) => {
+    return get().characters[characterId]?.workSpeedMultiplier ?? 1
   },
 }))
 

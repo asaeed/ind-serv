@@ -38,13 +38,15 @@ export default class NpcController {
       originY: npc.gridY,
       targetX: npc.gridX,
       targetY: npc.gridY,
+      // NPCs with appearAtBricks stay hidden until enough bricks have shipped
+      hidden: Boolean(npc.appearAtBricks),
     })
   }
 
   isVacant(gridX, gridY) {
     for (const npc of this.npcs) {
-      // Skip recruited NPCs - they're now player-controlled characters
-      if (npc.recruited) continue
+      // Skip recruited NPCs (player-controlled now) and hidden NPCs (not here yet)
+      if (npc.recruited || npc.hidden) continue
 
       if (npc.gridX === gridX && npc.gridY === gridY) {
         return false
@@ -64,8 +66,8 @@ export default class NpcController {
 
   getClosest(x, y) {
     const positions = this.npcs
-      // Recruited NPCs are now playable characters; exclude them from interaction proximity.
-      .filter((npc) => !npc.recruited)
+      // Exclude recruited NPCs (now playable characters) and hidden NPCs from interaction proximity.
+      .filter((npc) => !npc.recruited && !npc.hidden)
       .map((npc) => ({
         ...npc,
         x: npc.o.sprite.x(),
@@ -76,8 +78,8 @@ export default class NpcController {
 
   wanderNpcs() {
     for (const npc of this.npcs) {
-      // Skip recruited NPCs
-      if (npc.recruited) continue
+      // Skip recruited and hidden NPCs
+      if (npc.recruited || npc.hidden) continue
 
       if (npc.wander) {
         const direction = Math.random() < 0.5 ? 'horizontal' : 'vertical'
@@ -105,11 +107,23 @@ export default class NpcController {
 
   update() {
     const speed = 4
+    const shipped = gameStore.getState().numBricksShipped
 
     // if there's a target location that differs from current location, move towards it
     for (let npc of this.npcs) {
+      // reveal/keep-hidden NPCs gated on shipped bricks (sprite loads async,
+      // so enforce visibility here rather than at creation)
+      if (npc.appearAtBricks && npc.o.sprite) {
+        if (npc.hidden && shipped >= npc.appearAtBricks) {
+          npc.hidden = false
+          npc.o.sprite.visible(true)
+        } else if (npc.hidden && npc.o.sprite.visible()) {
+          npc.o.sprite.visible(false)
+        }
+      }
+
       // Skip recruited NPCs (they're now controlled by CharacterController)
-      if (npc.recruited) continue
+      if (npc.recruited || npc.hidden) continue
 
       // only move one direction at a time
       const axis = npc.gridX !== npc.targetX ? 'x' : npc.gridY !== npc.targetY ? 'y' : null

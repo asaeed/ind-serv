@@ -4,6 +4,8 @@ import Map from './Map'
 import CharacterController from './controllers/CharacterController'
 import Hud from './ui/Hud'
 import TouchControls from './ui/TouchControls'
+import EndGame from './ui/EndGame'
+import StartGame from './ui/StartGame'
 import gameStore from './state/gameStore'
 import { GAME_CONFIG } from './constants'
 
@@ -27,10 +29,13 @@ export default class Game {
       this.touchControls = new TouchControls(this.input)
       this.touchControls.init()
       this.characterController = new CharacterController(this.map, this.input)
+      this.endGame = new EndGame()
+      this.startGame = new StartGame() // opening narration fires when Start is clicked
     })
 
     // Debug output (development only)
     if (process.env.NODE_ENV !== 'production') {
+      window.gameStore = gameStore // console access for testing (e.g. fast-forwarding bricks)
       this.storeDiv = document.querySelector('.store > .value')
       if (this.storeDiv) {
         gameStore.subscribe(
@@ -49,6 +54,8 @@ export default class Game {
   }
 
   update(tFrame) {
+    const { gameStarted, gameOver } = gameStore.getState()
+    if (!gameStarted || gameOver) return // start screen or end page is showing
     this.characterController && this.characterController.update()
     this.map && this.map.update()
     this.hud && this.hud.update()
@@ -91,6 +98,10 @@ export default class Game {
 
     if (this.touchControls && this.touchControls.dispose) {
       this.touchControls.dispose()
+    }
+
+    if (this.endGame && this.endGame.dispose) {
+      this.endGame.dispose()
     }
 
     // destroy konva stage (this also destroys all layers and shapes)

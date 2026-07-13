@@ -16,7 +16,7 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      title: devMode ? 'Development' : 'Industrial Servitude',
+      title: devMode ? 'Development' : 'Indentured Servitude',
       template: './src/index.html',
     }),
     new MiniCssExtractPlugin(),

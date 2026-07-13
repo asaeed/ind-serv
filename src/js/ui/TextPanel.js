@@ -47,11 +47,20 @@ export default class TextPanel {
 
       // Initial layout once assets are ready.
       this.layout()
+
+      // Show content that was set before assets loaded (e.g. the opening narration).
+      const state = gameStore.getState()
+      if (state.textPanelContent) {
+        this.panelText.text(this.formatText(state.textPanelContent, state.textPanelOptions, state.textPanelOptionIdx))
+        this.group.opacity(1)
+        this.layout()
+      }
     }
     imageObj.src = panelImagePath
 
     const unsubscribe = gameStore.subscribe(
       (state) => {
+        if (!this.panelText) return // assets not loaded yet; onload will catch up
         if (state.textPanelContent) {
           this.panelText.text(this.formatText(state.textPanelContent, state.textPanelOptions, state.textPanelOptionIdx))
           this.group.opacity(1)

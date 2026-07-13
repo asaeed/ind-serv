@@ -1,3 +1,10 @@
+// Economy / narrative configuration
+export const ECONOMY = {
+  STARTING_BRICK_PRICE: 10,
+  GIVE_UP_THRESHOLD: 2000, // debt at which "Accept your fate" appears
+  INJURY_SPEED_MULTIPLIER: 0.5, // permanent, for both injuries
+}
+
 // Game configuration constants
 export const GAME_CONFIG = {
   CANVAS_WIDTH: 1000,
