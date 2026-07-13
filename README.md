@@ -38,4 +38,6 @@ tracking into a no-op. Events captured: `game_started`, `story_event` / `story_e
 
 - `npm start` — dev server
 - `npm run build` — production build
-- `npm run deploy` — publish `dist/` to gh-pages
+- Deploys are automatic: every push to `main` builds and publishes to gh-pages
+  via GitHub Actions (`.github/workflows/deploy.yml`). `npm run deploy` remains
+  as a manual fallback.
