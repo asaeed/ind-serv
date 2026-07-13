@@ -4,6 +4,7 @@ import mapData from '../../data/map.json'
 import itemData from '../../data/item.json'
 import eventData from '../../data/event.json'
 import { ECONOMY } from '../constants'
+import track from '../lib/analytics'
 
 const getSwitchKeyLabel = () => {
   const isMobile = window.matchMedia && window.matchMedia('(max-width: 820px)').matches
@@ -237,6 +238,10 @@ const gameStore = create((set, get) => ({
   // (the HUD animates the jump - dismissing the bad news is what makes it real).
   closeTextPanel: () => {
     const wasEventPanel = get().eventPanelOpen
+    const { pendingDebtDelta, debt, fateAvailable, numBricksShipped } = get()
+    if (pendingDebtDelta && !fateAvailable && debt + pendingDebtDelta >= ECONOMY.GIVE_UP_THRESHOLD) {
+      track('fate_available', { debt: debt + pendingDebtDelta, bricksShipped: numBricksShipped })
+    }
 
     set((state) => {
       const newState = {
@@ -291,6 +296,7 @@ const gameStore = create((set, get) => ({
         if (shipped < nextAt) continue
 
         const amount = ev.debtDelta + state.recurringCount * ev.repeat.escalate
+        track('story_event', { id: ev.id, debtDelta: amount, bricksShipped: shipped, occurrence: state.recurringCount + 1 })
         set((s) => ({
           recurringCount: s.recurringCount + 1,
           pendingDebtDelta: s.pendingDebtDelta + amount,
@@ -306,6 +312,7 @@ const gameStore = create((set, get) => ({
 
       // injury events need the target working at the kiln; skip permanently otherwise
       if (ev.trigger.requiresRecruit && !state.recruitedNpcs.includes(ev.trigger.requiresRecruit)) {
+        track('story_event_skipped', { id: ev.id, bricksShipped: shipped })
         set((s) => ({ eventsDone: { ...s.eventsDone, [ev.id]: true } }))
         continue
       }
@@ -315,6 +322,7 @@ const gameStore = create((set, get) => ({
         playerStore.getState().setWorkSpeedMultiplier(ev.injures, ECONOMY.INJURY_SPEED_MULTIPLIER)
       }
 
+      track('story_event', { id: ev.id, debtDelta: ev.debtDelta || 0, bricksShipped: shipped })
       set((s) => ({
         eventsDone: { ...s.eventsDone, [ev.id]: true },
         pendingDebtDelta: s.pendingDebtDelta + (ev.debtDelta || 0),
@@ -328,11 +336,23 @@ const gameStore = create((set, get) => ({
     }
   },
 
-  acceptFate: () => set({ gameOver: true }),
+  acceptFate: () => {
+    const s = get()
+    track('gave_up', {
+      bricksShipped: s.numBricksShipped,
+      debt: s.debt,
+      debtPaid: s.totalEarned,
+      debtAdded: s.totalCharged,
+      yearsWorked: Math.floor((Date.now() - s.startTime) / 60000),
+      recruited: s.recruitedNpcs,
+    })
+    set({ gameOver: true })
+  },
 
   // Start-screen button clicked: unfreeze the game and fire the opening narration.
   // The year clock (1 real minute = 1 year) starts now, not at page load.
   startGame: () => {
+    track('game_started')
     set({ gameStarted: true, startTime: Date.now() })
     get().checkEvents()
   },
@@ -355,6 +375,7 @@ const gameStore = create((set, get) => ({
     if (!npcName) return
     if (get().recruitedNpcs.includes(npcName)) return
 
+    track('recruited', { npc: npcName, bricksShipped: get().numBricksShipped })
     get().recruitNpc(npcName)
 
     const keyLabel = getSwitchKeyLabel()

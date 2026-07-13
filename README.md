@@ -18,6 +18,15 @@ milestones). Design doc: `docs/superpowers/specs/2026-07-13-narrative-arc-design
 
 Created using Javascript, Canvas API, Konva
 
+## Usage analytics
+
+Gameplay events go to PostHog (free tier) via `src/js/lib/analytics.js` — no
+backend of our own. Set `ANALYTICS.POSTHOG_KEY` in `src/js/constants.js` to the
+project's public write-only API key to enable; with no key set, tracking is a
+no-op. Events captured: `game_started`, `story_event` / `story_event_skipped`,
+`recruited`, `fate_available`, `gave_up` (with final stats), and
+`resource_link_clicked`.
+
 ## Develop
 
 - `npm start` — dev server
