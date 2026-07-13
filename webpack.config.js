@@ -18,6 +18,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       title: devMode ? 'Development' : 'Indentured Servitude',
       template: './src/index.html',
+      favicon: './src/favicon.ico',
     }),
     new MiniCssExtractPlugin(),
     new webpack.DefinePlugin({

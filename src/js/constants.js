@@ -1,7 +1,7 @@
 // Usage analytics (PostHog). Key is the public write-only project API key;
 // leave empty to disable tracking entirely.
 export const ANALYTICS = {
-  POSTHOG_KEY: '',
+  POSTHOG_KEY: 'phc_qDvbEVGoNzaoJEAKuefuMo79cUSDZL3TKYuZjRL5CaoF',
   POSTHOG_HOST: 'https://us.i.posthog.com',
 }
 
