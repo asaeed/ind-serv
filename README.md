@@ -27,6 +27,13 @@ tracking into a no-op. Events captured: `game_started`, `story_event` / `story_e
 `recruited`, `fate_available`, `gave_up` (with final stats), and
 `resource_link_clicked`.
 
+## Credits
+
+- Character sprites: [MiniFolks – Villagers](https://lyaseek.itch.io/minifvillagers) by LYASeeK
+- Map tiles: [Desert Map Tileset 16x16](https://beyonderboy.itch.io/desert-map-tileset-16x16) by BeyonderBoy
+- Fonts: [04b03](https://www.dafont.com/04b-03.font) by Yuji Oshimoto and
+  [Press Start 2P](https://fonts.google.com/specimen/Press+Start+2P) by CodeMan38
+
 ## Develop
 
 - `npm start` — dev server
