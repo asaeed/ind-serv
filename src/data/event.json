@@ -1,69 +1,97 @@
 [
   {
     "id": "opening",
-    "trigger": { "bricksShipped": 0 },
+    "trigger": {
+      "bricksShipped": 0
+    },
+    "debtDelta": 1000,
     "text": "You borrowed $1,000 for your father's funeral. The kiln owner was glad to help.\n\nNow you make his bricks until the debt is paid."
   },
   {
     "id": "lodging",
-    "trigger": { "bricksShipped": 10 },
+    "trigger": {
+      "bricksShipped": 7
+    },
     "debtDelta": 150,
     "text": "Lodging fee: +$150.\n\nYou didn't think the roof was free?"
   },
   {
     "id": "familyArrives",
-    "trigger": { "bricksShipped": 20 },
+    "trigger": {
+      "bricksShipped": 13
+    },
     "text": "Your wife and son arrive at the kiln gates. They've come to help you pay it off."
   },
   {
     "id": "priceDrop1",
-    "trigger": { "bricksShipped": 25 },
+    "trigger": {
+      "bricksShipped": 16
+    },
     "brickPrice": 7,
     "text": "The market is down, says the owner. Bricks pay $7 now."
   },
   {
     "id": "shovelBreaks",
-    "trigger": { "bricksShipped": 30 },
+    "trigger": {
+      "bricksShipped": 19
+    },
     "debtDelta": 75,
     "text": "Your shovel splits at the handle. A replacement is charged to the ledger: +$75."
   },
   {
     "id": "fuelCharge",
-    "trigger": { "bricksShipped": 35 },
+    "trigger": {
+      "bricksShipped": 23
+    },
     "debtDelta": 120,
     "text": "Kiln fuel charge: +$120.\n\nThe fire doesn't feed itself."
   },
   {
     "id": "priceDrop2",
-    "trigger": { "bricksShipped": 40 },
+    "trigger": {
+      "bricksShipped": 26
+    },
     "brickPrice": 5,
     "text": "The market is down again. Bricks pay $5 now."
   },
   {
     "id": "wifeBurned",
-    "trigger": { "bricksShipped": 45, "requiresRecruit": "wife" },
+    "trigger": {
+      "bricksShipped": 29,
+      "requiresRecruit": "wife"
+    },
     "debtDelta": 200,
     "injures": "wife",
     "text": "Your wife is burned reaching into the kiln. Hospital bill: +$200.\n\nShe works slower now."
   },
   {
     "id": "recalculation",
-    "trigger": { "bricksShipped": 55 },
+    "trigger": {
+      "bricksShipped": 36
+    },
     "debtDelta": 250,
     "text": "The owner recalculates your debt. Interest. Fees. It's all in the ledger: +$250."
   },
   {
     "id": "sonHand",
-    "trigger": { "bricksShipped": 65, "requiresRecruit": "son" },
+    "trigger": {
+      "bricksShipped": 42,
+      "requiresRecruit": "son"
+    },
     "debtDelta": 400,
     "injures": "son",
     "text": "The mold takes your son's hand. Hospital bill: +$400.\n\nHe works slower now."
   },
   {
     "id": "recurring",
-    "trigger": { "bricksShipped": 70 },
+    "trigger": {
+      "bricksShipped": 46
+    },
     "debtDelta": 150,
-    "repeat": { "every": 10, "escalate": 50 },
+    "repeat": {
+      "every": 7,
+      "escalate": 50
+    },
     "text": "Charges for food, lodging, and upkeep: +$${amount}."
   }
 ]

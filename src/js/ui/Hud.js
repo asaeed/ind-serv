@@ -102,6 +102,17 @@ export default class Hud {
     })
     this.layer.add(this.moneyValue)
 
+    // year counter: 1 real minute = 1 year worked
+    this.yearsText = new Konva.Text({
+      x: this.padding + 15,
+      y: this.padding + 62,
+      text: 'YEARS WORKED: 0',
+      fontSize: 8,
+      fontFamily: this.fontFamily,
+      fill: '#888',
+    })
+    this.layer.add(this.yearsText)
+
     // production pipeline section
     const pipelineY = this.padding + 85
 
@@ -188,6 +199,10 @@ export default class Hud {
     this.debtValue.text(`$${Math.round(this.displayDebt)}`)
     this.debtValue.fill(targetDebt > this.displayDebt ? '#ff1111' : this.debtColor)
     this.moneyValue.text(`$${gameState.money}`)
+
+    // year counter (only ticks once the game has started)
+    const years = gameState.gameStarted ? Math.floor((Date.now() - gameState.startTime) / 60000) : 0
+    this.yearsText.text(`YEARS WORKED: ${years}`)
 
     // update production pipeline with particle effects
     this.updateValue(this.mudText.value, gameState.numMud, this.previousValues.numMud)

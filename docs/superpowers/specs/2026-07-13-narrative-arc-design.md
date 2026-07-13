@@ -41,24 +41,30 @@ Events keyed to `numBricksShipped` (all copy/values tunable in `events.json`):
 
 | Trigger | Event | Debt | Other effects |
 |---|---|---|---|
-| 10 | Lodging fee — "You didn't think the roof was free?" | +150 | |
-| 20 | "Your wife and son arrive at the kiln gates." | — | wife + son NPCs appear |
-| 25 | "The market is down." | — | brick price $10 → $7 |
-| 30 | Shovel breaks — replacement charged to the ledger | +75 | |
-| 35 | Kiln fuel charge | +120 | |
-| 40 | "The market is down again." | — | brick price $7 → $5 |
-| 45 * | Wife burned at the kiln — hospital bill | +200 | wife speed ×0.5 permanently |
-| 55 | Ledger "recalculation" — interest and fees | +250 | |
-| 65 * | Son loses a hand to the mold — hospital bill | +400 | son speed ×0.5 permanently |
-| 70, then every 10 | Recurring charges (food, lodging, "upkeep") | +150, +200, +250, … (+50 each) | guarantees debt growth |
+| 0 (on Start) | Opening card — the funeral loan | +1,000 | debt starts at $0 and spins up on dismiss |
+| 7 | Lodging fee — "You didn't think the roof was free?" | +150 | |
+| 13 | "Your wife and son arrive at the kiln gates." | — | wife + son NPCs appear |
+| 16 | "The market is down." | — | brick price $10 → $7 |
+| 19 | Shovel breaks — replacement charged to the ledger | +75 | |
+| 23 | Kiln fuel charge | +120 | |
+| 26 | "The market is down again." | — | brick price $7 → $5 |
+| 29 * | Wife burned at the kiln — hospital bill | +200 | wife speed ×0.5 permanently |
+| 36 | Ledger "recalculation" — interest and fees | +250 | |
+| 42 * | Son loses a hand to the mold — hospital bill | +400 | son speed ×0.5 permanently |
+| 46, then every 7 | Recurring charges (food, lodging, "upkeep") | +150, +200, +250, … (+50 each) | guarantees debt growth |
+
+(Triggers compressed ~×0.65 on 2026-07-13 after a playtest read ~20 min to the
+give-up point; target is ~12–14 min. NPC `minBricks` ladders are synced to the
+same beats.)
 
 \* Injury events additionally require that character to have been recruited;
 if the player never recruits, injuries are skipped and the recurring charges
 still make the game unwinnable.
 
 **Balance goal:** late-game max earnings are $5/brick while recurring charges
-escalate without bound, so past ~70 bricks the debt slope is strictly positive
-no matter how the player plays. Exact values are first-pass; tune by playtest.
+escalate without bound, so past ~46 bricks the debt slope is strictly positive
+no matter how the player plays. The $2,000 threshold should land around brick
+46–50. Exact values are playtest-tuned.
 
 ## Mechanics
 
@@ -69,6 +75,10 @@ no matter how the player plays. Exact values are first-pass; tune by playtest.
   `appearAtBricks` on its own; the 20-brick event is pure narration.
 - `checkEvents()` in `gameStore`, called after each shipped-brick increment.
   Fires at most one event per ship; marks one-shots as done.
+- **Start screen**: a full-screen overlay with a Start Game button; the game
+  boots frozen behind it (`gameStarted` gates the update loop). Clicking Start
+  fades the overlay and fires the opening event — that's when the "You
+  borrowed $1,000" card appears.
 - Firing an event opens the TextPanel with its text and holds `debtDelta` as
   `pendingDebtDelta`. **On panel dismiss**, the delta is applied to `debt` —
   that's what the HUD animates.
@@ -107,7 +117,9 @@ no matter how the player plays. Exact values are first-pass; tune by playtest.
   clickable forever; realizing the button is the only move left is the point.
 - On click: fade the canvas (CSS), then a full-screen HTML end page:
   1. Epilogue: *"The debt outlives you. It passes to your children."*
-  2. Stats as indictment: bricks made, debt paid ($X), debt added by the owner ($Y), time worked.
+  2. Stats as indictment: bricks made, debt paid ($X), debt added by the owner
+     ($Y), time worked in years (1 real minute = 1 year; the HUD shows a live
+     "YEARS WORKED" counter during play, clock starts at the Start click).
   3. Educational pivot: this is debt bondage (bonded labor), the most common
      form of modern slavery; brick kilns are its emblematic setting. Links:
      Anti-Slavery International, ILO forced-labour programme, Walk Free /
@@ -129,6 +141,7 @@ no matter how the player plays. Exact values are first-pass; tune by playtest.
 
 ## Tunables (single place, `events.json` / constants)
 
-- Starting debt $1,000 · brick price 10 → 7 → 5 · give-up threshold $2,000
+- Starting debt $1,000 (applied as the opening event's debtDelta; the counter
+  starts at $0 and spins up) · brick price 10 → 7 → 5 · give-up threshold $2,000
 - Event triggers/deltas per table above · recurring charge base +150, step +50
 - Injury multiplier 0.5 (both permanent)

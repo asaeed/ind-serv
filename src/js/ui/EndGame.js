@@ -21,12 +21,12 @@ export default class EndGame {
     const state = gameStore.getState()
     state.acceptFate()
 
-    // stats as indictment
-    const minutes = Math.max(1, Math.round((Date.now() - state.startTime) / 60000))
+    // stats as indictment (1 real minute = 1 year worked)
+    const years = Math.max(1, Math.floor((Date.now() - state.startTime) / 60000))
     this.endPage.querySelector('.end-stat--bricks').textContent = state.numBricksShipped
     this.endPage.querySelector('.end-stat--paid').textContent = `$${state.totalEarned}`
     this.endPage.querySelector('.end-stat--added').textContent = `$${state.totalCharged}`
-    this.endPage.querySelector('.end-stat--time').textContent = `${minutes} min`
+    this.endPage.querySelector('.end-stat--time').textContent = years === 1 ? '1 year' : `${years} years`
 
     this.fateButton.classList.add('hidden')
     document.querySelector('.main-container').classList.add('faded')

@@ -1,8 +1,8 @@
 [
   {
     "name": "player",
-    "gridX": 4,
-    "gridY": 6,
+    "gridX": 8,
+    "gridY": 10,
     "isInitialCharacter": true
   },
   {
@@ -16,19 +16,19 @@
         "text": "Welcome! Work hard, pay what you owe, and walk free. The ledger never lies."
       },
       {
-        "minBricks": 10,
+        "minBricks": 7,
         "text": "Fees are a normal part of any arrangement. It's all in the ledger."
       },
       {
-        "minBricks": 20,
+        "minBricks": 13,
         "text": "Your family too? Wonderful. Many hands make light debt."
       },
       {
-        "minBricks": 45,
+        "minBricks": 29,
         "text": "Accidents are unfortunate. Medical care isn't free, you understand."
       },
       {
-        "minBricks": 70,
+        "minBricks": 46,
         "text": "Costs are up everywhere. Nothing I can do. It's all in the ledger."
       }
     ]
@@ -44,15 +44,15 @@
         "text": "Isn't it marvelous? My husband gives these people purpose."
       },
       {
-        "minBricks": 25,
+        "minBricks": 16,
         "text": "Why do they look so tired? The desert air is wonderfully refreshing."
       },
       {
-        "minBricks": 45,
+        "minBricks": 29,
         "text": "Your wife should be more careful. Kiln repairs are terribly expensive."
       },
       {
-        "minBricks": 65,
+        "minBricks": 42,
         "text": "Do tell your boy to mind the equipment. Replacement molds take weeks to arrive."
       }
     ]
@@ -68,11 +68,11 @@
         "text": "Shovel the mud, mold it, bake it, ship it. Stand still at your station and your hands learn the rhythm."
       },
       {
-        "minBricks": 10,
-        "text": "Ten bricks shipped. The truck takes them, the ledger counts them."
+        "minBricks": 7,
+        "text": "The bricks pile up. The truck takes them, the ledger counts them."
       },
       {
-        "minBricks": 45,
+        "minBricks": 29,
         "text": "The kiln takes more than it gives. Watch your family."
       }
     ]
@@ -89,7 +89,7 @@
         "text": "Every brick on that truck pays down your debt. I've been counting mine for thirty years."
       },
       {
-        "minBricks": 40,
+        "minBricks": 26,
         "text": "The price drops when the owner says it drops. No one has ever seen this 'market'."
       }
     ]
@@ -106,7 +106,7 @@
         "text": "You came alone? They all come alone, at first."
       },
       {
-        "minBricks": 20,
+        "minBricks": 13,
         "text": "Family at the same kiln can share the work. Stay close to them."
       }
     ]
@@ -117,14 +117,14 @@
     "gridX": 4,
     "gridY": 2,
     "recruitable": true,
-    "appearAtBricks": 20,
+    "appearAtBricks": 13,
     "speech": [
       {
         "minBricks": 0,
         "text": "We couldn't wait at home any longer. Let me help - we'll pay it off together."
       },
       {
-        "minBricks": 45,
+        "minBricks": 29,
         "text": "The burn will heal. I can still work. I have to."
       }
     ]
@@ -135,14 +135,14 @@
     "gridX": 4,
     "gridY": 4,
     "recruitable": true,
-    "appearAtBricks": 20,
+    "appearAtBricks": 13,
     "speech": [
       {
         "minBricks": 0,
         "text": "Father! I'm strong enough to work now. Show me what to do."
       },
       {
-        "minBricks": 65,
+        "minBricks": 42,
         "text": "I can still carry bricks with one hand. Don't look at me like that."
       }
     ]

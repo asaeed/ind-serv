@@ -1,6 +1,5 @@
 // Economy / narrative configuration
 export const ECONOMY = {
-  STARTING_DEBT: 1000,
   STARTING_BRICK_PRICE: 10,
   GIVE_UP_THRESHOLD: 2000, // debt at which "Accept your fate" appears
   INJURY_SPEED_MULTIPLIER: 0.5, // permanent, for both injuries

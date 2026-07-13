@@ -5,6 +5,7 @@ import CharacterController from './controllers/CharacterController'
 import Hud from './ui/Hud'
 import TouchControls from './ui/TouchControls'
 import EndGame from './ui/EndGame'
+import StartGame from './ui/StartGame'
 import gameStore from './state/gameStore'
 import { GAME_CONFIG } from './constants'
 
@@ -29,9 +30,7 @@ export default class Game {
       this.touchControls.init()
       this.characterController = new CharacterController(this.map, this.input)
       this.endGame = new EndGame()
-
-      // fire the opening narration (event with trigger bricksShipped: 0)
-      gameStore.getState().checkEvents()
+      this.startGame = new StartGame() // opening narration fires when Start is clicked
     })
 
     // Debug output (development only)
@@ -55,7 +54,8 @@ export default class Game {
   }
 
   update(tFrame) {
-    if (gameStore.getState().gameOver) return // end page is showing
+    const { gameStarted, gameOver } = gameStore.getState()
+    if (!gameStarted || gameOver) return // start screen or end page is showing
     this.characterController && this.characterController.update()
     this.map && this.map.update()
     this.hud && this.hud.update()

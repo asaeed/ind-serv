@@ -12,7 +12,7 @@ const getSwitchKeyLabel = () => {
 
 const gameStore = create((set, get) => ({
   score: 0,
-  debt: ECONOMY.STARTING_DEBT,
+  debt: 0, // spins up to $1,000 when the opening event is dismissed (its debtDelta)
   money: 0,
   brickPrice: ECONOMY.STARTING_BRICK_PRICE,
   creatingMud: false,
@@ -32,6 +32,7 @@ const gameStore = create((set, get) => ({
   pendingDebtDelta: 0, // applied (with HUD spin) when the event panel is dismissed
   eventPanelOpen: false, // while true, production pauses and no new event can fire
   fateAvailable: false, // debt crossed GIVE_UP_THRESHOLD; "Accept your fate" shown
+  gameStarted: false, // false until the start-screen button is clicked; game is frozen
   gameOver: false,
   // stats for the end page
   totalEarned: 0,
@@ -328,6 +329,13 @@ const gameStore = create((set, get) => ({
   },
 
   acceptFate: () => set({ gameOver: true }),
+
+  // Start-screen button clicked: unfreeze the game and fire the opening narration.
+  // The year clock (1 real minute = 1 year) starts now, not at page load.
+  startGame: () => {
+    set({ gameStarted: true, startTime: Date.now() })
+    get().checkEvents()
+  },
 
   // Recruit NPC
   recruitNpc: (npcName) => {
