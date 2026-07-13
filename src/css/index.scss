@@ -93,6 +93,18 @@ body {
     color: #ff5555;
     margin-bottom: 56px;
   }
+
+  &__hint {
+    margin-top: 48px;
+    font-size: 10px;
+    line-height: 1.8;
+    color: #666;
+
+    // mobile wording swapped in by the media query below
+    &--mobile {
+      display: none;
+    }
+  }
 }
 
 .start-button {
@@ -264,6 +276,19 @@ body {
 
   .store {
     display: none;
+  }
+
+  .start-page__hint--desktop {
+    display: none;
+  }
+
+  .start-page__hint--mobile {
+    display: inline;
+  }
+
+  // keep the fate button clear of the touch controls (~200px zone at the bottom)
+  .fate-button {
+    bottom: 220px;
   }
 
   .touch-controls {
