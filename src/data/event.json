@@ -83,15 +83,37 @@
     "text": "The mold takes your son's hand. Hospital bill: +$400.\n\nHe works slower now."
   },
   {
+    "id": "bigOrder",
+    "trigger": {
+      "bricksShipped": 45
+    },
+    "brickPrice": 8,
+    "text": "A big order comes in from the city. Bricks pay $8 now.\n\nMaybe there's a way out after all."
+  },
+  {
+    "id": "playerBurned",
+    "trigger": {
+      "bricksShipped": 61
+    },
+    "debtDelta": 450,
+    "injures": "player",
+    "text": "The kiln takes its due. Burns down your arm. Hospital bill: +$450.\n\nYou work slower now."
+  },
+  {
     "id": "recurring",
     "trigger": {
-      "bricksShipped": 46
+      "bricksShipped": 68
     },
     "debtDelta": 150,
     "repeat": {
       "every": 7,
       "escalate": 50
     },
-    "text": "Charges for food, lodging, and upkeep: +$${amount}."
+    "texts": [
+      "Charges for food, lodging, and upkeep: +$${amount}.",
+      "The owner raises the rent. It's a popular kiln: +$${amount}.",
+      "Tool wear, water, firewood - the ledger remembers everything: +$${amount}.",
+      "A new fee appears in the ledger. No one explains it: +$${amount}."
+    ]
   }
 ]

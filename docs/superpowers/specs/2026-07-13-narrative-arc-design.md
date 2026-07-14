@@ -51,7 +51,9 @@ Events keyed to `numBricksShipped` (all copy/values tunable in `events.json`):
 | 29 * | Wife burned at the kiln — hospital bill | +200 | wife speed ×0.5 permanently |
 | 36 | Ledger "recalculation" — interest and fees | +250 | |
 | 42 * | Son loses a hand to the mold — hospital bill | +400 | son speed ×0.5 permanently |
-| 46, then every 7 | Recurring charges (food, lodging, "upkeep") | +150, +200, +250, … (+50 each) | guarantees debt growth |
+| 45 | False dawn — "A big order comes in from the city." | — | brick price $5 → $8; debt visibly **falls** for ~16 bricks |
+| 61 | The kiln burns the player — hospital bill | +450 | player speed ×0.5 permanently; typically crosses $2,000 → fate button appears on the boom |
+| 68, then every 7 | Recurring charges (4 rotating text variants) | +150, +200, +250, … (+50 each) | guarantees debt growth post-boom |
 
 (Triggers compressed ~×0.65 on 2026-07-13 after a playtest read ~20 min to the
 give-up point; target is ~12–14 min. NPC `minBricks` ladders are synced to the
@@ -61,10 +63,14 @@ same beats.)
 if the player never recruits, injuries are skipped and the recurring charges
 still make the game unwinnable.
 
-**Balance goal:** late-game max earnings are $5/brick while recurring charges
-escalate without bound, so past ~46 bricks the debt slope is strictly positive
-no matter how the player plays. The $2,000 threshold should land around brick
-46–50. Exact values are playtest-tuned.
+**Balance goal:** the endgame is a false dawn. After the son's injury the
+charges stop and the "big order" raises pay to $8/brick, so debt visibly falls
+from ~brick 45–60 (roughly $1,900 → $1,750 with the family recruited). The
+player's own burn at 61 (+$450) erases the hope in one hit and typically
+crosses the $2,000 threshold — the fate button appears on the boom, not on a
+grind. From 68 the recurring charges (rotating copy, escalating +50) outpace
+the $8 wage forever, so the game stays unwinnable if the player keeps going.
+Exact values are playtest-tuned.
 
 ## Mechanics
 
