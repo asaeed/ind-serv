@@ -77,12 +77,9 @@ export default class CharacterController {
       npcToRecruit.targetY = gridY
       npcToRecruit.recruited = true
 
-      // Trigger switch particles immediately at the NPC's current position.
-      // (New player sprite may not be loaded yet.)
+      // Trigger particles at the NPC's position as join feedback.
+      // (No auto-switch: Tab/B switches to them whenever the player chooses.)
       this._triggerSwitchParticlesAtLocal(npcToRecruit.o.sprite.x(), npcToRecruit.o.sprite.y())
-
-      // Automatically switch to the newly recruited character
-      this.switchToCharacter(npcName)
     }
   }
 
@@ -154,42 +151,10 @@ export default class CharacterController {
     const activeCharacterId = playerStore.getState().activeCharacterId
     const activeCharacter = this.characters.get(activeCharacterId)
 
-    // Handle Tab key for character switching
+    // Tab/B cycles through party members (recruiting happens by talking to them)
     if (this.input.switchCharacterPress && !this.lastSwitchPress) {
-      let consumedByRecruit = false
-      if (activeCharacter && activeCharacter.sprite) {
-        const gameState = gameStore.getState()
-        const closestObject = this.map.checkProximity(activeCharacter.sprite.attrs.x, activeCharacter.sprite.attrs.y)
-
-        const isRecruitableNpc =
-          closestObject &&
-          closestObject.type === 'npc' &&
-          closestObject.recruitable &&
-          !gameState.recruitedNpcs.includes(closestObject.name)
-
-        const isRecruitDialogOpenForNpc =
-          gameState.textPanelContent !== null &&
-          gameState.activeNpcDialogName &&
-          gameState.activeNpcDialogName === closestObject?.name
-
-        // Only allow recruiting while the NPC dialog panel is open (opened via SPACE interaction).
-        if (isRecruitableNpc && isRecruitDialogOpenForNpc) {
-          gameState.recruitNpcFromInput(closestObject.name)
-
-          // Ensure we immediately switch to the newly recruited character.
-          // (Don't rely on the store subscription ordering.)
-          if (!this.characters.has(closestObject.name)) {
-            this.recruitNpc(closestObject.name)
-          } else {
-            this.switchToCharacter(closestObject.name)
-          }
-
-          consumedByRecruit = true
-        }
-      }
-
       const controllableChars = playerStore.getState().getControllableCharacters()
-      if (!consumedByRecruit && controllableChars.length > 1) {
+      if (controllableChars.length > 1) {
         const currentIndex = controllableChars.findIndex((c) => c.id === activeCharacterId)
         const nextIndex = (currentIndex + 1) % controllableChars.length
         this.switchToCharacter(controllableChars[nextIndex].id)

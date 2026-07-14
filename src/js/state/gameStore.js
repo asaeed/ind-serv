@@ -82,9 +82,11 @@ const gameStore = create((set, get) => ({
       if (gameObject.type === 'npc') {
         const npc = gameObject
 
-        // Handle recruitable NPC
-        if (npc.recruitable && !get().recruitedNpcs.includes(npc.name)) {
-          // Mark dialog as seen; actual recruiting is triggered via TAB.
+        // Talking to a recruitable NPC recruits them on the spot;
+        // TAB/B switches to them any time after (panel open or not).
+        const justRecruited = npc.recruitable && !get().recruitedNpcs.includes(npc.name)
+        if (justRecruited) {
+          get().recruitNpc(npc.name)
           set((state) => ({
             tracking: {
               ...state.tracking,
@@ -101,11 +103,11 @@ const gameStore = create((set, get) => ({
           } else break
         }
 
-        // Dynamically append switch hint for recruitable characters.
+        // Dynamically append the joined notice + switch hint.
         // (Do not store this string in npc.json.)
-        if (npc.recruitable && !get().recruitedNpcs.includes(npc.name)) {
+        if (justRecruited) {
           const keyLabel = getSwitchKeyLabel()
-          selectedSpeech = `${selectedSpeech}\n\nPress ${keyLabel} to switch to this character.`
+          selectedSpeech = `${selectedSpeech}\n\n${npc.name} has joined you! Press ${keyLabel} to switch characters at any time.`
         }
 
         set((state) => ({ textPanelContent: selectedSpeech, activeNpcDialogName: npc.name }))
@@ -357,8 +359,10 @@ const gameStore = create((set, get) => ({
     get().checkEvents()
   },
 
-  // Recruit NPC
+  // Recruit NPC: they join the party as a controllable character
   recruitNpc: (npcName) => {
+    track('recruited', { npc: npcName, bricksShipped: get().numBricksShipped })
+
     set((state) => ({
       recruitedNpcs: [...state.recruitedNpcs, npcName],
     }))
@@ -368,28 +372,6 @@ const gameStore = create((set, get) => ({
     playerStore.getState().addCharacter(npcName, {
       sprite: null, // Will be set by CharacterController
     })
-  },
-
-  // Recruit NPC from a deliberate user input (TAB / mobile B)
-  recruitNpcFromInput: (npcName) => {
-    if (!npcName) return
-    if (get().recruitedNpcs.includes(npcName)) return
-
-    track('recruited', { npc: npcName, bricksShipped: get().numBricksShipped })
-    get().recruitNpc(npcName)
-
-    const keyLabel = getSwitchKeyLabel()
-
-    set((state) => ({
-      textPanelContent: `${npcName} has joined you! Press ${keyLabel} to switch between characters.`,
-      textPanelOptions: [],
-      textPanelOptionIdx: 0,
-      activeNpcDialogName: null,
-      tracking: {
-        ...state.tracking,
-        dialogsSeen: { ...state.tracking.dialogsSeen, [npcName]: true },
-      },
-    }))
   },
 }))
 

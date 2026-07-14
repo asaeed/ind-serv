@@ -102,7 +102,9 @@ no matter how the player plays. The $2,000 threshold should land around brick
 - New `appearAtBricks` field in `npc.json`. NpcController creates these sprites
   hidden (excluded from proximity + vacancy while hidden) and reveals them when
   the threshold is met, alongside the arrival event text.
-- Recruiting uses the existing dialog + Tab/B flow unchanged.
+- Recruiting: talking to a recruitable NPC recruits them on the spot (their
+  dialog gains a "has joined you" notice + switch hint). Tab/B then switches
+  between party members at any time — no proximity or open-panel requirement.
 
 ### Injuries (permanent half speed)
 - Per-character `workSpeedMultiplier` in `playerStore` (default 1).
