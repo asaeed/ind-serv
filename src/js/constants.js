@@ -1,3 +1,9 @@
+// Contact form (Formspree). With no form ID set, the form is hidden.
+export const CONTACT = {
+  FORMSPREE_ID: 'xdaqkryk',
+  GAME_URL: 'https://asaeed.github.io/ind-serv/',
+}
+
 // Usage analytics (PostHog). Key is the public write-only project API key;
 // leave empty to disable tracking entirely.
 export const ANALYTICS = {

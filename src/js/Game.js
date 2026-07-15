@@ -6,6 +6,7 @@ import Hud from './ui/Hud'
 import TouchControls from './ui/TouchControls'
 import EndGame from './ui/EndGame'
 import StartGame from './ui/StartGame'
+import InfoModal from './ui/InfoModal'
 import gameStore from './state/gameStore'
 import { GAME_CONFIG } from './constants'
 
@@ -31,6 +32,7 @@ export default class Game {
       this.characterController = new CharacterController(this.map, this.input)
       this.endGame = new EndGame()
       this.startGame = new StartGame() // opening narration fires when Start is clicked
+      this.infoModal = new InfoModal()
     })
 
     // Debug output (development only)
@@ -103,6 +105,10 @@ export default class Game {
 
     if (this.endGame && this.endGame.dispose) {
       this.endGame.dispose()
+    }
+
+    if (this.infoModal && this.infoModal.dispose) {
+      this.infoModal.dispose()
     }
 
     // destroy konva stage (this also destroys all layers and shapes)

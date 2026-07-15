@@ -104,10 +104,10 @@ const gameStore = create((set, get) => ({
         }
 
         // Dynamically append the joined notice + switch hint.
-        // (Do not store this string in npc.json.)
+        // (Do not store this string in npc.json; keep it short - the panel clips long text.)
         if (justRecruited) {
           const keyLabel = getSwitchKeyLabel()
-          selectedSpeech = `${selectedSpeech}\n\n${npc.name} has joined you! Press ${keyLabel} to switch characters at any time.`
+          selectedSpeech = `${selectedSpeech}\n\n${npc.name} joined! Press ${keyLabel} to switch.`
         }
 
         set((state) => ({ textPanelContent: selectedSpeech, activeNpcDialogName: npc.name }))
@@ -298,11 +298,13 @@ const gameStore = create((set, get) => ({
         if (shipped < nextAt) continue
 
         const amount = ev.debtDelta + state.recurringCount * ev.repeat.escalate
+        // rotate through text variants so the recurring charge doesn't read as a stamp
+        const template = ev.texts ? ev.texts[state.recurringCount % ev.texts.length] : ev.text
         track('story_event', { id: ev.id, debtDelta: amount, bricksShipped: shipped, occurrence: state.recurringCount + 1 })
         set((s) => ({
           recurringCount: s.recurringCount + 1,
           pendingDebtDelta: s.pendingDebtDelta + amount,
-          textPanelContent: ev.text.replace('${amount}', amount),
+          textPanelContent: template.replace('${amount}', amount),
           textPanelOptions: [],
           activeNpcDialogName: null,
           eventPanelOpen: true,

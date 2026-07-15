@@ -34,6 +34,11 @@ body {
   margin-top: 100px;
 }
 
+.game-frame {
+  position: relative; // anchors the fate + info buttons to the game frame
+  display: inline-block;
+}
+
 #canvas-container {
   display: inline-block;
   background-color: rgb(33, 24, 22);
@@ -122,10 +127,182 @@ body {
   }
 }
 
-.fate-button {
+.info-button {
+  position: absolute; // within .game-frame
+  top: 10px;
+  right: 10px;
+  z-index: 20;
+  width: 36px;
+  height: 36px;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1;
+  color: #fff;
+  background: rgba(20, 20, 20, 0.75);
+  border: 2px solid #888;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover {
+    border-color: #fff;
+  }
+}
+
+// dark-ledger skin: matches the HUD + game frame
+.info-modal {
   position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+
+  &__panel {
+    position: relative;
+    width: 520px;
+    max-width: 90%;
+    max-height: 88vh;
+    overflow-y: auto;
+    padding: 24px 26px;
+    background: rgba(16, 16, 16, 0.96);
+    color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 0 2px #222, 0 0 0 4px #666, 6px 6px 0 rgba(0, 0, 0, 0.4);
+    font-size: 8px;
+    line-height: 2;
+
+    h4 {
+      color: #888;
+      font-size: 9px;
+      letter-spacing: 1px;
+      margin: 18px 0 8px;
+    }
+
+    a {
+      color: #6fc3ff;
+    }
+  }
+
+  &__close {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    background: none;
+    border: 0;
+    color: #888;
+    font-family: inherit;
+    font-size: 12px;
+    cursor: pointer;
+
+    &:hover {
+      color: #fff;
+    }
+  }
+
+  &__title {
+    font-size: 13px;
+    color: #ff5555;
+    margin: 0 0 6px;
+  }
+
+  &__by {
+    color: #888;
+  }
+
+  &__controls {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    .key {
+      display: inline-block;
+      border: 1px solid #3ff086;
+      color: #3ff086;
+      border-radius: 3px;
+      padding: 2px 5px;
+      margin-right: 6px;
+      font-size: 7px;
+    }
+
+    &--mobile {
+      display: none;
+    }
+  }
+
+  &__credits {
+    color: #999;
+    font-size: 7px;
+  }
+
+  &__contact {
+    display: grid;
+    gap: 8px;
+
+    input,
+    textarea {
+      font-family: inherit;
+      font-size: 8px;
+      line-height: 1.8;
+      padding: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 2px solid #555;
+      color: #fff;
+
+      &:focus {
+        outline: none;
+        border-color: #3ff086;
+      }
+    }
+
+    button {
+      font-family: inherit;
+      font-size: 8px;
+      padding: 8px 14px;
+      justify-self: start;
+      background: transparent;
+      border: 2px solid #3ff086;
+      color: #3ff086;
+      cursor: pointer;
+
+      &:hover {
+        background: rgba(63, 240, 134, 0.15);
+      }
+    }
+  }
+
+  &__status {
+    color: #3ff086;
+  }
+
+  &__links {
+    margin-top: 14px;
+  }
+}
+
+.share-button {
+  font-family: inherit;
+  font-size: 12px;
+  padding: 14px 22px;
+  color: #fff;
+  background: #1a4a1a;
+  border: 2px solid #3ff086;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover {
+    background: #226622;
+  }
+}
+
+.fate-button {
+  position: absolute; // within .game-frame
   left: 50%;
-  bottom: 32px;
+  top: 16px;
   transform: translateX(-50%);
   z-index: 20;
   padding: 16px 24px;
@@ -229,6 +406,23 @@ body {
     }
   }
 
+  &__video {
+    margin: 24px 0 8px;
+
+    iframe {
+      display: block;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border: 0;
+    }
+  }
+
+  &__video-caption {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #777;
+  }
+
   &__links {
     list-style: none;
     padding: 0;
@@ -286,8 +480,18 @@ body {
     display: inline;
   }
 
-  // keep the fate button clear of the touch controls (~200px zone at the bottom)
+  .info-modal__controls--desktop {
+    display: none;
+  }
+
+  .info-modal__controls--mobile {
+    display: block;
+  }
+
+  // on phones the HUD spans the top, so anchor to the bottom instead,
+  // clear of the touch controls (~200px zone)
   .fate-button {
+    top: auto;
     bottom: 220px;
   }
 
