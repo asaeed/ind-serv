@@ -43,7 +43,9 @@
         <div class="label">Direction:</div>
         <div class="value"></div>
       </div> -->
-      <div id="canvas-container">
+      <!-- the button lives on the wrapper, NOT inside #canvas-container: Konva clears that node -->
+      <div class="game-frame">
+        <div id="canvas-container"></div>
         <button class="fate-button hidden" type="button">Accept your fate</button>
       </div>
 
