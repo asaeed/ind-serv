@@ -23,9 +23,14 @@ Created using Javascript, Canvas API, Konva
 Gameplay events go to PostHog (free tier) via `src/js/lib/analytics.js` — no
 backend of our own. The public write-only project API key lives in
 `ANALYTICS.POSTHOG_KEY` in `src/js/constants.js` (US cloud); clearing it turns
-tracking into a no-op. Events captured: `game_started`, `story_event` / `story_event_skipped`,
-`recruited`, `fate_available`, `gave_up` (with final stats), and
-`resource_link_clicked`.
+tracking into a no-op. Events captured: `page_loaded`, `game_started`,
+`story_event` / `story_event_skipped`, `recruited`, `fate_available`, `gave_up`
+(with final stats), `resource_link_clicked`, `video_engaged`, `share_clicked`,
+`info_opened` / `info_closed`, `profile_link_clicked`, `contact_submitted`, and
+`left` (pagehide beacon with progress state).
+
+The in-game info modal has a contact form via Formspree; set
+`CONTACT.FORMSPREE_ID` in `src/js/constants.js` to enable it (hidden otherwise).
 
 ## Credits
 

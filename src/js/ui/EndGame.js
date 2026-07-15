@@ -1,5 +1,6 @@
 import gameStore from '../state/gameStore'
 import track from '../lib/analytics'
+import { CONTACT } from '../constants'
 
 // DOM overlay (not canvas): the "Accept your fate" button and end page need
 // real focusable links, so they live in index.html and are toggled here.
@@ -18,6 +19,34 @@ export default class EndGame {
       if (a) track('resource_link_clicked', { url: a.href })
     }
     this.linksEl.addEventListener('click', this.handleLinkClick)
+
+    // clicks inside the YouTube iframe are invisible cross-origin; the
+    // focus-shift-on-click trick catches the first play interaction
+    this.videoIframe = this.endPage.querySelector('.end-page__video iframe')
+    this._videoTracked = false
+    this.handleWindowBlur = () => {
+      if (!this._videoTracked && document.activeElement === this.videoIframe) {
+        this._videoTracked = true
+        track('video_engaged')
+      }
+    }
+    window.addEventListener('blur', this.handleWindowBlur)
+
+    // share nudge: copy the game URL to the clipboard
+    this.shareButton = this.endPage.querySelector('.share-button')
+    this.handleShare = async () => {
+      track('share_clicked')
+      try {
+        await navigator.clipboard.writeText(CONTACT.GAME_URL)
+        this.shareButton.textContent = 'Copied!'
+        setTimeout(() => {
+          this.shareButton.textContent = 'Copy link'
+        }, 2000)
+      } catch (err) {
+        this.shareButton.textContent = CONTACT.GAME_URL // clipboard blocked: show the URL itself
+      }
+    }
+    this.shareButton.addEventListener('click', this.handleShare)
 
     this.unsubscribe = gameStore.subscribe((state) => {
       if (state.fateAvailable && !state.gameOver) {
@@ -48,5 +77,7 @@ export default class EndGame {
     if (this.unsubscribe) this.unsubscribe()
     this.fateButton.removeEventListener('click', this.handleClick)
     this.linksEl.removeEventListener('click', this.handleLinkClick)
+    window.removeEventListener('blur', this.handleWindowBlur)
+    this.shareButton.removeEventListener('click', this.handleShare)
   }
 }

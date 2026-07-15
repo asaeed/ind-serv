@@ -43,8 +43,11 @@
         <div class="label">Direction:</div>
         <div class="value"></div>
       </div> -->
-      <div id="canvas-container">
+      <!-- buttons live on the wrapper, NOT inside #canvas-container: Konva clears that node -->
+      <div class="game-frame">
+        <div id="canvas-container"></div>
         <button class="fate-button hidden" type="button">Accept your fate</button>
+        <button class="info-button" type="button" aria-label="About this game">i</button>
       </div>
 
       <div class="touch-controls" aria-hidden="true">
@@ -77,6 +80,55 @@
         <p class="start-page__hint">
           <span class="start-page__hint--desktop">Arrow keys to move &middot; Space to interact</span>
           <span class="start-page__hint--mobile">D-pad to move &middot; A to interact</span>
+        </p>
+      </div>
+    </div>
+
+    <div class="info-modal hidden">
+      <div class="info-modal__panel">
+        <button class="info-modal__close" type="button" aria-label="Close">&#x2715;</button>
+        <h3 class="info-modal__title">Indentured Servitude</h3>
+        <p class="info-modal__by">
+          A game by <a href="https://github.com/asaeed" target="_blank" rel="noopener">Ahmad Saeed</a>
+        </p>
+
+        <h4>Controls</h4>
+        <ul class="info-modal__controls info-modal__controls--desktop">
+          <li><span class="key">&larr;&uarr;&darr;&rarr;</span> move</li>
+          <li><span class="key">SPACE</span> interact / work</li>
+          <li><span class="key">TAB</span> switch character &mdash; works once family joins you</li>
+        </ul>
+        <ul class="info-modal__controls info-modal__controls--mobile">
+          <li><span class="key">D-PAD</span> move</li>
+          <li><span class="key">A</span> interact / work</li>
+          <li><span class="key">B</span> switch character &mdash; works once family joins you</li>
+        </ul>
+
+        <h4>Art</h4>
+        <p class="info-modal__credits">
+          Characters:
+          <a href="https://lyaseek.itch.io/minifvillagers" target="_blank" rel="noopener">MiniFolks by LYASeeK</a>
+          &middot; Map tiles:
+          <a href="https://beyonderboy.itch.io/desert-map-tileset-16x16" target="_blank" rel="noopener"
+            >Desert Tileset by BeyonderBoy</a
+          ><br />
+          Fonts: <a href="https://www.dafont.com/04b-03.font" target="_blank" rel="noopener">04b03</a> by Yuji Oshimoto
+          &middot;
+          <a href="https://fonts.google.com/specimen/Press+Start+2P" target="_blank" rel="noopener">Press Start 2P</a>
+          by CodeMan38
+        </p>
+
+        <h4>Say hello</h4>
+        <form class="info-modal__contact hidden">
+          <input type="email" name="email" placeholder="your email" required />
+          <textarea name="message" rows="3" placeholder="message" required></textarea>
+          <button type="submit">Send</button>
+        </form>
+        <p class="info-modal__status hidden"></p>
+        <p class="info-modal__links">
+          <a href="https://github.com/asaeed" target="_blank" rel="noopener">GitHub</a>
+          &middot;
+          <a href="https://www.linkedin.com/in/ahmadsaeed/" target="_blank" rel="noopener">LinkedIn</a>
         </p>
       </div>
     </div>
@@ -162,6 +214,12 @@
               &mdash; global estimates and standards on forced labour
             </li>
           </ul>
+
+          <h2>Pass it on.</h2>
+          <p>
+            The debt machine runs on nobody looking. If this stayed with you, put it in front of someone else.
+          </p>
+          <button class="share-button" type="button">Copy link</button>
 
           <p class="end-page__credits">
             Art:
