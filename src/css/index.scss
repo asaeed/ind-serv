@@ -230,6 +230,23 @@ body {
     }
   }
 
+  &__video {
+    margin: 24px 0 8px;
+
+    iframe {
+      display: block;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border: 0;
+    }
+  }
+
+  &__video-caption {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #777;
+  }
+
   &__links {
     list-style: none;
     padding: 0;
