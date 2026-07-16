@@ -61,8 +61,13 @@ export default class TextPanel {
 
     const unsubscribe = gameStore.subscribe(
       (state, prevState) => {
-        // new dialogue gets the Peanuts-teacher mumble
-        if (state.textPanelContent && state.textPanelContent !== prevState?.textPanelContent) {
+        // characters talking get the Peanuts-teacher mumble; narration banners
+        // and item instructions (activeNpcDialogName is null for those) stay silent
+        if (
+          state.textPanelContent &&
+          state.activeNpcDialogName &&
+          state.textPanelContent !== prevState?.textPanelContent
+        ) {
           sfx.mumble(state.textPanelContent)
         }
         if (!this.panelText) return // assets not loaded yet; onload will catch up

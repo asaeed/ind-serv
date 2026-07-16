@@ -50,17 +50,24 @@ const sfx = {
     zzfx(0.1, 0, 500 + 700 * Math.min(1, Math.max(0, progress)), 0.001, 0.008, 0.03, 1, 1.2)
   },
 
-  // Peanuts-teacher mumble: a short run of warbly syllables, one per ~14 chars of dialogue
+  // Peanuts-teacher mumble for characters talking (never narration):
+  // soft triangle-wave syllables with a speech-like prosody walk,
+  // trailing downward on the last syllable like the end of a sentence
   _mumbleTimer: null,
+  _mumbleFreq: 180,
   mumble(text) {
     if (muted) return
     clearTimeout(this._mumbleTimer)
-    const syllables = Math.max(2, Math.min(9, Math.round((text || '').length / 14)))
+    const syllables = Math.max(2, Math.min(8, Math.round((text || '').length / 16)))
+    this._mumbleFreq = 165 + Math.random() * 30
     const speak = (i) => {
       if (i >= syllables || muted) return
-      const freq = 150 + Math.random() * 90 + (i % 3) * 15
-      zzfx(0.15, 0.1, freq, 0.01, 0.06 + Math.random() * 0.05, 0.05, 2, 1.3, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0.8, 0.01, 0.4)
-      this._mumbleTimer = setTimeout(() => speak(i + 1), 90 + Math.random() * 70)
+      this._mumbleFreq = Math.max(130, Math.min(230, this._mumbleFreq + (Math.random() - 0.5) * 50))
+      const last = i === syllables - 1
+      const freq = last ? this._mumbleFreq * 0.82 : this._mumbleFreq
+      const dur = 0.06 + Math.random() * 0.05 + (last ? 0.05 : 0)
+      zzfx(0.08, 0.02, freq, 0.02, dur, 0.09, 1, 1.05, -1.5, 0, 0, 0, 0, 0, 3.5, 0, 0, 0.6, 0.03)
+      this._mumbleTimer = setTimeout(() => speak(i + 1), 120 + Math.random() * 90)
     }
     speak(0)
   },
