@@ -38,6 +38,7 @@ export default class Game {
     // Debug output (development only)
     if (process.env.NODE_ENV !== 'production') {
       window.gameStore = gameStore // console access for testing (e.g. fast-forwarding bricks)
+      window.sfx = require('./lib/sfx').default // live sound-param tuning in the console
       this.storeDiv = document.querySelector('.store > .value')
       if (this.storeDiv) {
         this.storeDiv.parentElement.style.display = 'block' // hidden by default in CSS

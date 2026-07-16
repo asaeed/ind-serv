@@ -32,6 +32,15 @@ tracking into a no-op. Events captured: `page_loaded`, `game_started`,
 The in-game info modal has a contact form via Formspree; set
 `CONTACT.FORMSPREE_ID` in `src/js/constants.js` to enable it (hidden otherwise).
 
+## Sound
+
+All effects are synthesized at play time by a vendored [ZzFX](https://github.com/KilledByAPixel/ZzFX)
+(`src/js/lib/zzfx.js`) — no audio files. Params live in `src/js/lib/sfx.js`
+(distinct sound per production step, debt-spin ticker, Peanuts-style dialogue
+mumble, recruit chime, fate sting). Audio unlocks on the Start click per
+browser autoplay policy; a mute toggle lives in the info modal (persisted).
+In dev, tune live via `window.sfx.play('dig')` etc.
+
 ## Credits
 
 - Character sprites: [MiniFolks – Villagers](https://lyaseek.itch.io/minifvillagers) by LYASeeK

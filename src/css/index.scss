@@ -279,6 +279,20 @@ body {
     color: #3ff086;
   }
 
+  &__mute {
+    font-family: inherit;
+    font-size: 8px;
+    padding: 8px 14px;
+    background: transparent;
+    border: 2px solid #555;
+    color: #fff;
+    cursor: pointer;
+
+    &:hover {
+      border-color: #3ff086;
+    }
+  }
+
   &__links {
     margin-top: 14px;
   }

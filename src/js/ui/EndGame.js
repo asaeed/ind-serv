@@ -1,5 +1,6 @@
 import gameStore from '../state/gameStore'
 import track from '../lib/analytics'
+import sfx from '../lib/sfx'
 import { CONTACT } from '../constants'
 
 // DOM overlay (not canvas): the "Accept your fate" button and end page need
@@ -50,6 +51,7 @@ export default class EndGame {
 
     this.unsubscribe = gameStore.subscribe((state) => {
       if (state.fateAvailable && !state.gameOver) {
+        if (this.fateButton.classList.contains('hidden')) sfx.play('fate') // one somber note as it appears
         this.fateButton.classList.remove('hidden')
       }
     })

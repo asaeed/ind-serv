@@ -5,6 +5,7 @@ import itemData from '../../data/item.json'
 import eventData from '../../data/event.json'
 import { ECONOMY } from '../constants'
 import track from '../lib/analytics'
+import sfx from '../lib/sfx'
 
 const getSwitchKeyLabel = () => {
   const isMobile = window.matchMedia && window.matchMedia('(max-width: 820px)').matches
@@ -363,6 +364,7 @@ const gameStore = create((set, get) => ({
 
   // Recruit NPC: they join the party as a controllable character
   recruitNpc: (npcName) => {
+    sfx.play('recruit')
     track('recruited', { npc: npcName, bricksShipped: get().numBricksShipped })
 
     set((state) => ({

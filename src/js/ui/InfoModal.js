@@ -1,4 +1,5 @@
 import track from '../lib/analytics'
+import sfx from '../lib/sfx'
 import { CONTACT } from '../constants'
 
 // Persistent (i) button on the game frame -> DOM modal (dark-ledger skin):
@@ -13,6 +14,18 @@ export default class InfoModal {
 
     // the contact form only exists once a Formspree ID is configured
     if (CONTACT.FORMSPREE_ID) this.form.classList.remove('hidden')
+
+    this.muteButton = this.root.querySelector('.info-modal__mute')
+    this.updateMuteLabel = () => {
+      this.muteButton.textContent = sfx.isMuted() ? 'Sound: OFF' : 'Sound: ON'
+    }
+    this.updateMuteLabel()
+    this.handleMute = () => {
+      const nowMuted = sfx.toggleMute()
+      this.updateMuteLabel()
+      track('sound_toggled', { muted: nowMuted })
+    }
+    this.muteButton.addEventListener('click', this.handleMute)
 
     this.open = this.open.bind(this)
     this.close = this.close.bind(this)
@@ -69,6 +82,7 @@ export default class InfoModal {
   }
 
   dispose() {
+    this.muteButton.removeEventListener('click', this.handleMute)
     this.button.removeEventListener('click', this.open)
     this.root.removeEventListener('click', this.handleBackdrop)
     document.removeEventListener('keydown', this.handleEscape)
