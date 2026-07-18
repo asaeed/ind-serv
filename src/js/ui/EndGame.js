@@ -49,10 +49,44 @@ export default class EndGame {
     }
     this.shareButton.addEventListener('click', this.handleShare)
 
+    // social share buttons: build intent URLs from the game URL, track clicks
+    this.socialsEl = this.endPage.querySelector('.end-page__socials')
+    const url = encodeURIComponent(CONTACT.GAME_URL)
+    const msg = encodeURIComponent("A game you can't win — about debt bondage. The only winning move is giving up.")
+    const shareUrls = {
+      x: `https://twitter.com/intent/tweet?text=${msg}&url=${url}`,
+      reddit: `https://www.reddit.com/submit?url=${url}&title=${msg}`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}`,
+      whatsapp: `https://api.whatsapp.com/send?text=${msg}%20${url}`,
+      linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${url}`,
+      // Instagram has no web share-intent; point at the site for now (swap for a profile URL)
+      instagram: 'https://www.instagram.com/',
+    }
+    this.socialsEl.querySelectorAll('.social-btn').forEach((a) => {
+      if (shareUrls[a.dataset.share]) a.href = shareUrls[a.dataset.share]
+    })
+    this.handleSocialClick = (e) => {
+      const a = e.target.closest('.social-btn')
+      if (a) track('share_clicked', { platform: a.dataset.share })
+    }
+    this.socialsEl.addEventListener('click', this.handleSocialClick)
+
+    // scroll hint: fade the glowing arrow out the moment the player scrolls
+    this.scrollArrow = this.endPage.querySelector('.scroll-arrow')
+    this.handleEndScroll = () => {
+      if (this.endPage.scrollTop > 40) {
+        this.scrollArrow.classList.add('scroll-arrow--hidden')
+        this.endPage.removeEventListener('scroll', this.handleEndScroll)
+      }
+    }
+    this.endPage.addEventListener('scroll', this.handleEndScroll)
+
     this.unsubscribe = gameStore.subscribe((state) => {
       if (state.fateAvailable && !state.gameOver) {
-        if (this.fateButton.classList.contains('hidden')) sfx.play('fate') // one somber note as it appears
-        this.fateButton.classList.remove('hidden')
+        if (this.fateButton.classList.contains('hidden')) {
+          sfx.play('fate') // one somber note as it appears
+          this.fateButton.classList.remove('hidden')
+        }
       }
     })
   }
@@ -81,5 +115,7 @@ export default class EndGame {
     this.linksEl.removeEventListener('click', this.handleLinkClick)
     window.removeEventListener('blur', this.handleWindowBlur)
     this.shareButton.removeEventListener('click', this.handleShare)
+    this.socialsEl.removeEventListener('click', this.handleSocialClick)
+    this.endPage.removeEventListener('scroll', this.handleEndScroll)
   }
 }

@@ -14,6 +14,12 @@ The narrative is driven by `src/data/event.json` (milestone-triggered events key
 to bricks shipped) and `src/data/npc.json` (dialog ladders keyed to the same
 milestones). Design doc: `docs/superpowers/specs/2026-07-13-narrative-arc-design.md`.
 
+## Controls
+
+- **Move** — WASD or arrow keys (desktop) · on-screen D-pad (mobile)
+- **Interact / work** — Space (desktop) · A (mobile)
+- **Switch character** — Tab (desktop) · B (mobile), after your family joins
+
 ---
 
 Created using Javascript, Canvas API, Konva

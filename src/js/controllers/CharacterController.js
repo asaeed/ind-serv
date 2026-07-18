@@ -3,6 +3,7 @@ import playerStore from '../state/playerStore'
 import gameStore from '../state/gameStore'
 import Particles from '../sprites/Particles'
 import { PARTICLE_CONFIG } from '../constants'
+import sfx from '../lib/sfx'
 
 export default class CharacterController {
   constructor(map, input) {
@@ -92,6 +93,7 @@ export default class CharacterController {
 
     // Switch in the store
     playerStore.getState().switchCharacter(characterId)
+    sfx.play('recruit') // same chime as recruiting a family member
 
     // Trigger a particle burst on the character we just switched to.
     if (targetCharacter.sprite) this._triggerSwitchParticles(targetCharacter)

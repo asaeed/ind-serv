@@ -30,20 +30,33 @@ export default class Input {
   }
 
   handleKey(e, value) {
+    // don't hijack keys while typing in the contact form (email / message fields)
+    const el = document.activeElement
+    if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) return
+
+    // arrow keys and WASD both move (desktop)
     switch (e.key) {
       case 'ArrowUp':
+      case 'w':
+      case 'W':
         e.preventDefault()
         this.setDirection('up', value)
         break
       case 'ArrowDown':
+      case 's':
+      case 'S':
         e.preventDefault()
         this.setDirection('down', value)
         break
       case 'ArrowLeft':
+      case 'a':
+      case 'A':
         e.preventDefault()
         this.setDirection('left', value)
         break
       case 'ArrowRight':
+      case 'd':
+      case 'D':
         e.preventDefault()
         this.setDirection('right', value)
         break

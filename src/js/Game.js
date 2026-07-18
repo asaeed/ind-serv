@@ -33,6 +33,7 @@ export default class Game {
       this.endGame = new EndGame()
       this.startGame = new StartGame() // opening narration fires when Start is clicked
       this.infoModal = new InfoModal()
+      this._applyUrlParams() // dev/review shortcuts (?end, ?bricks=N)
     })
 
     // Debug output (development only)
@@ -54,6 +55,27 @@ export default class Game {
           (state) => state
         )
       }
+    }
+  }
+
+  // dev/review shortcuts via URL params:
+  //   ?end        reveal the end screen immediately (no full playthrough needed)
+  //   ?bricks=N   start the game already N bricks in (family + arrows appear if N >= 13)
+  // Note: ?bricks doesn't retro-fire past events (no debt banners / price drops).
+  _applyUrlParams() {
+    const params = new URLSearchParams(window.location.search)
+
+    const bricks = parseInt(params.get('bricks'), 10)
+    if (Number.isFinite(bricks) && bricks > 0) {
+      gameStore.getState().startGame()
+      gameStore.setState({ numBricksShipped: bricks })
+      document.querySelector('.start-page')?.classList.add('hidden')
+    }
+
+    if (params.has('end')) {
+      gameStore.getState().startGame() // sets startTime so the "years worked" stat renders
+      document.querySelector('.start-page')?.classList.add('hidden')
+      this.endGame.handleClick() // acceptFate + fill stats + reveal the end page
     }
   }
 
