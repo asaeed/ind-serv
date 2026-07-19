@@ -14,6 +14,12 @@ The narrative is driven by `src/data/event.json` (milestone-triggered events key
 to bricks shipped) and `src/data/npc.json` (dialog ladders keyed to the same
 milestones). Design doc: `docs/superpowers/specs/2026-07-13-narrative-arc-design.md`.
 
+## Controls
+
+- **Move** — WASD or arrow keys (desktop) · on-screen D-pad (mobile)
+- **Interact / work** — Space (desktop) · A (mobile)
+- **Switch character** — Tab (desktop) · B (mobile), after your family joins
+
 ---
 
 Created using Javascript, Canvas API, Konva
@@ -31,6 +37,15 @@ tracking into a no-op. Events captured: `page_loaded`, `game_started`,
 
 The in-game info modal has a contact form via Formspree; set
 `CONTACT.FORMSPREE_ID` in `src/js/constants.js` to enable it (hidden otherwise).
+
+## Sound
+
+All effects are synthesized at play time by a vendored [ZzFX](https://github.com/KilledByAPixel/ZzFX)
+(`src/js/lib/zzfx.js`) — no audio files. Params live in `src/js/lib/sfx.js`
+(distinct sound per production step, debt-spin ticker, Peanuts-style dialogue
+mumble, recruit chime, fate sting). Audio unlocks on the Start click per
+browser autoplay policy; a mute toggle lives in the info modal (persisted).
+In dev, tune live via `window.sfx.play('dig')` etc.
 
 ## Credits
 

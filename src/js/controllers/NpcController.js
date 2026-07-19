@@ -1,3 +1,4 @@
+import Konva from 'konva'
 import SpriteAnimated from '../sprites/SpriteAnimated'
 import gameStore from '../state/gameStore'
 import Map from '../Map'
@@ -8,6 +9,14 @@ export default class NpcController {
     this.map = map
     this.group = this.map.imageGroup
     this.npcs = []
+
+    // objective arrows live in their own top layer in SCREEN space (not the camera-panned
+    // imageGroup) so they can pin to the view edge when the target is off-screen and never
+    // hide behind the HUD panel. Raised above the HUD lazily on first update().
+    this.markerLayer = new Konva.Layer({ listening: false })
+    this.map.stage.add(this.markerLayer)
+    this._markerLayerRaised = false
+    this._markerCount = 0 // gives each family arrow its own left-edge slot
 
     // create characters
     const npcData = gameStore.getState().npcData
@@ -30,7 +39,7 @@ export default class NpcController {
     // using composition for npc objects is simpler
     // could instead have Npc class inherit from SpriteAnimated
     const sprite = require('../../assets/img/' + npc.file)
-    this.npcs.push({
+    const npcObj = {
       ...npc,
       type: 'npc',
       o: new SpriteAnimated(this.group, sprite, x, y),
@@ -40,7 +49,33 @@ export default class NpcController {
       targetY: npc.gridY,
       // NPCs with appearAtBricks stay hidden until enough bricks have shipped
       hidden: Boolean(npc.appearAtBricks),
+    }
+    // each recruitable family member gets its own glowing "go here" arrow (see update())
+    if (npc.recruitable) {
+      npcObj.markerIndex = this._markerCount++
+      npcObj.marker = this.createObjectiveMarker()
+    }
+    this.npcs.push(npcObj)
+  }
+
+  // Bobbing, glowing arrow for an objective NPC. Lives in the screen-space markerLayer;
+  // positioned + oriented each frame in update() (above the head, or the view edge).
+  createObjectiveMarker() {
+    const marker = new Konva.Line({
+      points: [-15, -13, 15, -13, 0, 11],
+      closed: true,
+      fill: '#ffde3d',
+      stroke: '#7a5200',
+      strokeWidth: 3,
+      lineJoin: 'round',
+      shadowColor: '#ffde3d',
+      shadowBlur: 12,
+      shadowOpacity: 0.9,
+      listening: false,
+      visible: false,
     })
+    this.markerLayer.add(marker)
+    return marker
   }
 
   isVacant(gridX, gridY) {
@@ -76,6 +111,12 @@ export default class NpcController {
     return Map.findClosest(positions, x, y)
   }
 
+  // The top-left 4x4 (cols 0-3, rows 0-3) is reserved for the wife/son recruitment
+  // corner; wanderers never step into it so they can't crowd or block the family.
+  inTopLeftReserve(gridX, gridY) {
+    return gridX < 4 && gridY < 4
+  }
+
   wanderNpcs() {
     for (const npc of this.npcs) {
       // Skip recruited and hidden NPCs
@@ -88,16 +129,18 @@ export default class NpcController {
           // Move horizontally (left or right by one square)
           const deltaX = Math.random() < 0.5 ? -1 : 1
           npc.targetX = npc.gridX + deltaX
-          // if targetX is out of bounds or occupied, cancel it
+          // if targetX is out of bounds, in the family corner, or occupied, cancel it
           const isOutOfRange = npc.targetX > npc.originX + npc.wander || npc.targetX < npc.originX - npc.wander
-          if (isOutOfRange || !this.map.isVacant(npc.targetX, npc.targetY)) npc.targetX = npc.gridX
+          if (isOutOfRange || this.inTopLeftReserve(npc.targetX, npc.targetY) || !this.map.isVacant(npc.targetX, npc.targetY))
+            npc.targetX = npc.gridX
         } else {
           // Move vertically (up or down by one square)
           const deltaY = Math.random() < 0.5 ? -1 : 1
           npc.targetY = npc.gridY + deltaY
-          // if targetY is out of bounds or occupied, cancel it
+          // if targetY is out of bounds, in the family corner, or occupied, cancel it
           const isOutOfRange = npc.targetY > npc.originY + npc.wander || npc.targetY < npc.originY - npc.wander
-          if (isOutOfRange || !this.map.isVacant(npc.targetX, npc.targetY)) npc.targetY = npc.gridY
+          if (isOutOfRange || this.inTopLeftReserve(npc.targetX, npc.targetY) || !this.map.isVacant(npc.targetX, npc.targetY))
+            npc.targetY = npc.gridY
         }
 
         // console.log(npc.name, npc.gridX, npc.gridY, npc.targetX, npc.targetY)
@@ -119,6 +162,53 @@ export default class NpcController {
           npc.o.sprite.visible(true)
         } else if (npc.hidden && npc.o.sprite.visible()) {
           npc.o.sprite.visible(false)
+        }
+      }
+
+      // glowing objective arrow for recruitable family: visible once they've arrived
+      // (not hidden) and aren't recruited yet. On-screen it hovers just above the
+      // character pointing down; off-screen it pins to the left edge pointing left.
+      if (npc.marker) {
+        const show = !npc.hidden && !npc.recruited
+        npc.marker.visible(show)
+        if (show && npc.o.sprite) {
+          if (!this._markerLayerRaised) {
+            this.markerLayer.moveToTop() // above the HUD, which is created after this controller
+            this._markerLayerRaised = true
+          }
+          const stage = this.map.stage
+          const off = this.group.position() // camera pan (imageGroup offset)
+          const sx = npc.o.sprite.x() + off.x
+          const sy = npc.o.sprite.y() + off.y
+          const w = stage.width()
+          const h = stage.height()
+          const t = performance.now() / 1000
+          const bob = Math.abs(Math.sin(t * 2.4)) * 7
+
+          if (sx >= 0 && sx <= w && sy >= 0 && sy <= h) {
+            // on-screen: hover right above the character's own head, pointing down
+            npc.marker.points([-11, -10, 11, -10, 0, 8])
+            npc.marker.x(sx)
+            npc.marker.y(sy - 12 - bob)
+          } else {
+            // off-screen: pin to a view edge, pointing toward the family. Each arrow gets
+            // its own slot so the wife's and son's don't stack.
+            const slot = (npc.markerIndex || 0) * 44
+            if (Math.max(0, -sy) >= Math.max(0, -sx)) {
+              // more above than to the left (player is further below than to the right):
+              // top edge, pointing up. Family shares a column, so offset x per slot.
+              npc.marker.points([-11, 10, 11, 10, 0, -8])
+              npc.marker.x(Math.max(24 + slot, Math.min(w - 24, sx + slot)))
+              npc.marker.y(24 + bob)
+            } else {
+              // more to the left: left edge, pointing left. Family rows differ, so the
+              // slot only lifts the minimum (keeps them apart when both clamp to the top).
+              npc.marker.points([9, -11, 9, 11, -9, 0])
+              npc.marker.x(24 + bob)
+              npc.marker.y(Math.max(24 + slot, Math.min(h - 24, sy)))
+            }
+          }
+          npc.marker.shadowBlur(10 + (Math.sin(t * 2.4) + 1) * 6)
         }
       }
 
@@ -151,5 +241,8 @@ export default class NpcController {
         npc[gridProp] = npc[gridProp] + direction
       }
     }
+
+    // the marker layer is separate from the sprite-animated map layer, so redraw it here
+    this.markerLayer.batchDraw()
   }
 }

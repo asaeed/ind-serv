@@ -1,4 +1,5 @@
 import gameStore from '../state/gameStore'
+import sfx from '../lib/sfx'
 
 // Start-screen overlay (DOM, mirrors EndGame). The game boots frozen behind it;
 // clicking Start fades the overlay, unfreezes the loop, and fires the opening event.
@@ -12,6 +13,8 @@ export default class StartGame {
   }
 
   handleClick() {
+    sfx.unlock() // the gesture browsers require before any audio can play
+    sfx.chord() // a warm chord that fades out as the game begins
     gameStore.getState().startGame()
 
     this.startPage.classList.add('fading')

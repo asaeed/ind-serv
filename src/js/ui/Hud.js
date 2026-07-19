@@ -2,6 +2,7 @@ import Konva from 'konva'
 import gameStore from '../state/gameStore'
 import TextPanel from './TextPanel'
 import Particles from '../sprites/Particles'
+import sfx from '../lib/sfx'
 
 export default class Hud {
   constructor(stage) {
@@ -195,6 +196,7 @@ export default class Hud {
       // exponential ease-out reads as a spin-up that decelerates
       this.displayDebt += Math.max(1, (targetDebt - this.displayDebt) * 0.08)
       if (targetDebt - this.displayDebt < 1) this.displayDebt = targetDebt
+      sfx.spinTick(this.displayDebt / targetDebt) // pitch rises as the wheel settles
     }
     this.debtValue.text(`$${Math.round(this.displayDebt)}`)
     this.debtValue.fill(targetDebt > this.displayDebt ? '#ff1111' : this.debtColor)

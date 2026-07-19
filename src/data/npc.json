@@ -60,8 +60,8 @@
   {
     "name": "worker",
     "file": "MiniWorker.png",
-    "gridX": 2,
-    "gridY": 2,
+    "gridX": 6,
+    "gridY": 11,
     "wander": 2,
     "speech": [
       {
@@ -115,7 +115,7 @@
   {
     "name": "wife",
     "file": "MiniVillagerWoman.png",
-    "gridX": 4,
+    "gridX": 1,
     "gridY": 2,
     "recruitable": true,
     "appearAtBricks": 13,
@@ -133,8 +133,8 @@
   {
     "name": "son",
     "file": "MiniPeasant.png",
-    "gridX": 4,
-    "gridY": 4,
+    "gridX": 1,
+    "gridY": 3,
     "recruitable": true,
     "appearAtBricks": 13,
     "speech": [

@@ -3,7 +3,11 @@ import SpriteStatic from '../sprites/SpriteStatic'
 import gameStore from '../state/gameStore'
 import MapClass from '../Map'
 import Particles from '../sprites/Particles'
+import sfx from '../lib/sfx'
 import { SPRITE_DEFAULTS, PARTICLE_CONFIG, INTERACTION } from '../constants'
+
+// each production step completing gets its own voice
+const COMPLETION_SOUNDS = { shovel: 'dig', mold: 'mold', kiln: 'kiln', truck: 'ship' }
 
 export default class ItemController {
   constructor(map) {
@@ -170,6 +174,7 @@ export default class ItemController {
 
         // trigger particle effect when action completes
         if (wasActive && !isActive) {
+          sfx.play(COMPLETION_SOUNDS[item.name])
           this.particles.createParticles(item.centerX, item.centerY, 8, item.particleColor, {
             speedMin: PARTICLE_CONFIG.DEFAULT_SPEED_MIN,
             speedMax: PARTICLE_CONFIG.DEFAULT_SPEED_MAX,

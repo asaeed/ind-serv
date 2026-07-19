@@ -1,5 +1,6 @@
 import Konva from 'konva'
 import gameStore from '../state/gameStore'
+import sfx from '../lib/sfx'
 import panelImagePath from '../../assets/img/textboxblue20.png'
 
 export default class TextPanel {
@@ -59,7 +60,16 @@ export default class TextPanel {
     imageObj.src = panelImagePath
 
     const unsubscribe = gameStore.subscribe(
-      (state) => {
+      (state, prevState) => {
+        // characters talking get the Peanuts-teacher mumble; narration banners
+        // and item instructions (activeNpcDialogName is null for those) stay silent
+        if (
+          state.textPanelContent &&
+          state.activeNpcDialogName &&
+          state.textPanelContent !== prevState?.textPanelContent
+        ) {
+          sfx.mumble(state.textPanelContent)
+        }
         if (!this.panelText) return // assets not loaded yet; onload will catch up
         if (state.textPanelContent) {
           this.panelText.text(this.formatText(state.textPanelContent, state.textPanelOptions, state.textPanelOptionIdx))
