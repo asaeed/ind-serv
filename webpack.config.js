@@ -41,7 +41,8 @@ module.exports = {
     filename: '[name].bundle.js',
     path: path.resolve(__dirname, 'dist'),
     clean: true,
-    publicPath: '/ind-serv/',
+    // itch.io serves the game from a sandboxed directory, so paths must be relative
+    publicPath: process.env.ITCH_BUILD ? './' : '/ind-serv/',
   },
   optimization: {
     runtimeChunk: 'single',

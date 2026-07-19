@@ -21,7 +21,13 @@ export default function track(event, properties = {}) {
   fetch(`${ANALYTICS.POSTHOG_HOST}/i/v0/e/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ api_key: ANALYTICS.POSTHOG_KEY, event, distinct_id: distinctId, properties }),
+    body: JSON.stringify({
+      api_key: ANALYTICS.POSTHOG_KEY,
+      event,
+      distinct_id: distinctId,
+      // host distinguishes gh-pages traffic from the itch.io mirror
+      properties: { host: location.hostname, ...properties },
+    }),
     keepalive: true,
   }).catch(() => {})
 }
