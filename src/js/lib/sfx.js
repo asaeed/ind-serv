@@ -3,9 +3,9 @@ import { zzfx, zzfxX } from './zzfx'
 // All sounds are synthesized at play time by ZzFX - no audio files.
 // ponytail: params are ears-tuned guesses; tweak live via window.sfx.play('name') in the dev console.
 const SOUNDS = {
-  dig: [0.4, 0.1, 80, 0.005, 0.03, 0.13, 4, 1.8, -6, 0, 0, 0, 0, 0.4], // shovel: earthy thud
+  dig: [0.3, 0.1, 80, 0.005, 0.03, 0.13, 4, 1.8, -6, 0, 0, 0, 0, 0.4], // shovel: earthy thud
   mold: [0.35, 0.05, 330, 0.002, 0.03, 0.06, 1, 2.5, -8], // brick press: clack (higher pitch)
-  kiln: [0.3, 0.1, 50, 0.01, 0.15, 0.35, 4, 2, 0, 0, 0, 0, 0, 0.8, 0, 0.2], // fire: low whoosh
+  kiln: [0.22, 0.1, 50, 0.01, 0.15, 0.35, 4, 2, 0, 0, 0, 0, 0, 0.8, 0, 0.2], // fire: low whoosh
   ship: [0.35, 0.05, 1046, 0.001, 0.06, 0.2, 0, 1.4, 0, 0, 262, 0.06], // truck load: coin blip
   recruit: [0.3, 0.05, 523, 0.005, 0.08, 0.2, 0, 1.6, 0, 0, 131, 0.08], // family joins: rising chime
   fate: [0.5, 0.05, 130, 0.02, 0.25, 0.5, 2, 1.2, -1, -0.5], // the button appears: somber slide down
@@ -45,8 +45,8 @@ const sfx = {
   chord() {
     if (muted) return
     // zzfx(vol, rand, freq, attack, sustain, release[long=fade], shape[1=triangle], shapeCurve, ...)
-    for (const freq of [261.63, 329.63, 392.0, 523.25]) {
-      zzfx(0.16, 0.02, freq, 0.04, 0.18, 0.7, 1, 1.6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.6, 0.1)
+    for (const freq of [65.41, 130.81, 261.63, 329.63, 392.0, 523.25]) {
+      zzfx(0.16, 0.02, freq, 0.04, 0.36, 1.4, 1, 1.6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.6, 0.1)
     }
   },
 
@@ -68,10 +68,10 @@ const sfx = {
     if (muted) return
     clearTimeout(this._mumbleTimer)
     const syllables = Math.max(2, Math.min(8, Math.round((text || '').length / 16)))
-    this._mumbleFreq = 220 + Math.random() * 30
+    this._mumbleFreq = 300 + Math.random() * 40
     const speak = (i) => {
       if (i >= syllables || muted) return
-      this._mumbleFreq = Math.max(180, Math.min(300, this._mumbleFreq + (Math.random() - 0.5) * 50))
+      this._mumbleFreq = Math.max(240, Math.min(420, this._mumbleFreq + (Math.random() - 0.5) * 50))
       const last = i === syllables - 1
       const freq = last ? this._mumbleFreq * 0.82 : this._mumbleFreq
       const dur = 0.06 + Math.random() * 0.05 + (last ? 0.05 : 0)

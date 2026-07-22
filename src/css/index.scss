@@ -219,7 +219,7 @@ $pixel-circle: polygon(
       color: #888;
       font-size: 11px;
       letter-spacing: 1px;
-      margin: 18px 0 8px;
+      margin: 12px 0 8px;
     }
 
     a {
@@ -300,6 +300,11 @@ $pixel-circle: polygon(
     .key--arrow {
       font-family: system-ui, 'Segoe UI Symbol', sans-serif;
       font-size: 14px;
+    }
+
+    // widen the SPACE box ~2x so it reads like a real spacebar
+    .key--space {
+      min-width: 90px;
     }
 
     &--mobile {
