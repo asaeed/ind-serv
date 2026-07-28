@@ -9,6 +9,11 @@ import { SPRITE_DEFAULTS, PARTICLE_CONFIG, INTERACTION } from '../constants'
 // each production step completing gets its own voice
 const COMPLETION_SOUNDS = { shovel: 'dig', mold: 'mold', kiln: 'kiln', truck: 'ship' }
 
+// Guided tutorial: an arrow bobs over the next station once you hold the resource
+// it consumes, and disappears the moment you first interact with that station.
+// { itemName: resourceThatMustExist }
+const TUTORIAL_ARROWS = { mold: 'numMud', kiln: 'numBricksMolded', truck: 'numBricksBaked' }
+
 export default class ItemController {
   constructor(map) {
     this.map = map
@@ -20,6 +25,31 @@ export default class ItemController {
     // create items
     const itemData = gameStore.getState().itemData
     for (const item of itemData) this.createItem(item)
+
+    this.buildTutorialArrows()
+  }
+
+  buildTutorialArrows() {
+    this.tutorialArrows = []
+    for (const [name, needs] of Object.entries(TUTORIAL_ARROWS)) {
+      const item = this.items.find((it) => it.name === name)
+      if (!item) continue
+      const node = this.buildArrow()
+      node.visible(false)
+      this.group.add(node)
+      this.tutorialArrows.push({ node, item, needs })
+    }
+  }
+
+  // a green down-pointing arrow (shaft + head) with its tip at the group origin,
+  // so it can hang just above a station. Drawn with Konva - no image asset.
+  buildArrow() {
+    const g = new Konva.Group({ listening: false })
+    const green = '#3ff086'
+    const stroke = '#0a3a22'
+    g.add(new Konva.Rect({ x: -3, y: -30, width: 6, height: 16, fill: green, stroke, strokeWidth: 1.5 }))
+    g.add(new Konva.RegularPolygon({ x: 0, y: -13, sides: 3, radius: 12, rotation: 180, fill: green, stroke, strokeWidth: 1.5 }))
+    return g
   }
 
   createItem(item) {
@@ -196,6 +226,19 @@ export default class ItemController {
       const elapsed = Date.now() - bar.startTime
       const progress = Math.min(elapsed / bar.duration, 1)
       bar.fill.width(bar.barWidth * progress)
+    }
+
+    // tutorial arrows: bob over the next station until it's first used
+    const now = Date.now()
+    for (const arrow of this.tutorialArrows) {
+      const img = arrow.item.o?.image
+      const used = gameState.tracking.itemsUsed[arrow.item.name]
+      const show = !used && gameState[arrow.needs] >= 1 && img && typeof img.x === 'function'
+      arrow.node.visible(!!show)
+      if (show) {
+        const bob = Math.sin(now / 300) * 4
+        arrow.node.position({ x: img.x() + (arrow.item.barOffsetX ?? 0), y: img.y() - 14 + bob })
+      }
     }
 
     // update particles
