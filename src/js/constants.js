@@ -15,6 +15,7 @@ export const ANALYTICS = {
 export const ECONOMY = {
   STARTING_BRICK_PRICE: 10,
   GIVE_UP_THRESHOLD: 2000, // debt at which "Accept your fate" appears
+  GIVE_UP_TIME_MS: 12 * 60 * 1000, // ...or 12 min elapsed, whichever comes first
   INJURY_SPEED_MULTIPLIER: 0.5, // permanent, for both injuries
 }
 

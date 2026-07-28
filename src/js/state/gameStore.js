@@ -243,7 +243,7 @@ const gameStore = create((set, get) => ({
     const wasEventPanel = get().eventPanelOpen
     const { pendingDebtDelta, debt, fateAvailable, numBricksShipped } = get()
     if (pendingDebtDelta && !fateAvailable && debt + pendingDebtDelta >= ECONOMY.GIVE_UP_THRESHOLD) {
-      track('fate_available', { debt: debt + pendingDebtDelta, bricksShipped: numBricksShipped })
+      track('fate_available', { debt: debt + pendingDebtDelta, bricksShipped: numBricksShipped, trigger: 'debt' })
     }
 
     set((state) => {
@@ -277,6 +277,19 @@ const gameStore = create((set, get) => ({
 
       // a milestone crossed while the banner was up shows now
       get().checkEvents()
+    }
+  },
+
+  // Time half of the hybrid give-up trigger: debt >= GIVE_UP_THRESHOLD (checked on
+  // event dismissal, above) OR GIVE_UP_TIME_MS elapsed. The time cap guarantees the
+  // ending surfaces even for idle/slow players whose debt never crosses the line.
+  // Called every frame from Game.update() while the game is running.
+  checkFateByTime: () => {
+    const s = get()
+    if (s.fateAvailable || !s.gameStarted || s.gameOver) return
+    if (Date.now() - s.startTime >= ECONOMY.GIVE_UP_TIME_MS) {
+      track('fate_available', { debt: s.debt, bricksShipped: s.numBricksShipped, trigger: 'time' })
+      set({ fateAvailable: true })
     }
   },
 
