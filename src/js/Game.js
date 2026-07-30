@@ -82,7 +82,6 @@ export default class Game {
   update(tFrame) {
     const { gameStarted, gameOver } = gameStore.getState()
     if (!gameStarted || gameOver) return // start screen or end page is showing
-    gameStore.getState().checkFateByTime() // hybrid give-up: 12-min cap alongside the debt trigger
     this.characterController && this.characterController.update()
     this.map && this.map.update()
     this.hud && this.hud.update()
