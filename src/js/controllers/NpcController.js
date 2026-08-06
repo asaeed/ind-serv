@@ -3,6 +3,7 @@ import SpriteAnimated from '../sprites/SpriteAnimated'
 import gameStore from '../state/gameStore'
 import Map from '../Map'
 import { NPC_CONFIG } from '../constants'
+import { placeMarker } from '../ui/objectiveMarker.mjs'
 
 export default class NpcController {
   constructor(map) {
@@ -59,10 +60,11 @@ export default class NpcController {
   }
 
   // Bobbing, glowing arrow for an objective NPC. Lives in the screen-space markerLayer;
-  // positioned + oriented each frame in update() (above the head, or the view edge).
+  // positioned + rotated each frame by placeMarker() (above the head, or the view edge).
+  // Points DOWN at rotation 0 - placeMarker rotates it to aim at an edge.
   createObjectiveMarker() {
     const marker = new Konva.Line({
-      points: [-15, -13, 15, -13, 0, 11],
+      points: [-11, -10, 11, -10, 0, 8],
       closed: true,
       fill: '#ffde3d',
       stroke: '#7a5200',
@@ -167,7 +169,8 @@ export default class NpcController {
 
       // glowing objective arrow for recruitable family: visible once they've arrived
       // (not hidden) and aren't recruited yet. On-screen it hovers just above the
-      // character pointing down; off-screen it pins to the left edge pointing left.
+      // character pointing down; off-screen it pins to the nearest view edge, aimed
+      // at them (see placeMarker).
       if (npc.marker) {
         const show = !npc.hidden && !npc.recruited
         npc.marker.visible(show)
@@ -176,38 +179,12 @@ export default class NpcController {
             this.markerLayer.moveToTop() // above the HUD, which is created after this controller
             this._markerLayerRaised = true
           }
-          const stage = this.map.stage
           const off = this.group.position() // camera pan (imageGroup offset)
-          const sx = npc.o.sprite.x() + off.x
-          const sy = npc.o.sprite.y() + off.y
-          const w = stage.width()
-          const h = stage.height()
           const t = performance.now() / 1000
           const bob = Math.abs(Math.sin(t * 2.4)) * 7
+          const slot = (npc.markerIndex || 0) * 44 // keeps the wife's and son's apart on an edge
 
-          if (sx >= 0 && sx <= w && sy >= 0 && sy <= h) {
-            // on-screen: hover right above the character's own head, pointing down
-            npc.marker.points([-11, -10, 11, -10, 0, 8])
-            npc.marker.x(sx)
-            npc.marker.y(sy - 12 - bob)
-          } else {
-            // off-screen: pin to a view edge, pointing toward the family. Each arrow gets
-            // its own slot so the wife's and son's don't stack.
-            const slot = (npc.markerIndex || 0) * 44
-            if (Math.max(0, -sy) >= Math.max(0, -sx)) {
-              // more above than to the left (player is further below than to the right):
-              // top edge, pointing up. Family shares a column, so offset x per slot.
-              npc.marker.points([-11, 10, 11, 10, 0, -8])
-              npc.marker.x(Math.max(24 + slot, Math.min(w - 24, sx + slot)))
-              npc.marker.y(24 + bob)
-            } else {
-              // more to the left: left edge, pointing left. Family rows differ, so the
-              // slot only lifts the minimum (keeps them apart when both clamp to the top).
-              npc.marker.points([9, -11, 9, 11, -9, 0])
-              npc.marker.x(24 + bob)
-              npc.marker.y(Math.max(24 + slot, Math.min(h - 24, sy)))
-            }
-          }
+          placeMarker(npc.marker, npc.o.sprite.x() + off.x, npc.o.sprite.y() + off.y, this.map.stage, { bob, slot })
           npc.marker.shadowBlur(10 + (Math.sin(t * 2.4) + 1) * 6)
         }
       }

@@ -5,6 +5,7 @@ import MapClass from '../Map'
 import Particles from '../sprites/Particles'
 import sfx from '../lib/sfx'
 import { SPRITE_DEFAULTS, PARTICLE_CONFIG, INTERACTION } from '../constants'
+import { placeMarker } from '../ui/objectiveMarker.mjs'
 
 // each production step completing gets its own voice
 const COMPLETION_SOUNDS = { shovel: 'dig', mold: 'mold', kiln: 'kiln', truck: 'ship' }
@@ -30,14 +31,21 @@ export default class ItemController {
   }
 
   buildTutorialArrows() {
+    // like the family recruit arrows, these live in their own top layer in SCREEN
+    // space (not the camera-panned imageGroup) so they can pin to the view edge when
+    // the station is off-screen. Raised above the HUD lazily on first update().
+    this.markerLayer = new Konva.Layer({ listening: false })
+    this.map.stage.add(this.markerLayer)
+    this._markerLayerRaised = false
+
     this.tutorialArrows = []
     for (const [name, needs] of Object.entries(TUTORIAL_ARROWS)) {
       const item = this.items.find((it) => it.name === name)
       if (!item) continue
       const node = this.buildArrow()
       node.visible(false)
-      this.group.add(node)
-      this.tutorialArrows.push({ node, item, needs })
+      this.markerLayer.add(node)
+      this.tutorialArrows.push({ node, item, needs, slot: this.tutorialArrows.length * 44 })
     }
   }
 
@@ -227,16 +235,23 @@ export default class ItemController {
       bar.fill.width(bar.barWidth * progress)
     }
 
-    // tutorial arrows: bob over the next station until it's first used
-    const now = Date.now()
+    // tutorial arrows: bob over the next station until it's first used. On-screen
+    // they hover above the station; off-screen they pin to the view edge.
+    const bob = Math.abs(Math.sin(performance.now() / 1000 * 2.4)) * 7
+    const off = this.group.position() // camera pan (imageGroup offset)
     for (const arrow of this.tutorialArrows) {
       const img = arrow.item.o?.image
       const used = gameState.tracking.itemsUsed[arrow.item.name]
       const show = !used && gameState[arrow.needs] >= 1 && img && typeof img.x === 'function'
       arrow.node.visible(!!show)
       if (show) {
-        const bob = Math.sin(now / 300) * 4
-        arrow.node.position({ x: img.x() + (arrow.item.barOffsetX ?? 0), y: img.y() - 14 + bob })
+        if (!this._markerLayerRaised) {
+          this.markerLayer.moveToTop() // above the HUD, which is created after this controller
+          this._markerLayerRaised = true
+        }
+        const sx = img.x() + (arrow.item.barOffsetX ?? 0) + off.x
+        const sy = img.y() + off.y
+        placeMarker(arrow.node, sx, sy, this.map.stage, { bob, slot: arrow.slot, hover: 14 })
       }
     }
 
