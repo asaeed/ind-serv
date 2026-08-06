@@ -119,7 +119,8 @@ const gameStore = create((set, get) => ({
         // nothing new starts. closeTextPanel resumes paused auto-production chains.
         if (get().eventPanelOpen) return
 
-        // show dialog on first use if configured
+        // show dialog on first use if configured. It narrates the work rather than
+        // gating it, so fall through and start the action on this same interaction.
         if (item.action?.showOnFirstUse) {
           const hasUsedBefore = get().tracking.itemsUsed[item.name]
           if (!hasUsedBefore) {
@@ -132,7 +133,6 @@ const gameStore = create((set, get) => ({
                 itemsUsed: { ...state.tracking.itemsUsed, [item.name]: true },
               },
             }))
-            return // don't execute action when showing dialog
           }
         }
 
@@ -341,6 +341,16 @@ const gameStore = create((set, get) => ({
       if (ev.injures) {
         const playerStore = require('./playerStore').default
         playerStore.getState().setWorkSpeedMultiplier(ev.injures, ECONOMY.INJURY_SPEED_MULTIPLIER)
+      }
+
+      // some beats need the player to look up from the work (the family arriving).
+      // Clearing auto-production means closeTextPanel finds nothing to resume, so the
+      // line goes quiet until the player walks back to a station.
+      if (ev.stopsProduction) {
+        const playerStore = require('./playerStore').default
+        for (const char of Object.values(playerStore.getState().characters)) {
+          playerStore.getState().stopAutoProduction(char.id)
+        }
       }
 
       track('story_event', { id: ev.id, debtDelta: ev.debtDelta || 0, bricksShipped: shipped })

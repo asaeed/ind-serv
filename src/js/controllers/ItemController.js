@@ -12,8 +12,9 @@ const COMPLETION_SOUNDS = { shovel: 'dig', mold: 'mold', kiln: 'kiln', truck: 's
 
 // Guided tutorial: an arrow bobs over the next station once you hold the resource
 // it consumes, and disappears the moment you first interact with that station.
-// { itemName: resourceThatMustExist }
-const TUTORIAL_ARROWS = { mold: 'numMud', kiln: 'numBricksMolded', truck: 'numBricksBaked' }
+// The shovel starts the chain, so it has no prerequisite - its arrow shows from
+// the first frame. { itemName: resourceThatMustExist | null }
+const TUTORIAL_ARROWS = { shovel: null, mold: 'numMud', kiln: 'numBricksMolded', truck: 'numBricksBaked' }
 
 export default class ItemController {
   constructor(map) {
@@ -242,7 +243,8 @@ export default class ItemController {
     for (const arrow of this.tutorialArrows) {
       const img = arrow.item.o?.image
       const used = gameState.tracking.itemsUsed[arrow.item.name]
-      const show = !used && gameState[arrow.needs] >= 1 && img && typeof img.x === 'function'
+      const hasResource = arrow.needs === null || gameState[arrow.needs] >= 1
+      const show = !used && hasResource && img && typeof img.x === 'function'
       arrow.node.visible(!!show)
       if (show) {
         if (!this._markerLayerRaised) {

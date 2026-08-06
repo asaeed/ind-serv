@@ -76,9 +76,12 @@ Exact values are playtest-tuned.
 
 ### Event system (new)
 - `src/data/event.json` (singular, matching `item.json`/`npc.json`) — list of
-  `{ id, trigger: { bricksShipped, requiresRecruit? }, debtDelta?, brickPrice?, injures?, text, repeat? }`.
-  Family appearance is not an event effect: NpcController reveals NPCs with
-  `appearAtBricks` on its own; the 20-brick event is pure narration.
+  `{ id, trigger: { bricksShipped, requiresRecruit? }, debtDelta?, brickPrice?, injures?, stopsProduction?, text, repeat? }`.
+  Family appearance IS an event effect: NpcController reveals NPCs whose
+  `appearsOnEvent` id is in `eventsDone`, so the sprites and their objective
+  arrows can never precede the card announcing them (single source of truth).
+  `stopsProduction` clears every character's auto-production chain, so the line
+  goes quiet until the player walks back to a station.
 - `checkEvents()` in `gameStore`, called after each shipped-brick increment.
   Fires at most one event per ship; marks one-shots as done.
 - **Start screen**: a full-screen overlay with a Start Game button; the game
@@ -104,13 +107,16 @@ Exact values are playtest-tuned.
 - Routine per-brick −$10 payments apply immediately (small ticks); the spin is
   reserved for event deltas, which land on panel dismiss.
 
-### Family appearance (20 bricks)
-- New `appearAtBricks` field in `npc.json`. NpcController creates these sprites
-  hidden (excluded from proximity + vacancy while hidden) and reveals them when
-  the threshold is met, alongside the arrival event text.
+### Family appearance (the `familyArrives` event)
+- `appearsOnEvent` field in `npc.json` naming a story event id. NpcController
+  creates these sprites hidden (excluded from proximity + vacancy while hidden)
+  and reveals them once `eventsDone[appearsOnEvent]` is set — so the timing
+  lives only in `event.json` and can't drift from the card text.
 - Recruiting: talking to a recruitable NPC recruits them on the spot (their
   dialog gains a "has joined you" notice + switch hint). Tab/B then switches
   between party members at any time — no proximity or open-panel requirement.
+  Auto-switching on recruit was tried and reverted: being yanked onto the new
+  character mid-approach made the family corner disorienting.
 
 ### Injuries (permanent half speed)
 - Per-character `workSpeedMultiplier` in `playerStore` (default 1).
