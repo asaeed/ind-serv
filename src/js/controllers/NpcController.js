@@ -48,8 +48,8 @@ export default class NpcController {
       originY: npc.gridY,
       targetX: npc.gridX,
       targetY: npc.gridY,
-      // NPCs with appearAtBricks stay hidden until enough bricks have shipped
-      hidden: Boolean(npc.appearAtBricks),
+      // NPCs with appearsOnEvent stay hidden until that story event has fired
+      hidden: Boolean(npc.appearsOnEvent),
     }
     // each recruitable family member gets its own glowing "go here" arrow (see update())
     if (npc.recruitable) {
@@ -152,14 +152,15 @@ export default class NpcController {
 
   update() {
     const speed = 4
-    const shipped = gameStore.getState().numBricksShipped
+    const eventsDone = gameStore.getState().eventsDone
 
     // if there's a target location that differs from current location, move towards it
     for (let npc of this.npcs) {
-      // reveal/keep-hidden NPCs gated on shipped bricks (sprite loads async,
-      // so enforce visibility here rather than at creation)
-      if (npc.appearAtBricks && npc.o.sprite) {
-        if (npc.hidden && shipped >= npc.appearAtBricks) {
+      // reveal/keep-hidden NPCs gated on their story event firing, so the family can
+      // never show up before the card announcing them (sprite loads async, so enforce
+      // visibility here rather than at creation)
+      if (npc.appearsOnEvent && npc.o.sprite) {
+        if (npc.hidden && eventsDone[npc.appearsOnEvent]) {
           npc.hidden = false
           npc.o.sprite.visible(true)
         } else if (npc.hidden && npc.o.sprite.visible()) {

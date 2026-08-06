@@ -343,6 +343,16 @@ const gameStore = create((set, get) => ({
         playerStore.getState().setWorkSpeedMultiplier(ev.injures, ECONOMY.INJURY_SPEED_MULTIPLIER)
       }
 
+      // some beats need the player to look up from the work (the family arriving).
+      // Clearing auto-production means closeTextPanel finds nothing to resume, so the
+      // line goes quiet until the player walks back to a station.
+      if (ev.stopsProduction) {
+        const playerStore = require('./playerStore').default
+        for (const char of Object.values(playerStore.getState().characters)) {
+          playerStore.getState().stopAutoProduction(char.id)
+        }
+      }
+
       track('story_event', { id: ev.id, debtDelta: ev.debtDelta || 0, bricksShipped: shipped })
       set((s) => ({
         eventsDone: { ...s.eventsDone, [ev.id]: true },
@@ -383,15 +393,17 @@ const gameStore = create((set, get) => ({
     sfx.play('recruit')
     track('recruited', { npc: npcName, bricksShipped: get().numBricksShipped })
 
-    set((state) => ({
-      recruitedNpcs: [...state.recruitedNpcs, npcName],
-    }))
-
-    // Add to player store as controllable character
+    // Register as a controllable character FIRST: setting recruitedNpcs notifies
+    // CharacterController synchronously, and it switches control to the new character
+    // right away - which needs them to already exist in playerStore.
     const playerStore = require('./playerStore').default
     playerStore.getState().addCharacter(npcName, {
       sprite: null, // Will be set by CharacterController
     })
+
+    set((state) => ({
+      recruitedNpcs: [...state.recruitedNpcs, npcName],
+    }))
   },
 }))
 
