@@ -118,7 +118,7 @@
     "gridX": 1,
     "gridY": 2,
     "recruitable": true,
-    "appearAtBricks": 13,
+    "appearsOnEvent": "familyArrives",
     "speech": [
       {
         "minBricks": 0,
@@ -136,7 +136,7 @@
     "gridX": 1,
     "gridY": 3,
     "recruitable": true,
-    "appearAtBricks": 13,
+    "appearsOnEvent": "familyArrives",
     "speech": [
       {
         "minBricks": 0,

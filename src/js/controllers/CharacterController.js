@@ -78,9 +78,10 @@ export default class CharacterController {
       npcToRecruit.targetY = gridY
       npcToRecruit.recruited = true
 
-      // Trigger particles at the NPC's position as join feedback.
-      // (No auto-switch: Tab/B switches to them whenever the player chooses.)
+      // Trigger particles at the NPC's position as join feedback, then hand control
+      // straight over - recruiting is the switch, no extra Tab press needed.
       this._triggerSwitchParticlesAtLocal(npcToRecruit.o.sprite.x(), npcToRecruit.o.sprite.y())
+      this.switchToCharacter(npcName)
     }
   }
 

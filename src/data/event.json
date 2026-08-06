@@ -20,6 +20,7 @@
     "trigger": {
       "bricksShipped": 15
     },
+    "stopsProduction": true,
     "text": "Your wife and son arrive at the kiln gates. They've come to help you pay it off."
   },
   {
