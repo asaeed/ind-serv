@@ -2,6 +2,7 @@ import Konva from 'konva'
 import gameStore from '../state/gameStore'
 import sfx from '../lib/sfx'
 import panelImagePath from '../../assets/img/textboxblue20.png'
+import { INTERACT_KEY } from '../constants'
 
 export default class TextPanel {
   constructor(layer) {
@@ -71,6 +72,10 @@ export default class TextPanel {
       if (e.type === 'keydown') {
         const el = document.activeElement
         if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) return
+        // Player.js owns the interact key. If we closed the panel here too, the same
+        // press would dismiss AND fire a fresh interaction one frame later - which is
+        // how dismissing the son's dialog ended up recruiting the wife beside him.
+        if (e.key === INTERACT_KEY) return
       } else if (e.target.closest?.('button, a, input, textarea, .info-modal')) {
         return // UI chrome clicks do their own thing
       }

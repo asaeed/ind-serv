@@ -115,7 +115,15 @@ export default class Player extends SpriteAnimated {
     const interactJustPressed = this.input.interactPress && !this.lastInteractPress
     this.lastInteractPress = this.input.interactPress
 
-    if (interactJustPressed && !isInteracting && !inInteractionWindow) {
+    // The interact key dismisses an open dialog and stops there - it must not also fire a
+    // fresh interaction, or dismissing the son's dialog would recruit the wife standing
+    // next to him. TextPanel's any-key dismiss skips this key so the two can't both run.
+    // Choice dialogs are left alone; they need a real selection.
+    const panelIsOpen = Boolean(gameState.textPanelContent) && !gameState.textPanelOptions.length
+
+    if (interactJustPressed && panelIsOpen) {
+      gameState.closeTextPanel()
+    } else if (interactJustPressed && !isInteracting && !inInteractionWindow) {
       this.sprite.animation('hurt')
       this.sprite.frameIndex(0)
 
@@ -127,17 +135,12 @@ export default class Player extends SpriteAnimated {
       const closestObject = this.map.checkProximity(this.sprite.attrs.x, this.sprite.attrs.y)
       gameState.interactWith(closestObject, this.characterId)
 
-      // Start auto-production if interacting with an item
+      // Start auto-production if interacting with an item. The station's first-use
+      // dialog (opened by interactWith above) stays up narrating the work - it no
+      // longer has to be dismissed before anything happens.
       if (closestObject && closestObject.type === 'item') {
         playerState.startAutoProduction(this.characterId, closestObject.name)
         this.autoProductionCancelledFor = null // Clear cancelled flag when manually starting
-
-        // If we just started auto-production, close the panel.
-        // This is intentionally done here (at the source of the user input),
-        // so background auto-production ticks never close panels.
-        if (gameState.textPanelContent) {
-          gameState.interactWith(undefined)
-        }
       }
     }
 

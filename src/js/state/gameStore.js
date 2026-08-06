@@ -119,7 +119,8 @@ const gameStore = create((set, get) => ({
         // nothing new starts. closeTextPanel resumes paused auto-production chains.
         if (get().eventPanelOpen) return
 
-        // show dialog on first use if configured
+        // show dialog on first use if configured. It narrates the work rather than
+        // gating it, so fall through and start the action on this same interaction.
         if (item.action?.showOnFirstUse) {
           const hasUsedBefore = get().tracking.itemsUsed[item.name]
           if (!hasUsedBefore) {
@@ -132,7 +133,6 @@ const gameStore = create((set, get) => ({
                 itemsUsed: { ...state.tracking.itemsUsed, [item.name]: true },
               },
             }))
-            return // don't execute action when showing dialog
           }
         }
 

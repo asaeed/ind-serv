@@ -28,6 +28,10 @@ export const GAME_CONFIG = {
   TARGET_FPS: 60,
 }
 
+// The interact key is deliberately excluded from TextPanel's any-key dismiss:
+// Player.js owns it, so one press either interacts or dismisses, never both.
+export const INTERACT_KEY = ' '
+
 // Player interaction distances and offsets
 export const INTERACTION = {
   MAX_DISTANCE: 40, // Max distance to interact with objects

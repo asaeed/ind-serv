@@ -12,7 +12,7 @@
     "particleColor": "#8B4513",
     "barOffsetX": 8,
     "dialog": {
-      "text": "Use shovel to extract mud."
+      "text": "You dig into the pit, working mud loose."
     },
     "action": {
       "type": "create",
@@ -35,7 +35,7 @@
     "particleColor": "#A0826D",
     "barOffsetX": -20,
     "dialog": {
-      "text": "Mold mud into bricks."
+      "text": "You press the mud into wooden molds, one brick at a time."
     },
     "action": {
       "type": "convert",
@@ -59,7 +59,7 @@
     "particleColor": "white",
     "barOffsetX": 28,
     "dialog": {
-      "text": "Bake molded bricks in the kiln."
+      "text": "You stack the molded bricks into the kiln to bake."
     },
     "action": {
       "type": "convert",
@@ -83,7 +83,7 @@
     "particleColor": "#CD853F",
     "barOffsetX": 22,
     "dialog": {
-      "text": "Load baked bricks onto the truck for shipping."
+      "text": "You load the baked bricks onto the truck to be counted."
     },
     "action": {
       "type": "convert",
