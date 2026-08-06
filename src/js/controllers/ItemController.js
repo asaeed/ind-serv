@@ -41,13 +41,12 @@ export default class ItemController {
     }
   }
 
-  // a green down-pointing arrow (shaft + head) with its tip at the group origin,
-  // so it can hang just above a station. Drawn with Konva - no image asset.
+  // a green down-pointing triangle with its tip at the group origin, so it can
+  // hang just above a station. Drawn with Konva - no image asset.
   buildArrow() {
     const g = new Konva.Group({ listening: false })
     const green = '#3ff086'
     const stroke = '#0a3a22'
-    g.add(new Konva.Rect({ x: -3, y: -30, width: 6, height: 16, fill: green, stroke, strokeWidth: 1.5 }))
     g.add(new Konva.RegularPolygon({ x: 0, y: -13, sides: 3, radius: 12, rotation: 180, fill: green, stroke, strokeWidth: 1.5 }))
     return g
   }
