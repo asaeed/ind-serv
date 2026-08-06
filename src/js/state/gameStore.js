@@ -393,17 +393,15 @@ const gameStore = create((set, get) => ({
     sfx.play('recruit')
     track('recruited', { npc: npcName, bricksShipped: get().numBricksShipped })
 
-    // Register as a controllable character FIRST: setting recruitedNpcs notifies
-    // CharacterController synchronously, and it switches control to the new character
-    // right away - which needs them to already exist in playerStore.
+    set((state) => ({
+      recruitedNpcs: [...state.recruitedNpcs, npcName],
+    }))
+
+    // Add to player store as controllable character
     const playerStore = require('./playerStore').default
     playerStore.getState().addCharacter(npcName, {
       sprite: null, // Will be set by CharacterController
     })
-
-    set((state) => ({
-      recruitedNpcs: [...state.recruitedNpcs, npcName],
-    }))
   },
 }))
 

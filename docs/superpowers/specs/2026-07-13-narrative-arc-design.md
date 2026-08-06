@@ -112,11 +112,11 @@ Exact values are playtest-tuned.
   creates these sprites hidden (excluded from proximity + vacancy while hidden)
   and reveals them once `eventsDone[appearsOnEvent]` is set — so the timing
   lives only in `event.json` and can't drift from the card text.
-- Recruiting: talking to a recruitable NPC recruits them on the spot and hands
-  control straight over (`recruitNpc` → `switchToCharacter`). `gameStore.recruitNpc`
-  must call `addCharacter` BEFORE setting `recruitedNpcs`, since that set()
-  notifies CharacterController synchronously. Tab/B still switches between party
-  members at any time — no proximity or open-panel requirement.
+- Recruiting: talking to a recruitable NPC recruits them on the spot (their
+  dialog gains a "has joined you" notice + switch hint). Tab/B then switches
+  between party members at any time — no proximity or open-panel requirement.
+  Auto-switching on recruit was tried and reverted: being yanked onto the new
+  character mid-approach made the family corner disorienting.
 
 ### Injuries (permanent half speed)
 - Per-character `workSpeedMultiplier` in `playerStore` (default 1).
