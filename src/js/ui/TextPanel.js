@@ -59,6 +59,26 @@ export default class TextPanel {
     }
     imageObj.src = panelImagePath
 
+    // any key or click/tap dismisses an open dialog. Grace period so the input
+    // that opened the panel (or a held movement key) doesn't instantly close it —
+    // same reason Player.js guards its interaction window.
+    this.openedAt = Date.now() // covers the opening card, which is set before we subscribe
+    this.handleDismissInput = (e) => {
+      const state = gameStore.getState()
+      if (!state.textPanelContent) return
+      if (state.textPanelOptions.length) return // choice dialogs need a real selection
+      if (Date.now() - this.openedAt < 350) return
+      if (e.type === 'keydown') {
+        const el = document.activeElement
+        if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) return
+      } else if (e.target.closest?.('button, a, input, textarea, .info-modal')) {
+        return // UI chrome clicks do their own thing
+      }
+      state.closeTextPanel()
+    }
+    document.addEventListener('keydown', this.handleDismissInput)
+    document.addEventListener('pointerdown', this.handleDismissInput)
+
     const unsubscribe = gameStore.subscribe(
       (state, prevState) => {
         // characters talking get the Peanuts-teacher mumble; narration banners
@@ -69,6 +89,9 @@ export default class TextPanel {
           state.textPanelContent !== prevState?.textPanelContent
         ) {
           sfx.mumble(state.textPanelContent)
+        }
+        if (state.textPanelContent && state.textPanelContent !== prevState?.textPanelContent) {
+          this.openedAt = Date.now() // arm the dismiss grace period
         }
         if (!this.panelText) return // assets not loaded yet; onload will catch up
         if (state.textPanelContent) {

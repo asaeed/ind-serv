@@ -10,22 +10,22 @@
   {
     "id": "lodging",
     "trigger": {
-      "bricksShipped": 7
+      "bricksShipped": 8
     },
-    "debtDelta": 150,
-    "text": "The rent is due: $150.\n\nDid you think the roof over your head was free?"
+    "debtDelta": 100,
+    "text": "The rent is due: $100.\n\nDid you think the roof over your head was free?"
   },
   {
     "id": "familyArrives",
     "trigger": {
-      "bricksShipped": 13
+      "bricksShipped": 15
     },
     "text": "Your wife and son arrive at the kiln gates. They've come to help you pay it off."
   },
   {
     "id": "priceDrop1",
     "trigger": {
-      "bricksShipped": 16
+      "bricksShipped": 18
     },
     "brickPrice": 7,
     "text": "The market is down, says the owner. Bricks pay $7 now."
@@ -33,31 +33,15 @@
   {
     "id": "shovelBreaks",
     "trigger": {
-      "bricksShipped": 19
+      "bricksShipped": 21
     },
-    "debtDelta": 75,
-    "text": "Your shovel splits at the handle. A replacement is charged to the ledger: +$75."
-  },
-  {
-    "id": "fuelCharge",
-    "trigger": {
-      "bricksShipped": 23
-    },
-    "debtDelta": 120,
-    "text": "Kiln fuel charge: +$120.\n\nThe fire doesn't feed itself."
-  },
-  {
-    "id": "priceDrop2",
-    "trigger": {
-      "bricksShipped": 26
-    },
-    "brickPrice": 5,
-    "text": "The market is down again. Bricks pay $5 now."
+    "debtDelta": 50,
+    "text": "Your shovel splits at the handle. A replacement is charged to the ledger: +$50."
   },
   {
     "id": "wifeBurned",
     "trigger": {
-      "bricksShipped": 29,
+      "bricksShipped": 32,
       "requiresRecruit": "wife"
     },
     "debtDelta": 200,
@@ -65,17 +49,25 @@
     "text": "Your wife is burned reaching into the kiln. Hospital bill: +$200.\n\nShe works slower now."
   },
   {
-    "id": "recalculation",
+    "id": "fuelCharge",
     "trigger": {
       "bricksShipped": 36
     },
-    "debtDelta": 250,
-    "text": "The owner recalculates your debt. Interest. Fees. It's all in the ledger: +$250."
+    "debtDelta": 120,
+    "text": "Kiln fuel charge: +$120.\n\nThe fire doesn't feed itself."
+  },
+  {
+    "id": "bigOrder",
+    "trigger": {
+      "bricksShipped": 40
+    },
+    "brickPrice": 8,
+    "text": "A big order comes in from the city. Bricks pay $8 now.\n\nMaybe there's a way out after all."
   },
   {
     "id": "sonHand",
     "trigger": {
-      "bricksShipped": 42,
+      "bricksShipped": 45,
       "requiresRecruit": "son"
     },
     "debtDelta": 400,
@@ -83,26 +75,25 @@
     "text": "The mold takes your son's hand. Hospital bill: +$400.\n\nHe works slower now."
   },
   {
-    "id": "bigOrder",
+    "id": "recalculation",
     "trigger": {
-      "bricksShipped": 45
+      "bricksShipped": 50
     },
-    "brickPrice": 8,
-    "text": "A big order comes in from the city. Bricks pay $8 now.\n\nMaybe there's a way out after all."
+    "debtDelta": 250,
+    "text": "The owner recalculates your debt. Interest. Fees. It's all in the ledger: +$250."
   },
   {
-    "id": "playerBurned",
+    "id": "priceDrop2",
     "trigger": {
-      "bricksShipped": 61
+      "bricksShipped": 54
     },
-    "debtDelta": 450,
-    "injures": "player",
-    "text": "The kiln takes its due. Burns down your arm. Hospital bill: +$450.\n\nYou work slower now."
+    "brickPrice": 5,
+    "text": "The market is down again. Bricks pay $5 now."
   },
   {
     "id": "recurring",
     "trigger": {
-      "bricksShipped": 68
+      "bricksShipped": 62
     },
     "debtDelta": 150,
     "repeat": {

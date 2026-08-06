@@ -205,8 +205,11 @@ const gameStore = create((set, get) => ({
                 return newState
               })
 
-              // narrative events fire on shipped-brick milestones
-              if (item.action.creates === 'numBricksShipped') get().checkEvents()
+              // narrative events + brick-based give-up fire on shipped-brick milestones
+              if (item.action.creates === 'numBricksShipped') {
+                get().checkEvents()
+                get().checkFateByBricks()
+              }
 
               // Auto-production: retrigger on next tick if still active
               // Small delay allows ItemController to detect state changes for visual effects
@@ -243,7 +246,7 @@ const gameStore = create((set, get) => ({
     const wasEventPanel = get().eventPanelOpen
     const { pendingDebtDelta, debt, fateAvailable, numBricksShipped } = get()
     if (pendingDebtDelta && !fateAvailable && debt + pendingDebtDelta >= ECONOMY.GIVE_UP_THRESHOLD) {
-      track('fate_available', { debt: debt + pendingDebtDelta, bricksShipped: numBricksShipped })
+      track('fate_available', { debt: debt + pendingDebtDelta, bricksShipped: numBricksShipped, trigger: 'debt' })
     }
 
     set((state) => {
@@ -277,6 +280,19 @@ const gameStore = create((set, get) => ({
 
       // a milestone crossed while the banner was up shows now
       get().checkEvents()
+    }
+  },
+
+  // Bricks half of the hybrid give-up trigger: debt >= GIVE_UP_THRESHOLD (checked on
+  // event dismissal, above) OR GIVE_UP_BRICKS shipped. The brick cap guarantees the
+  // ending surfaces through labor (not wall-clock), so an idle/backgrounded tab can't
+  // reach it. Called after each shipped brick.
+  checkFateByBricks: () => {
+    const s = get()
+    if (s.fateAvailable || s.gameOver) return
+    if (s.numBricksShipped >= ECONOMY.GIVE_UP_BRICKS) {
+      track('fate_available', { debt: s.debt, bricksShipped: s.numBricksShipped, trigger: 'bricks' })
+      set({ fateAvailable: true })
     }
   },
 

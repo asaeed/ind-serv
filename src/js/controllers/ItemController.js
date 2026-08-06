@@ -5,9 +5,15 @@ import MapClass from '../Map'
 import Particles from '../sprites/Particles'
 import sfx from '../lib/sfx'
 import { SPRITE_DEFAULTS, PARTICLE_CONFIG, INTERACTION } from '../constants'
+import { placeMarker } from '../ui/objectiveMarker.mjs'
 
 // each production step completing gets its own voice
 const COMPLETION_SOUNDS = { shovel: 'dig', mold: 'mold', kiln: 'kiln', truck: 'ship' }
+
+// Guided tutorial: an arrow bobs over the next station once you hold the resource
+// it consumes, and disappears the moment you first interact with that station.
+// { itemName: resourceThatMustExist }
+const TUTORIAL_ARROWS = { mold: 'numMud', kiln: 'numBricksMolded', truck: 'numBricksBaked' }
 
 export default class ItemController {
   constructor(map) {
@@ -20,6 +26,37 @@ export default class ItemController {
     // create items
     const itemData = gameStore.getState().itemData
     for (const item of itemData) this.createItem(item)
+
+    this.buildTutorialArrows()
+  }
+
+  buildTutorialArrows() {
+    // like the family recruit arrows, these live in their own top layer in SCREEN
+    // space (not the camera-panned imageGroup) so they can pin to the view edge when
+    // the station is off-screen. Raised above the HUD lazily on first update().
+    this.markerLayer = new Konva.Layer({ listening: false })
+    this.map.stage.add(this.markerLayer)
+    this._markerLayerRaised = false
+
+    this.tutorialArrows = []
+    for (const [name, needs] of Object.entries(TUTORIAL_ARROWS)) {
+      const item = this.items.find((it) => it.name === name)
+      if (!item) continue
+      const node = this.buildArrow()
+      node.visible(false)
+      this.markerLayer.add(node)
+      this.tutorialArrows.push({ node, item, needs, slot: this.tutorialArrows.length * 44 })
+    }
+  }
+
+  // a green down-pointing triangle with its tip at the group origin, so it can
+  // hang just above a station. Drawn with Konva - no image asset.
+  buildArrow() {
+    const g = new Konva.Group({ listening: false })
+    const green = '#3ff086'
+    const stroke = '#0a3a22'
+    g.add(new Konva.RegularPolygon({ x: 0, y: -13, sides: 3, radius: 12, rotation: 180, fill: green, stroke, strokeWidth: 1.5 }))
+    return g
   }
 
   createItem(item) {
@@ -196,6 +233,26 @@ export default class ItemController {
       const elapsed = Date.now() - bar.startTime
       const progress = Math.min(elapsed / bar.duration, 1)
       bar.fill.width(bar.barWidth * progress)
+    }
+
+    // tutorial arrows: bob over the next station until it's first used. On-screen
+    // they hover above the station; off-screen they pin to the view edge.
+    const bob = Math.abs(Math.sin(performance.now() / 1000 * 2.4)) * 7
+    const off = this.group.position() // camera pan (imageGroup offset)
+    for (const arrow of this.tutorialArrows) {
+      const img = arrow.item.o?.image
+      const used = gameState.tracking.itemsUsed[arrow.item.name]
+      const show = !used && gameState[arrow.needs] >= 1 && img && typeof img.x === 'function'
+      arrow.node.visible(!!show)
+      if (show) {
+        if (!this._markerLayerRaised) {
+          this.markerLayer.moveToTop() // above the HUD, which is created after this controller
+          this._markerLayerRaised = true
+        }
+        const sx = img.x() + (arrow.item.barOffsetX ?? 0) + off.x
+        const sy = img.y() + off.y
+        placeMarker(arrow.node, sx, sy, this.map.stage, { bob, slot: arrow.slot, hover: 14 })
+      }
     }
 
     // update particles
