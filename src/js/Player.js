@@ -73,7 +73,13 @@ export default class Player extends SpriteAnimated {
     // from the next one, which reads as "dismiss and go" in the same press.
     // Choice dialogs are excluded - they need a real selection.
     const panelIsOpen = Boolean(gameState.textPanelContent) && !gameState.textPanelOptions.length
-    const press = panelIsOpen ? NO_DIRECTION : this.input.directionPress
+
+    // Keyboard always wins: touching a direction key abandons a tap-issued route, so the
+    // two input styles can't fight over the same character.
+    const keyed = this.input.directionPress
+    if (keyed.up || keyed.down || keyed.left || keyed.right) this.setPath([])
+
+    const press = panelIsOpen ? NO_DIRECTION : this.path?.length ? this.followPath(speed) : keyed
 
     const store = playerStore.getState()
     const { setFacingDirection } = store
@@ -131,24 +137,8 @@ export default class Player extends SpriteAnimated {
     if (interactJustPressed && panelIsOpen) {
       gameState.closeTextPanel()
     } else if (interactJustPressed && !isInteracting && !inInteractionWindow) {
-      this.sprite.animation('hurt')
-      this.sprite.frameIndex(0)
-
-      this.interactionUntil = Date.now() + 400
-      setIsInteracting(true)
-      setTimeout(() => setIsInteracting(false), 400)
-
       // to see if player is within range of any and kick off interaction
-      const closestObject = this.map.checkProximity(this.sprite.attrs.x, this.sprite.attrs.y)
-      gameState.interactWith(closestObject, this.characterId)
-
-      // Start auto-production if interacting with an item. The station's first-use
-      // dialog (opened by interactWith above) stays up narrating the work - it no
-      // longer has to be dismissed before anything happens.
-      if (closestObject && closestObject.type === 'item') {
-        playerState.startAutoProduction(this.characterId, closestObject.name)
-        this.autoProductionCancelledFor = null // Clear cancelled flag when manually starting
-      }
+      this.triggerInteraction(this.map.checkProximity(this.sprite.attrs.x, this.sprite.attrs.y))
     }
 
     // Movement keys dismiss too, but strictly one card per press: read the raw input
@@ -199,6 +189,77 @@ export default class Player extends SpriteAnimated {
       this.lastActionState = {}
       this.autoProductionCancelledFor = null // Reset when leaving item area
     }
+  }
+
+  // The one interaction path, shared by the interact key and by tapping something already
+  // in reach, so both get the same swing animation, interaction window and auto-production.
+  triggerInteraction(closestObject) {
+    const playerState = playerStore.getState()
+    if (playerState.isInteracting || Date.now() < this.interactionUntil) return
+
+    this.sprite.animation('hurt')
+    this.sprite.frameIndex(0)
+
+    this.interactionUntil = Date.now() + 400
+    playerState.setIsInteracting(true)
+    setTimeout(() => playerStore.getState().setIsInteracting(false), 400)
+
+    gameStore.getState().interactWith(closestObject, this.characterId)
+
+    // Start auto-production if interacting with an item. The station's first-use dialog
+    // (opened by interactWith above) stays up narrating the work - it no longer has to be
+    // dismissed before anything happens.
+    if (closestObject && closestObject.type === 'item') {
+      playerState.startAutoProduction(this.characterId, closestObject.name)
+      this.autoProductionCancelledFor = null // Clear cancelled flag when manually starting
+    }
+  }
+
+  // Hand this character a route from tap-to-move (see TapControls). Replaces any route
+  // already in flight; an empty list just stops.
+  setPath(path) {
+    this.path = path && path.length ? [...path] : []
+    this.pathStallFrames = 0
+    this.lastPathGap = Infinity
+  }
+
+  // Steer toward the next cell's centre, popping it once we're inside. BFS legs are
+  // axis-aligned, so only one axis is ever meaningfully off.
+  // ponytail: if something wanders into the next cell, or we jam against geometry, the
+  // route is dropped rather than re-planned - the player just taps again.
+  followPath(speed) {
+    const next = this.path[0]
+    if (!next) return NO_DIRECTION
+    if (!this.map.isVacant(next.x, next.y) || this.map.hasCharacterAt(next.x, next.y, this.characterId)) {
+      this.setPath([])
+      return NO_DIRECTION
+    }
+
+    const { mapX, mapY } = this.map.positionOnMap(this.sprite.attrs.x, this.sprite.attrs.y)
+    const target = this.map.cellCenter(next.x, next.y)
+    const dx = target.mapX - mapX
+    const dy = target.mapY - mapY
+
+    if (Math.abs(dx) <= speed && Math.abs(dy) <= speed) {
+      this.path.shift()
+      this.pathStallFrames = 0
+      this.lastPathGap = Infinity
+      return this.path.length ? this.followPath(speed) : NO_DIRECTION
+    }
+
+    // blocked by scenery we can't route around any more: give up rather than shove
+    const gap = Math.abs(dx) + Math.abs(dy)
+    this.pathStallFrames = gap < this.lastPathGap - 0.5 ? 0 : this.pathStallFrames + 1
+    this.lastPathGap = Math.min(gap, this.lastPathGap)
+    if (this.pathStallFrames > 30) {
+      this.setPath([])
+      return NO_DIRECTION
+    }
+
+    if (Math.abs(dx) > Math.abs(dy)) {
+      return { up: 0, down: 0, left: dx < 0 ? 1 : 0, right: dx > 0 ? 1 : 0 }
+    }
+    return { left: 0, right: 0, up: dy < 0 ? 1 : 0, down: dy > 0 ? 1 : 0 }
   }
 
   centerCamera(xFromCenter, yFromCenter, xThresh, yThresh, speed) {

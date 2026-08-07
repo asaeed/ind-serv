@@ -4,6 +4,7 @@ import ItemController from './controllers/ItemController'
 import tileSheet from '../assets/img/DesertTileMap.png'
 import gameStore from './state/gameStore'
 import { GAME_CONFIG, INTERACTION } from './constants'
+import { findPath } from './lib/findPath.mjs'
 
 export default class Map {
   // Finds the closest position from an array based on distance from x,y coordinates
@@ -118,16 +119,40 @@ export default class Map {
   // Is one of the party standing on this tile? Deliberately NOT folded into isVacant():
   // the party moves via isPixelVacant, so a character would block its own next step.
   // Wandering NPCs consult this so they can't walk onto the player (see wanderNpcs).
-  hasCharacterAt(gridX, gridY) {
+  // `ignoreCharacterId` excludes the asker: a character walking a route crosses into its
+  // own next cell before reaching the centre, and would otherwise see itself as an
+  // obstacle and abandon the route one step in.
+  hasCharacterAt(gridX, gridY, ignoreCharacterId = null) {
     const characters = this.characterController?.characters
     if (!characters) return false
 
-    for (const character of characters.values()) {
-      if (!character.sprite) continue
+    for (const [id, character] of characters) {
+      if (id === ignoreCharacterId || !character.sprite) continue
       const coords = this.positionToCoords(character.sprite.attrs.x, character.sprite.attrs.y)
       if (coords.gridX === gridX && coords.gridY === gridY) return true
     }
     return false
+  }
+
+  // Route for tap-to-move. Walkable means the terrain/props allow it AND no other party
+  // member is standing there - you can't walk through your own wife. findPath never asks
+  // about the start cell, so the mover doesn't block itself.
+  pathTo(fromGridX, fromGridY, toGridX, toGridY, moverId = null) {
+    return findPath(
+      { x: fromGridX, y: fromGridY },
+      { x: toGridX, y: toGridY },
+      (x, y) => this.isVacant(x, y) && !this.hasCharacterAt(x, y, moverId),
+      this.tileMap[0].length,
+      this.tileMap.length
+    )
+  }
+
+  // Centre of a grid cell in map space - the inverse of positionToCoords, which offsets
+  // gridY by a row (sprites sit a row above the cell they logically occupy). Steering
+  // targets have to use this, not coordsToPosition, or every waypoint lands a row off.
+  cellCenter(gridX, gridY) {
+    const mult = this.tileSize * this.upScale
+    return { mapX: gridX * mult + mult / 2, mapY: (gridY - 1) * mult + mult / 2 }
   }
 
   checkProximity(x, y) {
