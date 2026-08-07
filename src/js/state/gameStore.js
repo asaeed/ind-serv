@@ -44,6 +44,7 @@ const gameStore = create((set, get) => ({
   activeActionDurations: {},
   textPanelContent: null,
   textPanelOptions: [],
+  textPanelArrow: false, // shows the objective-arrow cue in the panel (event `showArrow`)
   textPanelOptionIdx: 0,
   activeNpcDialogName: null,
   recruitedNpcs: [], // Array of recruited NPC names
@@ -111,7 +112,7 @@ const gameStore = create((set, get) => ({
           selectedSpeech = `${selectedSpeech}\n\n${npc.name} joined! Press ${keyLabel} to switch.`
         }
 
-        set((state) => ({ textPanelContent: selectedSpeech, activeNpcDialogName: npc.name }))
+        set((state) => ({ textPanelContent: selectedSpeech, textPanelArrow: false, activeNpcDialogName: npc.name }))
       } else if (gameObject.type === 'item') {
         const item = gameObject
 
@@ -127,6 +128,7 @@ const gameStore = create((set, get) => ({
             set((state) => ({
               textPanelContent: item.dialog.text,
               textPanelOptions: item.dialog.options || [],
+              textPanelArrow: false,
               activeNpcDialogName: null,
               tracking: {
                 ...state.tracking,
@@ -232,6 +234,7 @@ const gameStore = create((set, get) => ({
             set(() => ({
               textPanelContent: `No ${resourceName} to convert.`,
               textPanelOptions: [],
+              textPanelArrow: false,
               activeNpcDialogName: null,
             }))
           }
@@ -253,6 +256,7 @@ const gameStore = create((set, get) => ({
       const newState = {
         textPanelContent: null,
         textPanelOptions: [],
+        textPanelArrow: false,
         activeNpcDialogName: null,
         eventPanelOpen: false,
       }
@@ -323,6 +327,7 @@ const gameStore = create((set, get) => ({
           pendingDebtDelta: s.pendingDebtDelta + amount,
           textPanelContent: template.replace('${amount}', amount),
           textPanelOptions: [],
+          textPanelArrow: false,
           activeNpcDialogName: null,
           eventPanelOpen: true,
         }))
@@ -360,6 +365,7 @@ const gameStore = create((set, get) => ({
         ...(ev.brickPrice ? { brickPrice: ev.brickPrice } : {}),
         textPanelContent: ev.text,
         textPanelOptions: [],
+        textPanelArrow: Boolean(ev.showArrow),
         activeNpcDialogName: null,
         eventPanelOpen: true,
       }))
