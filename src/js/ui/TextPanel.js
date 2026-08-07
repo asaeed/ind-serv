@@ -43,8 +43,23 @@ export default class TextPanel {
         fill: '#137391',
       })
 
+      // Cue arrow for events that point the player at an objective (event `showArrow`).
+      // Same shape and colours as the objective markers in NpcController, so the panel
+      // is showing the player the very arrow they're being told to follow.
+      this.cueArrow = new Konva.Line({
+        points: [-11, -10, 11, -10, 0, 8],
+        closed: true,
+        fill: '#ffde3d',
+        stroke: '#7a5200',
+        strokeWidth: 3,
+        lineJoin: 'round',
+        listening: false,
+        visible: false,
+      })
+
       this.group.add(this.panel)
       this.group.add(this.panelText)
+      this.group.add(this.cueArrow)
       this.layer.add(this.group)
 
       // Initial layout once assets are ready.
@@ -54,6 +69,7 @@ export default class TextPanel {
       const state = gameStore.getState()
       if (state.textPanelContent) {
         this.panelText.text(this.formatText(state.textPanelContent, state.textPanelOptions, state.textPanelOptionIdx))
+        this.placeCueArrow(state.textPanelArrow)
         this.group.opacity(1)
         this.layout()
       }
@@ -101,6 +117,7 @@ export default class TextPanel {
         if (!this.panelText) return // assets not loaded yet; onload will catch up
         if (state.textPanelContent) {
           this.panelText.text(this.formatText(state.textPanelContent, state.textPanelOptions, state.textPanelOptionIdx))
+          this.placeCueArrow(state.textPanelArrow)
           this.group.opacity(1)
           this.layout()
         } else this.group.opacity(0)
@@ -134,6 +151,26 @@ export default class TextPanel {
     const y = Math.max(12, this.topOffset)
 
     this.group.position({ x, y })
+  }
+
+  // Sit the cue arrow in the indent of the instruction paragraph (the one after the
+  // blank line), so it reads as a legend for the arrows the copy says to follow.
+  // The panel is only ~200px tall and the copy fills it, so there is no room below.
+  placeCueArrow(show) {
+    if (!this.cueArrow) return
+    this.cueArrow.visible(Boolean(show))
+    if (!show) return
+
+    // Konva wraps into textArr; the blank entry is the paragraph break.
+    const lines = this.panelText.textArr || []
+    const breakIdx = lines.findIndex((l) => !l.text)
+    const lineIdx = breakIdx === -1 ? Math.max(0, lines.length - 1) : breakIdx + 1
+    const lineHeightPx = this.panelText.fontSize() * this.panelText.lineHeight()
+
+    this.cueArrow.position({
+      x: this.paddingX + 13,
+      y: this.paddingY + (lineIdx + 0.5) * lineHeightPx,
+    })
   }
 
   formatText(content, options, idx) {

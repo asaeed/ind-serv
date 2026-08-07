@@ -81,7 +81,10 @@ Exact values are playtest-tuned.
   `appearsOnEvent` id is in `eventsDone`, so the sprites and their objective
   arrows can never precede the card announcing them (single source of truth).
   `stopsProduction` clears every character's auto-production chain, so the line
-  goes quiet until the player walks back to a station.
+  goes quiet until the player walks back to a station. `showArrow` draws a yellow
+  objective arrow in the TextPanel (same shape/colours as the NpcController
+  markers) in the indent of the instruction paragraph, so copy telling the player
+  to follow the arrows shows them the arrow it means.
 - `checkEvents()` in `gameStore`, called after each shipped-brick increment.
   Fires at most one event per ship; marks one-shots as done.
 - **Start screen**: a full-screen overlay with a Start Game button; the game
