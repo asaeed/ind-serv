@@ -119,6 +119,18 @@ export default class NpcController {
     return gridX < 4 && gridY < 4
   }
 
+  // A wander step has to stay within the NPC's leash, keep out of the family corner,
+  // land on a vacant tile, and not step onto one of the party - NPCs walking through
+  // the player read as a glitch. `axis` picks which origin the leash is measured from.
+  canWanderTo(npc, targetX, targetY, axis) {
+    const origin = axis === 'x' ? npc.originX : npc.originY
+    const target = axis === 'x' ? targetX : targetY
+    if (target > origin + npc.wander || target < origin - npc.wander) return false
+    if (this.inTopLeftReserve(targetX, targetY)) return false
+    if (!this.map.isVacant(targetX, targetY)) return false
+    return !this.map.hasCharacterAt(targetX, targetY)
+  }
+
   wanderNpcs() {
     for (const npc of this.npcs) {
       // Skip recruited and hidden NPCs
@@ -130,19 +142,13 @@ export default class NpcController {
         if (direction === 'horizontal') {
           // Move horizontally (left or right by one square)
           const deltaX = Math.random() < 0.5 ? -1 : 1
-          npc.targetX = npc.gridX + deltaX
-          // if targetX is out of bounds, in the family corner, or occupied, cancel it
-          const isOutOfRange = npc.targetX > npc.originX + npc.wander || npc.targetX < npc.originX - npc.wander
-          if (isOutOfRange || this.inTopLeftReserve(npc.targetX, npc.targetY) || !this.map.isVacant(npc.targetX, npc.targetY))
-            npc.targetX = npc.gridX
+          const targetX = npc.gridX + deltaX
+          npc.targetX = this.canWanderTo(npc, targetX, npc.targetY, 'x') ? targetX : npc.gridX
         } else {
           // Move vertically (up or down by one square)
           const deltaY = Math.random() < 0.5 ? -1 : 1
-          npc.targetY = npc.gridY + deltaY
-          // if targetY is out of bounds, in the family corner, or occupied, cancel it
-          const isOutOfRange = npc.targetY > npc.originY + npc.wander || npc.targetY < npc.originY - npc.wander
-          if (isOutOfRange || this.inTopLeftReserve(npc.targetX, npc.targetY) || !this.map.isVacant(npc.targetX, npc.targetY))
-            npc.targetY = npc.gridY
+          const targetY = npc.gridY + deltaY
+          npc.targetY = this.canWanderTo(npc, npc.targetX, targetY, 'y') ? targetY : npc.gridY
         }
 
         // console.log(npc.name, npc.gridX, npc.gridY, npc.targetX, npc.targetY)

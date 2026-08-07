@@ -17,6 +17,11 @@ export const ECONOMY = {
   GIVE_UP_THRESHOLD: 2000, // debt at which "Accept your fate" appears
   GIVE_UP_BRICKS: 60, // ...or this many bricks shipped, whichever comes first
   INJURY_SPEED_MULTIPLIER: 0.5, // permanent, for both injuries
+  // Stockpile ceiling per production stage. Without it players sit on the shovel
+  // banking 100+ mud and the story, which is paced off shipped bricks, never moves.
+  // Applies to stations whose dialog defines `fullText` (the shovel, mold and kiln -
+  // shipping is the sink, so the truck is uncapped).
+  STORAGE_CAP: 20,
 }
 
 // Game configuration constants

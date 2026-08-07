@@ -12,7 +12,8 @@
     "particleColor": "#8B4513",
     "barOffsetX": 8,
     "dialog": {
-      "text": "You dig into the pit, working mud loose."
+      "text": "You dig into the pit, working mud loose.",
+      "fullText": "The mud pit is heaped high. Mold some bricks to make room."
     },
     "action": {
       "type": "create",
@@ -35,7 +36,8 @@
     "particleColor": "#A0826D",
     "barOffsetX": -20,
     "dialog": {
-      "text": "You press the mud into wooden molds, one brick at a time."
+      "text": "You press the mud into wooden molds, one brick at a time.",
+      "fullText": "No room for more molded bricks. Bake some to make room."
     },
     "action": {
       "type": "convert",
@@ -59,7 +61,8 @@
     "particleColor": "white",
     "barOffsetX": 28,
     "dialog": {
-      "text": "You stack the molded bricks into the kiln to bake."
+      "text": "You stack the molded bricks into the kiln to bake.",
+      "fullText": "No room for more baked bricks. Ship some to make room."
     },
     "action": {
       "type": "convert",

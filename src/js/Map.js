@@ -115,6 +115,21 @@ export default class Map {
     return isInhabitable && isVacant
   }
 
+  // Is one of the party standing on this tile? Deliberately NOT folded into isVacant():
+  // the party moves via isPixelVacant, so a character would block its own next step.
+  // Wandering NPCs consult this so they can't walk onto the player (see wanderNpcs).
+  hasCharacterAt(gridX, gridY) {
+    const characters = this.characterController?.characters
+    if (!characters) return false
+
+    for (const character of characters.values()) {
+      if (!character.sprite) continue
+      const coords = this.positionToCoords(character.sprite.attrs.x, character.sprite.attrs.y)
+      if (coords.gridX === gridX && coords.gridY === gridY) return true
+    }
+    return false
+  }
+
   checkProximity(x, y) {
     const { mapX, mapY } = this.positionOnMap(x, y)
     const closestNpc = this.npcController.getClosest(mapX, mapY + INTERACTION.POSITION_OFFSET_Y) || {

@@ -138,6 +138,22 @@ const gameStore = create((set, get) => ({
           }
         }
 
+        // Stockpile ceiling. Stations that define `fullText` refuse to run once their
+        // output hits STORAGE_CAP and say which station to clear instead - otherwise a
+        // player can bank 100+ mud on the shovel and the story, paced off shipped
+        // bricks, never advances. One guard ahead of both action types.
+        if (item.dialog?.fullText && get()[item.action.creates] >= ECONOMY.STORAGE_CAP) {
+          // drop the auto-production chain too, or it retriggers straight back into this
+          if (characterId) playerStore.getState().stopAutoProduction(characterId)
+          set(() => ({
+            textPanelContent: item.dialog.fullText,
+            textPanelOptions: [],
+            textPanelArrow: false,
+            activeNpcDialogName: null,
+          }))
+          return
+        }
+
         // handle item action if configured
         // injured characters work at half speed: scale the action duration
         const workSpeed = characterId ? playerStore.getState().getWorkSpeedMultiplier(characterId) : 1
