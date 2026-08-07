@@ -44,6 +44,7 @@ const gameStore = create((set, get) => ({
   activeActionDurations: {},
   textPanelContent: null,
   textPanelOptions: [],
+  textPanelArrow: false, // shows the objective-arrow cue in the panel (event `showArrow`)
   textPanelOptionIdx: 0,
   activeNpcDialogName: null,
   recruitedNpcs: [], // Array of recruited NPC names
@@ -111,7 +112,7 @@ const gameStore = create((set, get) => ({
           selectedSpeech = `${selectedSpeech}\n\n${npc.name} joined! Press ${keyLabel} to switch.`
         }
 
-        set((state) => ({ textPanelContent: selectedSpeech, activeNpcDialogName: npc.name }))
+        set((state) => ({ textPanelContent: selectedSpeech, textPanelArrow: false, activeNpcDialogName: npc.name }))
       } else if (gameObject.type === 'item') {
         const item = gameObject
 
@@ -127,6 +128,7 @@ const gameStore = create((set, get) => ({
             set((state) => ({
               textPanelContent: item.dialog.text,
               textPanelOptions: item.dialog.options || [],
+              textPanelArrow: false,
               activeNpcDialogName: null,
               tracking: {
                 ...state.tracking,
@@ -134,6 +136,22 @@ const gameStore = create((set, get) => ({
               },
             }))
           }
+        }
+
+        // Stockpile ceiling. Stations that define `fullText` refuse to run once their
+        // output hits STORAGE_CAP and say which station to clear instead - otherwise a
+        // player can bank 100+ mud on the shovel and the story, paced off shipped
+        // bricks, never advances. One guard ahead of both action types.
+        if (item.dialog?.fullText && get()[item.action.creates] >= ECONOMY.STORAGE_CAP) {
+          // drop the auto-production chain too, or it retriggers straight back into this
+          if (characterId) playerStore.getState().stopAutoProduction(characterId)
+          set(() => ({
+            textPanelContent: item.dialog.fullText,
+            textPanelOptions: [],
+            textPanelArrow: false,
+            activeNpcDialogName: null,
+          }))
+          return
         }
 
         // handle item action if configured
@@ -232,6 +250,7 @@ const gameStore = create((set, get) => ({
             set(() => ({
               textPanelContent: `No ${resourceName} to convert.`,
               textPanelOptions: [],
+              textPanelArrow: false,
               activeNpcDialogName: null,
             }))
           }
@@ -253,6 +272,7 @@ const gameStore = create((set, get) => ({
       const newState = {
         textPanelContent: null,
         textPanelOptions: [],
+        textPanelArrow: false,
         activeNpcDialogName: null,
         eventPanelOpen: false,
       }
@@ -323,6 +343,7 @@ const gameStore = create((set, get) => ({
           pendingDebtDelta: s.pendingDebtDelta + amount,
           textPanelContent: template.replace('${amount}', amount),
           textPanelOptions: [],
+          textPanelArrow: false,
           activeNpcDialogName: null,
           eventPanelOpen: true,
         }))
@@ -360,6 +381,7 @@ const gameStore = create((set, get) => ({
         ...(ev.brickPrice ? { brickPrice: ev.brickPrice } : {}),
         textPanelContent: ev.text,
         textPanelOptions: [],
+        textPanelArrow: Boolean(ev.showArrow),
         activeNpcDialogName: null,
         eventPanelOpen: true,
       }))

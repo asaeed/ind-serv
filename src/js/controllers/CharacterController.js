@@ -11,6 +11,9 @@ export default class CharacterController {
     this.input = input
     this.characters = new Map()
     this.lastSwitchPress = 0
+    // Back-reference so Map can ask where the party is standing (wandering NPCs must
+    // not walk onto them), matching how npcController/itemController hang off Map.
+    map.characterController = this
     // Spawn switch particles in imageGroup space so they move with camera pans.
     this.particles = new Particles(this.map.imageGroup)
 

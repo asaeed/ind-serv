@@ -2,7 +2,7 @@ import Konva from 'konva'
 import gameStore from '../state/gameStore'
 import sfx from '../lib/sfx'
 import panelImagePath from '../../assets/img/textboxblue20.png'
-import { INTERACT_KEY } from '../constants'
+import { PLAYER_OWNED_KEYS } from '../constants'
 
 export default class TextPanel {
   constructor(layer) {
@@ -43,8 +43,35 @@ export default class TextPanel {
         fill: '#137391',
       })
 
+      // Cue arrow for events that point the player at an objective (event `showArrow`).
+      // Same shape and colours as the objective markers in NpcController, so the panel
+      // is showing the player the very arrow they're being told to follow.
+      this.cueArrow = new Konva.Line({
+        points: [-11, -10, 11, -10, 0, 8],
+        closed: true,
+        fill: '#ffde3d',
+        stroke: '#7a5200',
+        strokeWidth: 3,
+        lineJoin: 'round',
+        shadowColor: '#ffde3d',
+        shadowBlur: 12,
+        shadowOpacity: 0.9,
+        listening: false,
+        visible: false,
+      })
+
+      // Bob + pulse the glow exactly like the objective markers, so the cue in the panel
+      // and the arrows out on the map read as the same thing. TextPanel has no per-frame
+      // hook of its own, so drive it off a Konva.Animation that only runs while shown.
+      this.cueAnim = new Konva.Animation((frame) => {
+        const t = frame.time / 1000
+        this.cueArrow.y(this.cueBaseY + Math.abs(Math.sin(t * 2.4)) * 5)
+        this.cueArrow.shadowBlur(10 + (Math.sin(t * 2.4) + 1) * 6)
+      }, this.layer)
+
       this.group.add(this.panel)
       this.group.add(this.panelText)
+      this.group.add(this.cueArrow)
       this.layer.add(this.group)
 
       // Initial layout once assets are ready.
@@ -54,6 +81,7 @@ export default class TextPanel {
       const state = gameStore.getState()
       if (state.textPanelContent) {
         this.panelText.text(this.formatText(state.textPanelContent, state.textPanelOptions, state.textPanelOptionIdx))
+        this.placeCueArrow(state.textPanelArrow)
         this.group.opacity(1)
         this.layout()
       }
@@ -72,10 +100,11 @@ export default class TextPanel {
       if (e.type === 'keydown') {
         const el = document.activeElement
         if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) return
-        // Player.js owns the interact key. If we closed the panel here too, the same
-        // press would dismiss AND fire a fresh interaction one frame later - which is
-        // how dismissing the son's dialog ended up recruiting the wife beside him.
-        if (e.key === INTERACT_KEY) return
+        // Player.js owns interact and movement keys. If we closed the panel here too,
+        // the same press would dismiss AND act one frame later - which is how dismissing
+        // the son's dialog ended up recruiting the wife beside him, and how one movement
+        // key would blow through two queued cards.
+        if (PLAYER_OWNED_KEYS.has(e.key)) return
       } else if (e.target.closest?.('button, a, input, textarea, .info-modal')) {
         return // UI chrome clicks do their own thing
       }
@@ -101,9 +130,13 @@ export default class TextPanel {
         if (!this.panelText) return // assets not loaded yet; onload will catch up
         if (state.textPanelContent) {
           this.panelText.text(this.formatText(state.textPanelContent, state.textPanelOptions, state.textPanelOptionIdx))
+          this.placeCueArrow(state.textPanelArrow)
           this.group.opacity(1)
           this.layout()
-        } else this.group.opacity(0)
+        } else {
+          this.group.opacity(0)
+          this.cueAnim?.stop()
+        }
       },
       (state) => state.textPanelContent
     )
@@ -134,6 +167,30 @@ export default class TextPanel {
     const y = Math.max(12, this.topOffset)
 
     this.group.position({ x, y })
+  }
+
+  // Park the cue arrow at the end of the instruction paragraph's first line, which the
+  // copy breaks right after "...the yellow arrows" - so the arrow reads as part of the
+  // sentence. Konva can't inline a shape in Text, but textArr gives each wrapped line's
+  // rendered width, which is exactly where that line's last character ends.
+  placeCueArrow(show) {
+    if (!this.cueArrow) return
+    this.cueArrow.visible(Boolean(show))
+    if (!show) {
+      this.cueAnim?.stop()
+      return
+    }
+
+    // Konva wraps into textArr; the blank entry is the paragraph break.
+    const lines = this.panelText.textArr || []
+    const breakIdx = lines.findIndex((l) => !l.text)
+    const lineIdx = breakIdx === -1 ? Math.max(0, lines.length - 1) : breakIdx + 1
+    const lineHeightPx = this.panelText.fontSize() * this.panelText.lineHeight()
+
+    this.cueBaseY = this.paddingY + (lineIdx + 0.4) * lineHeightPx
+    this.cueArrow.x(this.paddingX + (lines[lineIdx]?.width || 0) + 20)
+    this.cueArrow.y(this.cueBaseY)
+    this.cueAnim?.start()
   }
 
   formatText(content, options, idx) {

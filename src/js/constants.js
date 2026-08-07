@@ -17,6 +17,11 @@ export const ECONOMY = {
   GIVE_UP_THRESHOLD: 2000, // debt at which "Accept your fate" appears
   GIVE_UP_BRICKS: 60, // ...or this many bricks shipped, whichever comes first
   INJURY_SPEED_MULTIPLIER: 0.5, // permanent, for both injuries
+  // Stockpile ceiling per production stage. Without it players sit on the shovel
+  // banking 100+ mud and the story, which is paced off shipped bricks, never moves.
+  // Applies to stations whose dialog defines `fullText` (the shovel, mold and kiln -
+  // shipping is the sink, so the truck is uncapped).
+  STORAGE_CAP: 20,
 }
 
 // Game configuration constants
@@ -31,6 +36,15 @@ export const GAME_CONFIG = {
 // The interact key is deliberately excluded from TextPanel's any-key dismiss:
 // Player.js owns it, so one press either interacts or dismisses, never both.
 export const INTERACT_KEY = ' '
+
+// Every key Player.js owns for dismissing a dialog: interact plus the movement keys.
+// TextPanel's any-key dismiss skips these, otherwise a single press would close two
+// queued cards (TextPanel's handler on keydown, Player's on the next frame).
+export const PLAYER_OWNED_KEYS = new Set([
+  INTERACT_KEY,
+  'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+  'w', 'W', 'a', 'A', 's', 'S', 'd', 'D',
+])
 
 // Player interaction distances and offsets
 export const INTERACTION = {
