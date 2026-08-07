@@ -50,14 +50,22 @@ export default class ItemController {
     }
   }
 
-  // a green down-pointing triangle with its tip at the group origin, so it can
-  // hang just above a station. Drawn with Konva - no image asset.
+  // Green twin of the family objective markers: same geometry, outline weight and glow
+  // as createObjectiveMarker in NpcController, so both read as "go here" arrows. Points
+  // DOWN at rotation 0, which is what placeMarker expects.
   buildArrow() {
-    const g = new Konva.Group({ listening: false })
-    const green = '#3ff086'
-    const stroke = '#0a3a22'
-    g.add(new Konva.RegularPolygon({ x: 0, y: -13, sides: 3, radius: 12, rotation: 180, fill: green, stroke, strokeWidth: 1.5 }))
-    return g
+    return new Konva.Line({
+      points: [-11, -10, 11, -10, 0, 8],
+      closed: true,
+      fill: '#3ff086',
+      stroke: '#0a3a22',
+      strokeWidth: 3,
+      lineJoin: 'round',
+      shadowColor: '#3ff086',
+      shadowBlur: 12,
+      shadowOpacity: 0.9,
+      listening: false,
+    })
   }
 
   createItem(item) {
@@ -238,7 +246,8 @@ export default class ItemController {
 
     // tutorial arrows: bob over the next station until it's first used. On-screen
     // they hover above the station; off-screen they pin to the view edge.
-    const bob = Math.abs(Math.sin(performance.now() / 1000 * 2.4)) * 7
+    const t = performance.now() / 1000
+    const bob = Math.abs(Math.sin(t * 2.4)) * 7
     const off = this.group.position() // camera pan (imageGroup offset)
     for (const arrow of this.tutorialArrows) {
       const img = arrow.item.o?.image
@@ -254,6 +263,7 @@ export default class ItemController {
         const sx = img.x() + (arrow.item.barOffsetX ?? 0) + off.x
         const sy = img.y() + off.y
         placeMarker(arrow.node, sx, sy, this.map.stage, { bob, slot: arrow.slot, hover: 14 })
+        arrow.node.shadowBlur(10 + (Math.sin(t * 2.4) + 1) * 6) // same pulse as the family markers
       }
     }
 

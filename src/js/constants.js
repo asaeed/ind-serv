@@ -37,6 +37,15 @@ export const GAME_CONFIG = {
 // Player.js owns it, so one press either interacts or dismisses, never both.
 export const INTERACT_KEY = ' '
 
+// Every key Player.js owns for dismissing a dialog: interact plus the movement keys.
+// TextPanel's any-key dismiss skips these, otherwise a single press would close two
+// queued cards (TextPanel's handler on keydown, Player's on the next frame).
+export const PLAYER_OWNED_KEYS = new Set([
+  INTERACT_KEY,
+  'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+  'w', 'W', 'a', 'A', 's', 'S', 'd', 'D',
+])
+
 // Player interaction distances and offsets
 export const INTERACTION = {
   MAX_DISTANCE: 40, // Max distance to interact with objects

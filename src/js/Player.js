@@ -5,6 +5,9 @@ import playerStore from './state/playerStore'
 import { INTERACTION } from './constants'
 import npcData from '../data/npc.json'
 
+// stand-in for directionPress while a dialog holds the party still
+const NO_DIRECTION = { up: 0, down: 0, left: 0, right: 0 }
+
 export default class Player extends SpriteAnimated {
   constructor(
     map,
@@ -63,7 +66,14 @@ export default class Player extends SpriteAnimated {
     if (this.characterId !== activeCharacterId) return
 
     const { isInteracting, speed, setIsInteracting } = playerState
-    const press = this.input.directionPress
+
+    // Dialogs hold the party still. A movement key dismisses ONE card (edge-triggered,
+    // below) rather than walking, so holding a direction can't blow through a queue of
+    // them. With a single card up it clears on this frame and the still-held key walks
+    // from the next one, which reads as "dismiss and go" in the same press.
+    // Choice dialogs are excluded - they need a real selection.
+    const panelIsOpen = Boolean(gameState.textPanelContent) && !gameState.textPanelOptions.length
+    const press = panelIsOpen ? NO_DIRECTION : this.input.directionPress
 
     const store = playerStore.getState()
     const { setFacingDirection } = store
@@ -118,9 +128,6 @@ export default class Player extends SpriteAnimated {
     // The interact key dismisses an open dialog and stops there - it must not also fire a
     // fresh interaction, or dismissing the son's dialog would recruit the wife standing
     // next to him. TextPanel's any-key dismiss skips this key so the two can't both run.
-    // Choice dialogs are left alone; they need a real selection.
-    const panelIsOpen = Boolean(gameState.textPanelContent) && !gameState.textPanelOptions.length
-
     if (interactJustPressed && panelIsOpen) {
       gameState.closeTextPanel()
     } else if (interactJustPressed && !isInteracting && !inInteractionWindow) {
@@ -144,12 +151,16 @@ export default class Player extends SpriteAnimated {
       }
     }
 
-    // reset text panel on movement
-    if (gameState.textPanelContent) {
-      // move to dismiss
-      if ((press.up || press.down || press.left || press.right) && !isInteracting && !inInteractionWindow) {
-        gameState.interactWith(undefined)
-      }
+    // Movement keys dismiss too, but strictly one card per press: read the raw input
+    // (not `press`, which is zeroed while a dialog is up) and edge-trigger it, so holding
+    // a direction through a queue of cards doesn't clear them all in consecutive frames.
+    const raw = this.input.directionPress
+    const directionHeld = Boolean(raw.up || raw.down || raw.left || raw.right)
+    const directionJustPressed = directionHeld && !this.lastDirectionPress
+    this.lastDirectionPress = directionHeld
+
+    if (directionJustPressed && panelIsOpen) {
+      gameState.closeTextPanel()
     }
 
     // Auto-production: check if standing still near an item
