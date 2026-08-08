@@ -223,7 +223,8 @@ export default class Player extends SpriteAnimated {
     this.lastPathGap = Infinity
   }
 
-  // Steer toward the next cell's centre, popping it once we're inside. BFS legs are
+  // Steer toward where a character stands in the next cell, popping it once we're there.
+  // BFS legs are
   // axis-aligned, so only one axis is ever meaningfully off.
   // ponytail: if something wanders into the next cell, or we jam against geometry, the
   // route is dropped rather than re-planned - the player just taps again.
@@ -236,7 +237,7 @@ export default class Player extends SpriteAnimated {
     }
 
     const { mapX, mapY } = this.map.positionOnMap(this.sprite.attrs.x, this.sprite.attrs.y)
-    const target = this.map.cellCenter(next.x, next.y)
+    const target = this.map.cellStandPoint(next.x, next.y)
     const dx = target.mapX - mapX
     const dy = target.mapY - mapY
 

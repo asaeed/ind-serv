@@ -147,12 +147,25 @@ export default class Map {
     )
   }
 
-  // Centre of a grid cell in map space - the inverse of positionToCoords, which offsets
-  // gridY by a row (sprites sit a row above the cell they logically occupy). Steering
-  // targets have to use this, not coordsToPosition, or every waypoint lands a row off.
-  cellCenter(gridX, gridY) {
+  // Where a character's sprite sits when it's standing in a cell, expressed in
+  // positionOnMap space (what followPath compares against). coordsToPosition is the one
+  // definition of that spot - a character in cell C has its anchor exactly there - and
+  // positionOnMap shifts y by POSITION_OFFSET_Y, so undo that here.
+  cellStandPoint(gridX, gridY) {
+    const { x, y } = this.coordsToPosition(gridX, gridY)
+    return { mapX: x, mapY: y - INTERACTION.POSITION_OFFSET_Y }
+  }
+
+  // The tile a pointer is actually over. positionToCoords is for a character's own anchor
+  // - it carries the sprite offset that keeps collision on the feet - so putting a raw
+  // tap through it reads one row low, which is what made clicks register a square below
+  // the cursor. A tap is just a point on the drawn grid.
+  tileAtPoint(x, y) {
     const mult = this.tileSize * this.upScale
-    return { mapX: gridX * mult + mult / 2, mapY: (gridY - 1) * mult + mult / 2 }
+    return {
+      gridX: Math.floor((x - this.imageGroup.attrs.x) / mult),
+      gridY: Math.floor((y - this.imageGroup.attrs.y) / mult),
+    }
   }
 
   checkProximity(x, y) {

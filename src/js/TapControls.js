@@ -71,12 +71,13 @@ export default class TapControls {
     return true
   }
 
-  // Both ends go through positionToCoords so the tap is read in exactly the same frame
-  // of reference as the character's own position - the grid is offset a row from the
-  // drawn tiles, and mixing conventions puts every destination one row out.
+  // The character's own cell comes from positionToCoords (the collision convention used
+  // by isVacant/hasCharacterAt); the destination comes from tileAtPoint, because a tap is
+  // a point on the drawn grid, not a sprite anchor. Using positionToCoords for both is
+  // what made clicks land a square below the cursor.
   walkTo(pointer, active) {
     const from = this.map.positionToCoords(active.sprite.attrs.x, active.sprite.attrs.y)
-    const to = this.map.positionToCoords(pointer.x, pointer.y)
+    const to = this.map.tileAtPoint(pointer.x, pointer.y)
     active.setPath(this.map.pathTo(from.gridX, from.gridY, to.gridX, to.gridY, active.characterId))
   }
 
