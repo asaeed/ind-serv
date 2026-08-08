@@ -7,6 +7,7 @@ import TouchControls from './ui/TouchControls'
 import EndGame from './ui/EndGame'
 import StartGame from './ui/StartGame'
 import InfoModal from './ui/InfoModal'
+import TapControls from './TapControls'
 import gameStore from './state/gameStore'
 import { GAME_CONFIG } from './constants'
 
@@ -30,6 +31,7 @@ export default class Game {
       this.touchControls = new TouchControls(this.input)
       this.touchControls.init()
       this.characterController = new CharacterController(this.map, this.input)
+      this.tapControls = new TapControls(this.map, this.characterController) // click/tap to play
       this.endGame = new EndGame()
       this.startGame = new StartGame() // opening narration fires when Start is clicked
       this.infoModal = new InfoModal()
@@ -117,6 +119,11 @@ export default class Game {
     // cleanup character controller
     if (this.characterController && this.characterController.dispose) {
       this.characterController.dispose()
+    }
+
+    // cleanup tap/click listener
+    if (this.tapControls && this.tapControls.dispose) {
+      this.tapControls.dispose()
     }
 
     // cleanup input event listeners
