@@ -46,7 +46,7 @@ export default class ItemController {
       const node = this.buildArrow()
       node.visible(false)
       this.markerLayer.add(node)
-      this.tutorialArrows.push({ node, item, needs, slot: this.tutorialArrows.length * 44 })
+      this.tutorialArrows.push({ node, item, needs })
     }
   }
 
@@ -262,7 +262,9 @@ export default class ItemController {
         }
         const sx = img.x() + (arrow.item.barOffsetX ?? 0) + off.x
         const sy = img.y() + off.y
-        placeMarker(arrow.node, sx, sy, this.map.stage, { bob, slot: arrow.slot, hover: 14 })
+        // no slot: the four stations are spread across the map and never share an edge
+        // position, so a lane offset would only hold the arrow off its station's true axis
+        placeMarker(arrow.node, sx, sy, this.map.stage, { bob, hover: 14 })
         arrow.node.shadowBlur(10 + (Math.sin(t * 2.4) + 1) * 6) // same pulse as the family markers
       }
     }

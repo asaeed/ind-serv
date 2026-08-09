@@ -16,9 +16,15 @@ milestones). Design doc: `docs/superpowers/specs/2026-07-13-narrative-arc-design
 
 ## Controls
 
-- **Move** — WASD or arrow keys (desktop) · on-screen D-pad (mobile)
-- **Interact / work** — Space (desktop) · A (mobile)
-- **Switch character** — Tab (desktop) · B (mobile), after your family joins
+- **Move** — WASD or arrow keys (desktop) · on-screen D-pad (mobile) · or click/tap where
+  you want to go, and the character walks there around the scenery
+- **Interact / work** — Space (desktop) · A (mobile) · or click/tap a station already in
+  reach (tap one further off and you'll walk to it instead)
+- **Switch character** — Tab (desktop) · B (mobile) · or click/tap a family member, after
+  they join
+
+Clicking and tapping are the same input, so all of the above works on desktop and mobile.
+Touching a movement key cancels a click-issued route.
 
 ---
 

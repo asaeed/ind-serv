@@ -4,6 +4,7 @@ import ItemController from './controllers/ItemController'
 import tileSheet from '../assets/img/DesertTileMap.png'
 import gameStore from './state/gameStore'
 import { GAME_CONFIG, INTERACTION } from './constants'
+import { findPath } from './lib/findPath.mjs'
 
 export default class Map {
   // Finds the closest position from an array based on distance from x,y coordinates
@@ -118,16 +119,53 @@ export default class Map {
   // Is one of the party standing on this tile? Deliberately NOT folded into isVacant():
   // the party moves via isPixelVacant, so a character would block its own next step.
   // Wandering NPCs consult this so they can't walk onto the player (see wanderNpcs).
-  hasCharacterAt(gridX, gridY) {
+  // `ignoreCharacterId` excludes the asker: a character walking a route crosses into its
+  // own next cell before reaching the centre, and would otherwise see itself as an
+  // obstacle and abandon the route one step in.
+  hasCharacterAt(gridX, gridY, ignoreCharacterId = null) {
     const characters = this.characterController?.characters
     if (!characters) return false
 
-    for (const character of characters.values()) {
-      if (!character.sprite) continue
+    for (const [id, character] of characters) {
+      if (id === ignoreCharacterId || !character.sprite) continue
       const coords = this.positionToCoords(character.sprite.attrs.x, character.sprite.attrs.y)
       if (coords.gridX === gridX && coords.gridY === gridY) return true
     }
     return false
+  }
+
+  // Route for tap-to-move. Walkable means the terrain/props allow it AND no other party
+  // member is standing there - you can't walk through your own wife. findPath never asks
+  // about the start cell, so the mover doesn't block itself.
+  pathTo(fromGridX, fromGridY, toGridX, toGridY, moverId = null) {
+    return findPath(
+      { x: fromGridX, y: fromGridY },
+      { x: toGridX, y: toGridY },
+      (x, y) => this.isVacant(x, y) && !this.hasCharacterAt(x, y, moverId),
+      this.tileMap[0].length,
+      this.tileMap.length
+    )
+  }
+
+  // Where a character's sprite sits when it's standing in a cell, expressed in
+  // positionOnMap space (what followPath compares against). coordsToPosition is the one
+  // definition of that spot - a character in cell C has its anchor exactly there - and
+  // positionOnMap shifts y by POSITION_OFFSET_Y, so undo that here.
+  cellStandPoint(gridX, gridY) {
+    const { x, y } = this.coordsToPosition(gridX, gridY)
+    return { mapX: x, mapY: y - INTERACTION.POSITION_OFFSET_Y }
+  }
+
+  // The tile a pointer is actually over. positionToCoords is for a character's own anchor
+  // - it carries the sprite offset that keeps collision on the feet - so putting a raw
+  // tap through it reads one row low, which is what made clicks register a square below
+  // the cursor. A tap is just a point on the drawn grid.
+  tileAtPoint(x, y) {
+    const mult = this.tileSize * this.upScale
+    return {
+      gridX: Math.floor((x - this.imageGroup.attrs.x) / mult),
+      gridY: Math.floor((y - this.imageGroup.attrs.y) / mult),
+    }
   }
 
   checkProximity(x, y) {

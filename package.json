@@ -4,7 +4,7 @@
   "description": "A game you can't win, simulating indentured servitude",
   "main": "index.js",
   "scripts": {
-    "test": "node test/objectiveMarker.test.mjs",
+    "test": "node test/objectiveMarker.test.mjs && node test/findPath.test.mjs",
     "build": "NODE_ENV=production webpack && cp src/og-image.png dist/",
     "build:itch": "NODE_ENV=production ITCH_BUILD=1 webpack && cd dist && zip -rq ../ind-serv-itch.zip . && cd .. && echo 'itch build: ind-serv-itch.zip'",
     "build:dev": "webpack",
