@@ -1,5 +1,7 @@
+import Konva from 'konva'
 import gameStore from './state/gameStore'
 import playerStore from './state/playerStore'
+import { INTERACTION } from './constants'
 
 // Tap/click to play. One Konva stage listener covers mouse and touch alike, so desktop
 // and mobile share this path - no separate touch handling.
@@ -9,10 +11,13 @@ import playerStore from './state/playerStore'
 //   2. something already in reach -> interact (same as Space)
 //   3. anything else -> walk there, routing around scenery
 //
-// Taps while a dialog is up are ignored: TextPanel owns pointer dismissal, and letting
-// both run would dismiss the card AND issue an order from the same tap - the exact
+// A tap while a dialog is up only dismisses it. This class owns that dismissal for taps
+// on the canvas rather than sharing it with TextPanel's document-level handler: letting
+// both run would dismiss the card AND issue an order from the same tap, the exact
 // double-ownership bug the interact and movement keys already had.
 const SWITCH_TAP_RADIUS = 34 // a bit over half a tile, so tapping a character is forgiving
+const TAP_RIPPLE_FROM = 7
+const TAP_RIPPLE_TO = 28
 
 export default class TapControls {
   constructor(map, characterController) {
@@ -20,8 +25,47 @@ export default class TapControls {
     this.characterController = characterController
     this.stage = map.stage
 
+    // Tap feedback: a ring that expands and fades where you pressed. Screen space, so it
+    // marks the spot on the display rather than drifting with the camera - it's an
+    // acknowledgement of the input, not a marker on the world. One reused node: taps are
+    // sequential, and restarting beats allocating a shape per press.
+    this.fxLayer = new Konva.Layer({ listening: false })
+    this.stage.add(this.fxLayer)
+    this.ripple = new Konva.Circle({
+      radius: TAP_RIPPLE_FROM,
+      stroke: '#3ff086',
+      strokeWidth: 3,
+      shadowColor: '#3ff086',
+      shadowBlur: 8,
+      shadowOpacity: 0.8,
+      opacity: 0,
+      listening: false,
+    })
+    this.fxLayer.add(this.ripple)
+
     this.handlePointer = () => this.onPointer()
     this.stage.on('pointerdown', this.handlePointer)
+  }
+
+  // Fires for every tap the game acts on, including one that only dismisses a dialog -
+  // the point is to confirm "I got that, there".
+  showTapFeedback(pointer) {
+    if (!pointer) return
+    this.rippleTween?.destroy()
+
+    this.ripple.position(pointer)
+    this.ripple.radius(TAP_RIPPLE_FROM)
+    this.ripple.opacity(0.95)
+    this.fxLayer.moveToTop()
+
+    this.rippleTween = new Konva.Tween({
+      node: this.ripple,
+      radius: TAP_RIPPLE_TO,
+      opacity: 0,
+      duration: 0.32,
+      easing: Konva.Easings.EaseOut,
+    })
+    this.rippleTween.play()
   }
 
   activeCharacter() {
@@ -31,11 +75,25 @@ export default class TapControls {
   onPointer() {
     const state = gameStore.getState()
     if (!state.gameStarted || state.gameOver) return
-    if (state.textPanelContent) return // TextPanel dismisses it; one owner per input
 
+    // A tap on the canvas with a dialog up ONLY dismisses it - it must not also become a
+    // walk order. TapControls owns that dismissal rather than sharing it with TextPanel's
+    // document-level handler, so the outcome can't depend on which listener the browser
+    // runs first. Choice dialogs are left alone; they need a real selection.
     const pointer = this.stage.getPointerPosition()
+
+    if (state.textPanelContent) {
+      if (!state.textPanelOptions.length) {
+        state.closeTextPanel()
+        this.showTapFeedback(pointer)
+      }
+      return
+    }
+
     const active = this.activeCharacter()
     if (!pointer || !active?.sprite) return
+
+    this.showTapFeedback(pointer)
 
     if (this.trySwitch(pointer)) return
     if (this.tryInteract(pointer, active)) return
@@ -60,7 +118,7 @@ export default class TapControls {
   // Interact only when the tapped thing is the same thing the interact key would reach,
   // so tapping a distant kiln walks there instead of working it from across the map.
   tryInteract(pointer, active) {
-    const tapped = this.map.checkProximity(pointer.x, pointer.y)
+    const tapped = this.map.checkProximity(pointer.x, pointer.y, INTERACTION.TAP_HIT_DISTANCE)
     if (!tapped) return false
 
     const inReach = this.map.checkProximity(active.sprite.attrs.x, active.sprite.attrs.y)
@@ -83,5 +141,7 @@ export default class TapControls {
 
   dispose() {
     this.stage.off('pointerdown', this.handlePointer)
+    this.rippleTween?.destroy()
+    this.fxLayer.destroy()
   }
 }
