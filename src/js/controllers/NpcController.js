@@ -3,7 +3,7 @@ import SpriteAnimated from '../sprites/SpriteAnimated'
 import gameStore from '../state/gameStore'
 import Map from '../Map'
 import { NPC_CONFIG } from '../constants'
-import { placeMarker } from '../ui/objectiveMarker.mjs'
+import { placeMarker, spreadMarkers } from '../ui/objectiveMarker.mjs'
 
 export default class NpcController {
   constructor(map) {
@@ -17,7 +17,6 @@ export default class NpcController {
     this.markerLayer = new Konva.Layer({ listening: false })
     this.map.stage.add(this.markerLayer)
     this._markerLayerRaised = false
-    this._markerCount = 0 // gives each family arrow its own left-edge slot
 
     // create characters
     const npcData = gameStore.getState().npcData
@@ -53,7 +52,6 @@ export default class NpcController {
     }
     // each recruitable family member gets its own glowing "go here" arrow (see update())
     if (npc.recruitable) {
-      npcObj.markerIndex = this._markerCount++
       npcObj.marker = this.createObjectiveMarker()
     }
     this.npcs.push(npcObj)
@@ -159,6 +157,7 @@ export default class NpcController {
   update() {
     const speed = 4
     const eventsDone = gameStore.getState().eventsDone
+    const placedMarkers = [] // spread apart after the loop, once all are positioned
 
     // if there's a target location that differs from current location, move towards it
     for (let npc of this.npcs) {
@@ -189,10 +188,10 @@ export default class NpcController {
           const off = this.group.position() // camera pan (imageGroup offset)
           const t = performance.now() / 1000
           const bob = Math.abs(Math.sin(t * 2.4)) * 7
-          const slot = (npc.markerIndex || 0) * 44 // keeps the wife's and son's apart on an edge
 
-          placeMarker(npc.marker, npc.o.sprite.x() + off.x, npc.o.sprite.y() + off.y, this.map.stage, { bob, slot })
+          placeMarker(npc.marker, npc.o.sprite.x() + off.x, npc.o.sprite.y() + off.y, this.map.stage, { bob })
           npc.marker.shadowBlur(10 + (Math.sin(t * 2.4) + 1) * 6)
+          placedMarkers.push(npc.marker)
         }
       }
 
@@ -225,6 +224,10 @@ export default class NpcController {
         npc[gridProp] = npc[gridProp] + direction
       }
     }
+
+    // wife and son share a column, so both collapse onto one point when pinned to the
+    // top edge - ease them apart once everything is placed
+    spreadMarkers(placedMarkers, this.map.stage)
 
     // the marker layer is separate from the sprite-animated map layer, so redraw it here
     this.markerLayer.batchDraw()

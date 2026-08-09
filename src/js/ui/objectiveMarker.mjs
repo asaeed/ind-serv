@@ -8,6 +8,51 @@
 // `slot` gives sibling markers their own lane so they don't stack on one edge.
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v))
 
+// Two markers pinned to the same edge in the same direction can land on the same spot -
+// the wife and son share a column, so both collapse onto one point on the top edge. Ease
+// them apart along that edge, with the push fading to nothing as they separate, so the
+// stagger can't reintroduce the jump it exists to avoid: by the time one of them scrolls
+// into view and starts tracking its own target, the push is already zero.
+//
+// Called after every marker has been placed for the frame; placeMarker rewrites positions
+// from scratch each frame, so the nudges never accumulate.
+export function spreadMarkers(markers, stage, { gap = 28, margin = 24 } = {}) {
+  const shown = markers.filter((m) => m && m.visible())
+
+  for (let i = 0; i < shown.length; i++) {
+    for (let j = i + 1; j < shown.length; j++) {
+      const a = shown[i]
+      const b = shown[j]
+      const dx = b.x() - a.x()
+      const dy = b.y() - a.y()
+      const distance = Math.hypot(dx, dy)
+      if (distance >= gap) continue
+
+      const push = (gap - distance) / 2 // full when dead-on, zero at `gap`
+      // spread along the edge they're pinned to; rotation is what says which edge
+      const rotation = a.rotation()
+      const alongX = rotation === 0 || rotation === 180
+      const axis = alongX ? 'x' : 'y'
+      const dir = Math.sign(alongX ? dx : dy) || 1
+
+      const aPos = a[axis]() - push * dir
+      const bPos = b[axis]() + push * dir
+
+      // Both were probably already jammed against the same limit, so pushing them apart
+      // can shove one past it and clip it off-canvas. Slide the pair back as a unit,
+      // which keeps them inside the margins without closing the gap again.
+      const lo = margin
+      const hi = (alongX ? stage.width() : stage.height()) - margin
+      const low = Math.min(aPos, bPos)
+      const high = Math.max(aPos, bPos)
+      const shift = low < lo ? lo - low : high > hi ? hi - high : 0
+
+      a[axis](aPos + shift)
+      b[axis](bPos + shift)
+    }
+  }
+}
+
 // Track the target along an edge, kept inside the margins. `slot` only applies when the
 // marker is jammed against one of those limits, because that is the only time two markers
 // can land on the same spot (both shoved into the same corner). Applying it unconditionally
