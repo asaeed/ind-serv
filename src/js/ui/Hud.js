@@ -133,6 +133,20 @@ export default class Hud {
     this.bricksBakedText = this.createStageText(pipelineY + 69, 'Bricks Baked:', this.stageColors.baked)
     this.bricksShippedText = this.createStageText(pipelineY + 91, 'Bricks Shipped:', this.stageColors.bricks)
 
+    // Konva caches a Text's measured width and only recomputes it when the value actually
+    // changes. All four pipeline values start at '0', so if that first measure ran before
+    // the pixel font finished loading they keep a fallback-font width - and it sticks for
+    // good on any row whose value never changes, throwing its right-alignment out (a stuck
+    // '0' measured 7px against the real font's 14px). Re-measure once the font is ready.
+    document.fonts?.ready.then(() => {
+      for (const stage of [this.mudText, this.bricksMoldedText, this.bricksBakedText, this.bricksShippedText]) {
+        const value = stage.value.text()
+        stage.value.text('')
+        stage.value.text(value) // bounce it: only a real change re-measures
+      }
+      this.layer.batchDraw()
+    })
+
     // add text panel for dialogs
     this.textPanel = new TextPanel(this.layer)
     this.textPanel.layout({ topOffset: this.padding + this.hudHeight + 12 })
