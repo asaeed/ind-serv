@@ -16,7 +16,11 @@ const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v))
 //
 // Called after every marker has been placed for the frame; placeMarker rewrites positions
 // from scratch each frame, so the nudges never accumulate.
-export function spreadMarkers(markers, stage, { gap = 28, margin = 24 } = {}) {
+// `gap` is both how far apart overlapping markers end up and the distance at which the
+// push starts, so it has to stay under the ~64px (one tile) that separates the family's
+// arrows once they're on-screen on their own heads - otherwise they'd shove each other
+// apart in plain view. 44 matches the spacing the old fixed lane used.
+export function spreadMarkers(markers, stage, { gap = 44, margin = 24 } = {}) {
   const shown = markers.filter((m) => m && m.visible())
 
   for (let i = 0; i < shown.length; i++) {

@@ -103,31 +103,31 @@ const marker = (x, y, rotation = 180) => {
 // dead-on overlap (wife and son share a column, both pinned to the top edge): separated
 const a = marker(400, 24)
 const b = marker(400, 24)
-spreadMarkers([a, b], stage, { gap: 28 })
-assert.equal(Math.abs(b.x() - a.x()), 28, 'coincident markers should end up a full gap apart')
+spreadMarkers([a, b], stage)
+assert.equal(Math.abs(b.x() - a.x()), 44, 'coincident markers should end up a full gap apart')
 assert.equal(a.y(), 24, 'stagger must stay along the edge, not push off it')
 
 // pinned to a side edge (rotation 90) staggers along y instead
 const c = marker(24, 300, 90)
 const d = marker(24, 300, 90)
-spreadMarkers([c, d], stage, { gap: 28 })
-assert.equal(Math.abs(d.y() - c.y()), 28)
+spreadMarkers([c, d], stage)
+assert.equal(Math.abs(d.y() - c.y()), 44)
 assert.equal(c.x(), 24)
 
 // already further apart than the gap: left completely alone
 const e = marker(200, 24)
 const f = marker(400, 24)
-spreadMarkers([e, f], stage, { gap: 28 })
+spreadMarkers([e, f], stage)
 assert.equal(e.x(), 200)
 assert.equal(f.x(), 400)
 
 // The push fades to zero as they separate, so nothing snaps when one scrolls into view.
 // Sweep one marker away from the other and check the applied stagger only ever shrinks.
 let previousPush = Infinity
-for (let d2 = 0; d2 <= 30; d2++) {
+for (let d2 = 0; d2 <= 46; d2++) {
   const p = marker(400, 24)
   const q = marker(400 + d2, 24)
-  spreadMarkers([p, q], stage, { gap: 28 })
+  spreadMarkers([p, q], stage)
   const push = Math.abs(q.x() - (400 + d2)) // how far q was displaced
   assert.ok(push <= previousPush + 1e-9, `stagger grew as markers separated (gap ${d2})`)
   previousPush = push
@@ -137,17 +137,25 @@ assert.equal(previousPush, 0, 'stagger must reach exactly zero by the time they 
 // a pair jammed into a corner is staggered without either escaping the margins
 const g = marker(24, 24)
 const h2 = marker(24, 24)
-spreadMarkers([g, h2], stage, { gap: 28 })
-assert.equal(Math.abs(h2.x() - g.x()), 28, 'corner pair should still separate')
+spreadMarkers([g, h2], stage)
+assert.equal(Math.abs(h2.x() - g.x()), 44, 'corner pair should still separate')
 for (const m of [g, h2]) {
   assert.ok(m.x() >= 24 && m.x() <= 776, `stagger pushed a marker off-canvas at x ${m.x()}`)
 }
+
+// two arrows a tile apart - the family once both are on-screen on their own heads -
+// must be left alone, or they'd visibly shove each other apart in plain view
+const onScreenA = marker(400, 300, 0)
+const onScreenB = marker(400, 364, 0)
+spreadMarkers([onScreenA, onScreenB], stage)
+assert.equal(onScreenA.y(), 300, 'markers a tile apart should not be pushed')
+assert.equal(onScreenB.y(), 364)
 
 // hidden markers are ignored
 const visible = marker(400, 24)
 const hidden = marker(400, 24)
 hidden.visible = () => false
-spreadMarkers([visible, hidden], stage, { gap: 28 })
+spreadMarkers([visible, hidden], stage)
 assert.equal(visible.x(), 400, 'a hidden marker should not shove a visible one')
 
 console.log('objectiveMarker: all assertions passed')
