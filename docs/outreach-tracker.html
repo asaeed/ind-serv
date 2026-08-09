@@ -122,6 +122,35 @@
         line-height: 1.55;
       }
 
+      .launch {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 12px;
+        margin: 18px 0 0;
+        padding-top: 14px;
+        border-top: 1px solid var(--rule-soft);
+      }
+      .launch-date {
+        font-family: var(--serif);
+        font-size: 21px;
+        color: var(--amber);
+        letter-spacing: 0.01em;
+      }
+      .launch-occasion {
+        font-size: 11px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--sand-faint);
+      }
+      .launch-count {
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ember);
+        white-space: nowrap;
+      }
+
       /* tally block, right of the masthead */
       .tally {
         display: flex;
@@ -506,6 +535,11 @@
             a person who might carry the game further than it can travel alone. Click a row to
             open its dossier, compose from the template, and log what came back.
           </p>
+          <p class="launch">
+            <span class="launch-date" id="launchDate">—</span>
+            <span class="launch-occasion">International Day for the Abolition of Slavery</span>
+            <span class="launch-count" id="launchCount"></span>
+          </p>
         </div>
         <div class="tally">
           <div class="tally-item t-open">
@@ -654,7 +688,7 @@
          ================================================================= */
       const STORAGE_KEY = 'ind-serv-outreach-v1';
 
-      const BASE_SUBJECT = 'A 12-minute game about debt bondage, launching July 30';
+      const BASE_SUBJECT = 'A 12-minute game about debt bondage, launching December 2';
 
       const BASE_BODY = `Hi,
 
@@ -668,7 +702,7 @@ It's called Indentured Servitude — a free browser game, about 12 minutes long.
 
 [ORG-SPECIFIC PARAGRAPH]
 
-I'm launching it July 30, the World Day Against Trafficking in Persons. Two asks: if you think it's useful for awareness work, share it. And if you have any feedback before launch, I would love to hear it.
+I'm launching it on December 2, the International Day for the Abolition of Slavery. Two asks: if you think it's useful for awareness work, share it. And if you have any feedback before launch, I would love to hear it.
 
 Press kit: https://github.com/asaeed/ind-serv/tree/main/press
 
@@ -780,7 +814,7 @@ You produced Business Insider's documentary on debt bondage at Pakistan's brick 
 
 I'm a software developer, so the way it came out of me was a game. Indentured Servitude is a free 12-minute browser game where you shovel mud, mold bricks, and try to pay down a debt that's rigged to grow faster than you can earn. You can't win. The only ending is a button that says "Accept your fate," followed by the real numbers — and your documentary, embedded on the end screen as the thing that started it.
 
-It launches July 30, the World Day Against Trafficking in Persons.
+It launches December 2, the International Day for the Abolition of Slavery.
 
 I wanted you to see it before then: https://indenturedgame.com/
 
@@ -789,6 +823,11 @@ If it holds up to the reporting, I'd love a sentence from either of you I can qu
 Ahmad Saeed`,
         },
       ];
+
+      // UN International Day for the Abolition of Slavery - moved here from July 30 (World
+      // Day Against Trafficking), which passed. Dec 2 is also the better thematic fit: its
+      // remit explicitly covers debt bondage and the worst forms of child labour.
+      const LAUNCH_DATE = '2026-12-02';
 
       const STATUS_LABEL = {
         open: 'Not sent',
@@ -818,9 +857,14 @@ Ahmad Saeed`,
         } catch (e) {
           console.warn('Saved outreach data was unreadable; starting fresh.', e);
         }
+        // Only honour a saved template if it was actually edited here. Otherwise any
+        // interaction would freeze the seed into localStorage, and a later seed fix (the
+        // launch date moving, say) would never reach a tracker that had been opened once.
+        const edited = saved.templateEdited === true;
         return {
-          subject: saved.subject ?? BASE_SUBJECT,
-          body: saved.body ?? BASE_BODY,
+          subject: edited ? saved.subject ?? BASE_SUBJECT : BASE_SUBJECT,
+          body: edited ? saved.body ?? BASE_BODY : BASE_BODY,
+          templateEdited: edited,
           entries: saved.entries ?? {},
           updatedAt: saved.updatedAt ?? null,
         };
@@ -950,6 +994,18 @@ Ahmad Saeed`,
         document.getElementById('tallySent').textContent = awaiting;
         document.getElementById('tallyReplied').textContent = replied;
         document.getElementById('progressFill').style.width = `${(touched / all.length) * 100}%`;
+      }
+
+      function renderLaunch() {
+        const d = new Date(LAUNCH_DATE + 'T00:00:00');
+        document.getElementById('launchDate').textContent =
+          'Launch · ' + d.toLocaleDateString(undefined, {
+            weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+          });
+        const days = Math.ceil((d.getTime() - Date.now()) / 86400000);
+        const count = document.getElementById('launchCount');
+        count.textContent =
+          days > 0 ? `${days} days out` : days === 0 ? 'today' : `${Math.abs(days)} days ago`;
       }
 
       function renderStamp() {
@@ -1098,11 +1154,13 @@ Ahmad Saeed`,
 
       document.getElementById('tplSubject').addEventListener('input', (e) => {
         state.subject = e.target.value;
+        state.templateEdited = true;
         save();
         if (selectedId) renderCompose(orgs().find((o) => o.id === selectedId));
       });
       document.getElementById('tplBody').addEventListener('input', (e) => {
         state.body = e.target.value;
+        state.templateEdited = true;
         save();
         if (selectedId) renderCompose(orgs().find((o) => o.id === selectedId));
       });
@@ -1132,6 +1190,7 @@ Ahmad Saeed`,
           state = {
             subject: incoming.subject ?? BASE_SUBJECT,
             body: incoming.body ?? BASE_BODY,
+            templateEdited: incoming.templateEdited === true,
             entries: incoming.entries,
             updatedAt: incoming.updatedAt ?? null,
           };
@@ -1146,7 +1205,7 @@ Ahmad Saeed`,
 
       document.getElementById('resetBtn').addEventListener('click', () => {
         if (!confirm('Clear all tracked statuses, dates and notes, and restore the original template?')) return;
-        state = { subject: BASE_SUBJECT, body: BASE_BODY, entries: {}, updatedAt: null };
+        state = { subject: BASE_SUBJECT, body: BASE_BODY, templateEdited: false, entries: {}, updatedAt: null };
         save();
         hydrateTemplate();
         closeDrawer();
@@ -1159,6 +1218,7 @@ Ahmad Saeed`,
       }
 
       hydrateTemplate();
+      renderLaunch();
       renderStamp();
       render();
     </script>

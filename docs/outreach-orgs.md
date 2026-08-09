@@ -1,7 +1,7 @@
 # Outreach orgs
 
-Organizations to contact around the launch (targeting Thu 2026-07-30, World Day
-Against Trafficking in Persons). Goal: get the game in front of people who work on
+Organizations to contact around the launch (targeting Wed 2026-12-02, the UN
+International Day for the Abolition of Slavery). Goal: get the game in front of people who work on
 debt bondage / modern slavery, for amplification and credibility.
 
 > **Live status now lives in [`outreach-tracker.html`](outreach-tracker.html)** — open it in a

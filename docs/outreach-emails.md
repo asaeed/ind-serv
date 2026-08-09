@@ -1,4 +1,4 @@
-# Outreach emails — launch week (target: Thu 2026-07-30)
+# Outreach emails — launch week (target: Wed 2026-12-02)
 
 Base email + per-org variants. Contact addresses being researched; `To:` filled in as
 they're confirmed.
@@ -15,7 +15,7 @@ Press kit: https://github.com/asaeed/ind-serv/tree/main/press
 
 ## Base email (core shared by all org variants)
 
-**Subject:** A 12-minute game about debt bondage, launching July 30
+**Subject:** A 12-minute game about debt bondage, launching December 2
 
 Hi,
 
@@ -34,7 +34,7 @@ players to organizations fighting this problem.
 
 [ORG-SPECIFIC PARAGRAPH]
 
-I'm launching it July 30, the World Day Against Trafficking in Persons. Two asks: if
+I'm launching it on December 2, the International Day for the Abolition of Slavery. Two asks: if
 you think it's useful for awareness work, share it. And if you have any feedback before launch, I would love to hear it.
 
 Press kit: https://github.com/asaeed/ind-serv/tree/main/press
@@ -124,7 +124,7 @@ to pay down a debt that's rigged to grow faster than you can earn. You can't win
 only ending is a button that says "Accept your fate," followed by the real numbers —
 and your documentary, embedded on the end screen as the thing that started it.
 
-It launches July 30, the World Day Against Trafficking in Persons.
+It launches December 2, the International Day for the Abolition of Slavery.
 
 I wanted you to see it before then: https://indenturedgame.com/
 
