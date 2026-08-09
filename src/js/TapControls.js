@@ -1,5 +1,6 @@
 import gameStore from './state/gameStore'
 import playerStore from './state/playerStore'
+import { INTERACTION } from './constants'
 
 // Tap/click to play. One Konva stage listener covers mouse and touch alike, so desktop
 // and mobile share this path - no separate touch handling.
@@ -31,7 +32,15 @@ export default class TapControls {
   onPointer() {
     const state = gameStore.getState()
     if (!state.gameStarted || state.gameOver) return
-    if (state.textPanelContent) return // TextPanel dismisses it; one owner per input
+
+    // A tap on the canvas with a dialog up ONLY dismisses it - it must not also become a
+    // walk order. TapControls owns that dismissal rather than sharing it with TextPanel's
+    // document-level handler, so the outcome can't depend on which listener the browser
+    // runs first. Choice dialogs are left alone; they need a real selection.
+    if (state.textPanelContent) {
+      if (!state.textPanelOptions.length) state.closeTextPanel()
+      return
+    }
 
     const pointer = this.stage.getPointerPosition()
     const active = this.activeCharacter()
@@ -60,7 +69,7 @@ export default class TapControls {
   // Interact only when the tapped thing is the same thing the interact key would reach,
   // so tapping a distant kiln walks there instead of working it from across the map.
   tryInteract(pointer, active) {
-    const tapped = this.map.checkProximity(pointer.x, pointer.y)
+    const tapped = this.map.checkProximity(pointer.x, pointer.y, INTERACTION.TAP_HIT_DISTANCE)
     if (!tapped) return false
 
     const inReach = this.map.checkProximity(active.sprite.attrs.x, active.sprite.attrs.y)

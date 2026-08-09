@@ -48,7 +48,15 @@ export const PLAYER_OWNED_KEYS = new Set([
 
 // Player interaction distances and offsets
 export const INTERACTION = {
-  MAX_DISTANCE: 40, // Max distance to interact with objects
+  // How close a character has to be to work a station or talk to someone. Tiles are 64px,
+  // so this is a bit over two tiles. This constant used to be an unused 40 while the real
+  // gate was a hardcoded ~70 buried in checkProximity, which is why reaching things felt
+  // fussy - one place to tune it now.
+  MAX_DISTANCE: 140,
+  // What counts as having tapped an object, as opposed to the ground near it. Kept tight
+  // and independent of reach: a tap is precise, so widening MAX_DISTANCE shouldn't start
+  // swallowing taps on nearby ground that were meant as "walk over there".
+  TAP_HIT_DISTANCE: 44,
   CAMERA_OFFSET_X: 32, // Camera centering offset
   POSITION_OFFSET_Y: 14, // Y position adjustment for interactions
 }

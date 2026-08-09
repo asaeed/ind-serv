@@ -107,6 +107,10 @@ export default class TextPanel {
         if (PLAYER_OWNED_KEYS.has(e.key)) return
       } else if (e.target.closest?.('button, a, input, textarea, .info-modal')) {
         return // UI chrome clicks do their own thing
+      } else if (e.target.closest?.('#canvas-container')) {
+        // TapControls owns taps on the game canvas: it dismisses and swallows them, so one
+        // tap can't both close the dialog here and register as a move order over there.
+        return
       }
       state.closeTextPanel()
     }

@@ -168,7 +168,9 @@ export default class Map {
     }
   }
 
-  checkProximity(x, y) {
+  // Nearest item or NPC within `maxDistance` of the given point, else null. Callers pass a
+  // tighter radius when the point is a tap (see TapControls) rather than a character.
+  checkProximity(x, y, maxDistance = INTERACTION.MAX_DISTANCE) {
     const { mapX, mapY } = this.positionOnMap(x, y)
     const closestNpc = this.npcController.getClosest(mapX, mapY + INTERACTION.POSITION_OFFSET_Y) || {
       distSq: Infinity,
@@ -178,7 +180,7 @@ export default class Map {
     }
 
     // pick out closes object and if it's within a range, return it (else null)
-    const minDistSquared = 5000
+    const minDistSquared = maxDistance * maxDistance
     if (closestNpc.distSq < closestItem.distSq && closestNpc.distSq <= minDistSquared) {
       return closestNpc
     } else if (closestItem.distSq <= minDistSquared) {
