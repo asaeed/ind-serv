@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>The Other Ledger — Indentured Servitude outreach</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,500;0,6..72,600;1,6..72,300&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ------------------------------------------------------------------
+         The kiln owner keeps a ledger that only ever grows. This is the other
+         one: fired-clay dark, ember accents, entries that count in your favour.
+         Single file, no build, no dependencies - it has to still open in two
+         months from a bookmark.
+         ------------------------------------------------------------------ */
+      :root {
+        --clay-900: #14100c;
+        --clay-800: #1b1510;
+        --clay-700: #241c15;
+        --clay-600: #2f251c;
+        --rule: #3a2d22;
+        --rule-soft: #2a2019;
+        --sand: #ede2d3;
+        --sand-dim: #b3a08a;
+        --sand-faint: #7d6d5c;
+        --ember: #e8823c;
+        --ember-deep: #b8501f;
+        --kiln: #ff5555;
+        --green: #3ff086;
+        --amber: #ffde3d;
+        --shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+        --mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+        --serif: 'Newsreader', Georgia, 'Times New Roman', serif;
+      }
+
+      * { box-sizing: border-box; }
+
+      html, body { height: 100%; }
+
+      body {
+        margin: 0;
+        background: var(--clay-900);
+        color: var(--sand);
+        font-family: var(--mono);
+        font-size: 14px;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* kiln-glow wash + fine grain, so the page has dust in it */
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 0;
+        background:
+          radial-gradient(1200px 600px at 12% -10%, rgba(232, 130, 60, 0.13), transparent 60%),
+          radial-gradient(900px 500px at 100% 110%, rgba(184, 80, 31, 0.1), transparent 60%);
+      }
+      body::after {
+        content: '';
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 1;
+        opacity: 0.32;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+      }
+
+      .shell {
+        position: relative;
+        z-index: 2;
+        max-width: 1440px;
+        margin: 0 auto;
+        padding: 34px 30px 90px;
+      }
+
+      /* ---------------- masthead ---------------- */
+      header.masthead {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 28px;
+        align-items: end;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--rule);
+        animation: rise 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+      }
+
+      .eyebrow {
+        font-size: 10.5px;
+        letter-spacing: 0.42em;
+        text-transform: uppercase;
+        color: var(--ember);
+        margin: 0 0 10px;
+      }
+
+      h1 {
+        font-family: var(--serif);
+        font-weight: 500;
+        font-size: clamp(38px, 5.6vw, 66px);
+        line-height: 0.95;
+        letter-spacing: -0.02em;
+        margin: 0;
+      }
+      h1 em {
+        font-style: italic;
+        font-weight: 300;
+        color: var(--ember);
+      }
+
+      .lede {
+        font-family: var(--serif);
+        font-size: 16px;
+        color: var(--sand-dim);
+        max-width: 62ch;
+        margin: 14px 0 0;
+        line-height: 1.55;
+      }
+
+      /* tally block, right of the masthead */
+      .tally {
+        display: flex;
+        gap: 26px;
+        padding: 16px 22px;
+        background: linear-gradient(180deg, var(--clay-700), var(--clay-800));
+        border: 1px solid var(--rule);
+        border-radius: 3px;
+        box-shadow: var(--shadow);
+      }
+      .tally-item { text-align: right; }
+      .tally-num {
+        font-family: var(--serif);
+        font-size: 34px;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+        display: block;
+      }
+      .tally-label {
+        font-size: 9.5px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--sand-faint);
+        white-space: nowrap;
+      }
+      .t-sent .tally-num { color: var(--ember); }
+      .t-replied .tally-num { color: var(--green); }
+      .t-open .tally-num { color: var(--sand-dim); }
+
+      /* progress rule under the masthead */
+      .progress-rail {
+        height: 3px;
+        background: var(--rule-soft);
+        margin: 0 0 26px;
+        overflow: hidden;
+      }
+      .progress-fill {
+        height: 100%;
+        width: 0;
+        background: linear-gradient(90deg, var(--ember-deep), var(--ember), var(--amber));
+        transition: width 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+
+      /* ---------------- toolbar ---------------- */
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        padding: 16px 0 18px;
+      }
+      .spacer { flex: 1 1 auto; }
+
+      button, .btn {
+        font-family: var(--mono);
+        font-size: 11.5px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--sand);
+        background: var(--clay-700);
+        border: 1px solid var(--rule);
+        border-radius: 2px;
+        padding: 9px 14px;
+        cursor: pointer;
+        transition: border-color 0.18s, color 0.18s, background 0.18s, transform 0.12s;
+      }
+      button:hover, .btn:hover {
+        border-color: var(--ember);
+        color: var(--ember);
+      }
+      button:active { transform: translateY(1px); }
+      button.primary {
+        background: var(--ember-deep);
+        border-color: var(--ember);
+        color: #fff2e6;
+      }
+      button.primary:hover { background: var(--ember); color: #1a0f07; }
+      button.ghost { background: transparent; }
+
+      .filter-note {
+        font-size: 11px;
+        color: var(--sand-faint);
+        letter-spacing: 0.08em;
+      }
+
+      input[type='search'] {
+        font-family: var(--mono);
+        font-size: 12.5px;
+        color: var(--sand);
+        background: var(--clay-800);
+        border: 1px solid var(--rule);
+        border-radius: 2px;
+        padding: 9px 12px;
+        min-width: 230px;
+      }
+      input[type='search']:focus { outline: none; border-color: var(--ember); }
+
+      /* ---------------- ledger table ---------------- */
+      .ledger-wrap {
+        border: 1px solid var(--rule);
+        background: linear-gradient(180deg, rgba(47, 37, 28, 0.55), rgba(20, 16, 12, 0.4));
+        box-shadow: var(--shadow);
+        overflow-x: auto;
+      }
+
+      table { width: 100%; border-collapse: collapse; min-width: 940px; }
+
+      thead th {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+        background: var(--clay-600);
+        font-size: 9.5px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--sand-faint);
+        text-align: left;
+        font-weight: 500;
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--rule);
+        white-space: nowrap;
+        cursor: pointer;
+        user-select: none;
+      }
+      thead th:hover { color: var(--ember); }
+      thead th .caret { opacity: 0; margin-left: 6px; }
+      thead th.sorted .caret { opacity: 1; color: var(--ember); }
+      thead th.no-sort { cursor: default; }
+      thead th.no-sort:hover { color: var(--sand-faint); }
+
+      tbody tr {
+        border-bottom: 1px solid var(--rule-soft);
+        cursor: pointer;
+        transition: background 0.16s;
+      }
+      tbody tr:hover { background: rgba(232, 130, 60, 0.07); }
+      tbody tr.selected { background: rgba(232, 130, 60, 0.13); }
+      tbody tr.selected td:first-child { box-shadow: inset 3px 0 0 var(--ember); }
+
+      td { padding: 13px 14px; vertical-align: top; }
+
+      .org-name {
+        font-family: var(--serif);
+        font-size: 18.5px;
+        line-height: 1.2;
+        display: block;
+      }
+      .org-why {
+        font-size: 11.5px;
+        color: var(--sand-faint);
+        margin-top: 3px;
+        max-width: 46ch;
+      }
+
+      .contact {
+        font-size: 11.5px;
+        color: var(--sand-dim);
+        word-break: break-all;
+        max-width: 26ch;
+      }
+
+      .pill {
+        display: inline-block;
+        font-size: 9.5px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        padding: 4px 9px;
+        border: 1px solid currentColor;
+        border-radius: 999px;
+        white-space: nowrap;
+      }
+      .pill.linked { color: var(--amber); }
+      .pill.tbd { color: var(--kiln); }
+
+      /* status chips double as the status control */
+      .status-chip {
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        padding: 6px 11px;
+        border-radius: 2px;
+        border: 1px solid;
+        background: transparent;
+        white-space: nowrap;
+      }
+      .s-open      { color: var(--sand-faint); border-color: var(--rule); }
+      .s-drafted   { color: var(--amber);      border-color: rgba(255, 222, 61, 0.4); }
+      .s-sent      { color: var(--ember);      border-color: rgba(232, 130, 60, 0.5); }
+      .s-replied   { color: var(--green);      border-color: rgba(63, 240, 134, 0.45); }
+      .s-declined  { color: var(--kiln);       border-color: rgba(255, 85, 85, 0.4); }
+      .s-noreply   { color: var(--sand-faint); border-color: var(--rule); opacity: 0.75; }
+
+      .when {
+        font-size: 11.5px;
+        color: var(--sand-dim);
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+      .chase {
+        display: block;
+        margin-top: 4px;
+        font-size: 9.5px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--kiln);
+      }
+
+      /* ---------------- detail drawer ---------------- */
+      .drawer {
+        position: fixed;
+        top: 0;
+        right: 0;
+        height: 100%;
+        width: min(680px, 100%);
+        background: var(--clay-800);
+        border-left: 1px solid var(--rule);
+        box-shadow: -30px 0 60px rgba(0, 0, 0, 0.6);
+        transform: translateX(102%);
+        transition: transform 0.42s cubic-bezier(0.2, 0.85, 0.2, 1);
+        z-index: 40;
+        display: flex;
+        flex-direction: column;
+      }
+      .drawer.open { transform: translateX(0); }
+
+      .drawer-head {
+        padding: 22px 26px 16px;
+        border-bottom: 1px solid var(--rule);
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 14px;
+        align-items: start;
+      }
+      .drawer-head h2 {
+        font-family: var(--serif);
+        font-weight: 500;
+        font-size: 30px;
+        line-height: 1.05;
+        margin: 4px 0 0;
+      }
+      .drawer-body { padding: 22px 26px 40px; overflow-y: auto; flex: 1; }
+
+      .field { margin-bottom: 20px; }
+      .field > label {
+        display: block;
+        font-size: 9.5px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--sand-faint);
+        margin-bottom: 7px;
+      }
+
+      textarea, input[type='date'], input[type='text'], select {
+        width: 100%;
+        font-family: var(--mono);
+        font-size: 13px;
+        line-height: 1.6;
+        color: var(--sand);
+        background: var(--clay-900);
+        border: 1px solid var(--rule);
+        border-radius: 2px;
+        padding: 11px 13px;
+        resize: vertical;
+      }
+      textarea:focus, input:focus, select:focus { outline: none; border-color: var(--ember); }
+      select { cursor: pointer; }
+      .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+      .compose {
+        border: 1px solid var(--rule);
+        background: var(--clay-900);
+        border-radius: 2px;
+        padding: 16px 18px;
+        white-space: pre-wrap;
+        font-size: 12.5px;
+        line-height: 1.65;
+        color: var(--sand-dim);
+        max-height: 340px;
+        overflow-y: auto;
+      }
+      .compose strong { color: var(--sand); font-weight: 500; }
+      .compose .slot { color: var(--amber); }
+
+      .drawer-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 14px; }
+
+      .close-x {
+        background: transparent;
+        border: 1px solid var(--rule);
+        color: var(--sand-dim);
+        padding: 7px 11px;
+        font-size: 13px;
+      }
+
+      /* ---------------- template panel ---------------- */
+      details.template {
+        margin: 26px 0 0;
+        border: 1px solid var(--rule);
+        background: rgba(31, 24, 19, 0.6);
+      }
+      details.template summary {
+        cursor: pointer;
+        padding: 15px 18px;
+        font-size: 10.5px;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+        color: var(--sand-dim);
+        list-style: none;
+      }
+      details.template summary::-webkit-details-marker { display: none; }
+      details.template summary::before { content: '▸ '; color: var(--ember); }
+      details.template[open] summary::before { content: '▾ '; }
+      details.template summary:hover { color: var(--ember); }
+      .template-inner { padding: 4px 18px 22px; }
+      .hint {
+        font-size: 11.5px;
+        color: var(--sand-faint);
+        margin: 0 0 12px;
+        line-height: 1.6;
+      }
+      .hint code {
+        color: var(--amber);
+        background: var(--clay-900);
+        padding: 1px 5px;
+        border-radius: 2px;
+      }
+
+      footer.stamp {
+        margin-top: 40px;
+        padding-top: 18px;
+        border-top: 1px solid var(--rule);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        align-items: center;
+        font-size: 11px;
+        color: var(--sand-faint);
+        letter-spacing: 0.06em;
+      }
+      footer.stamp a { color: var(--sand-dim); }
+
+      .saved-flash { color: var(--green); opacity: 0; transition: opacity 0.3s; }
+      .saved-flash.on { opacity: 1; }
+
+      .scrim {
+        position: fixed;
+        inset: 0;
+        background: rgba(6, 4, 3, 0.6);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.35s;
+        z-index: 35;
+      }
+      .scrim.on { opacity: 1; pointer-events: auto; }
+
+      @keyframes rise {
+        from { opacity: 0; transform: translateY(14px); }
+        to { opacity: 1; transform: none; }
+      }
+      tbody tr { animation: rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+
+      @media (max-width: 780px) {
+        .shell { padding: 24px 16px 70px; }
+        header.masthead { grid-template-columns: 1fr; align-items: start; }
+        .tally { justify-content: space-between; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation: none !important; transition: none !important; }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="shell">
+      <header class="masthead">
+        <div>
+          <p class="eyebrow">Indentured Servitude · launch outreach</p>
+          <h1>The Other <em>Ledger</em></h1>
+          <p class="lede">
+            The kiln owner's ledger only ever grows. This one is the opposite: every entry is
+            a person who might carry the game further than it can travel alone. Click a row to
+            open its dossier, compose from the template, and log what came back.
+          </p>
+        </div>
+        <div class="tally">
+          <div class="tally-item t-open">
+            <span class="tally-num" id="tallyOpen">0</span>
+            <span class="tally-label">Not sent</span>
+          </div>
+          <div class="tally-item t-sent">
+            <span class="tally-num" id="tallySent">0</span>
+            <span class="tally-label">Awaiting</span>
+          </div>
+          <div class="tally-item t-replied">
+            <span class="tally-num" id="tallyReplied">0</span>
+            <span class="tally-label">Replied</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="progress-rail"><div class="progress-fill" id="progressFill"></div></div>
+
+      <div class="toolbar">
+        <input type="search" id="search" placeholder="Filter organizations…" aria-label="Filter organizations" />
+        <span class="filter-note" id="countNote"></span>
+        <span class="spacer"></span>
+        <button class="ghost" id="exportBtn">Export JSON</button>
+        <button class="ghost" id="importBtn">Import</button>
+        <input type="file" id="importFile" accept="application/json" hidden />
+        <button class="ghost" id="resetBtn">Reset</button>
+      </div>
+
+      <div class="ledger-wrap">
+        <table>
+          <thead>
+            <tr id="headRow">
+              <th data-sort="name">Organization<span class="caret">▾</span></th>
+              <th data-sort="contact">Contact<span class="caret">▾</span></th>
+              <th data-sort="hook">Hook<span class="caret">▾</span></th>
+              <th data-sort="status">Status<span class="caret">▾</span></th>
+              <th data-sort="sent">Sent<span class="caret">▾</span></th>
+              <th data-sort="reply">Reply<span class="caret">▾</span></th>
+            </tr>
+          </thead>
+          <tbody id="ledgerBody"></tbody>
+        </table>
+      </div>
+
+      <details class="template">
+        <summary>Base email template</summary>
+        <div class="template-inner">
+          <p class="hint">
+            Shared by every org variant. <code>[ORG-SPECIFIC PARAGRAPH]</code> is replaced with
+            that organization's paragraph when you compose. Edits save automatically.
+          </p>
+          <div class="field">
+            <label for="tplSubject">Subject</label>
+            <input type="text" id="tplSubject" />
+          </div>
+          <div class="field">
+            <label for="tplBody">Body</label>
+            <textarea id="tplBody" rows="20"></textarea>
+          </div>
+        </div>
+      </details>
+
+      <footer class="stamp">
+        <span>Saved in this browser · <span id="savedAt">—</span></span>
+        <span class="saved-flash" id="savedFlash">✓ saved</span>
+        <span class="spacer"></span>
+        <a href="https://indenturedgame.com/" target="_blank" rel="noopener">indenturedgame.com</a>
+        <a href="https://github.com/asaeed/ind-serv/tree/main/press" target="_blank" rel="noopener">press kit</a>
+      </footer>
+    </div>
+
+    <div class="scrim" id="scrim"></div>
+
+    <aside class="drawer" id="drawer" aria-hidden="true">
+      <div class="drawer-head">
+        <div>
+          <p class="eyebrow" id="dHook">—</p>
+          <h2 id="dName">—</h2>
+        </div>
+        <button class="close-x" id="closeDrawer" aria-label="Close">✕</button>
+      </div>
+      <div class="drawer-body">
+        <div class="field">
+          <label for="dWhy">Why they matter</label>
+          <div class="compose" id="dWhy" style="max-height: none"></div>
+        </div>
+
+        <div class="row-2">
+          <div class="field">
+            <label for="dStatus">Status</label>
+            <select id="dStatus">
+              <option value="open">Not sent</option>
+              <option value="drafted">Drafted</option>
+              <option value="sent">Sent</option>
+              <option value="replied">Replied</option>
+              <option value="declined">Declined</option>
+              <option value="noreply">No reply</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="dContact">Contact</label>
+            <input type="text" id="dContact" placeholder="email or route" />
+          </div>
+        </div>
+
+        <div class="row-2">
+          <div class="field">
+            <label for="dSent">Date sent</label>
+            <input type="date" id="dSent" />
+          </div>
+          <div class="field">
+            <label for="dReply">Date replied</label>
+            <input type="date" id="dReply" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="dParagraph">Org-specific paragraph</label>
+          <textarea id="dParagraph" rows="5"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="dNotes">Notes / what came back</label>
+          <textarea id="dNotes" rows="4" placeholder="Replies, follow-ups, who to chase…"></textarea>
+        </div>
+
+        <div class="field">
+          <label>Composed email</label>
+          <div class="compose" id="dCompose"></div>
+          <div class="drawer-actions">
+            <button class="primary" id="copyBtn">Copy email</button>
+            <button class="ghost" id="mailtoBtn">Open in mail client</button>
+            <button class="ghost" id="markSentBtn">Mark sent today</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <script>
+      /* =================================================================
+         Seed data lifted verbatim from docs/outreach-orgs.md and
+         docs/outreach-emails.md. Seed is the fallback only - anything you
+         edit here wins and is merged over it on load, so the seed can be
+         updated later without wiping months of tracking.
+         ================================================================= */
+      const STORAGE_KEY = 'ind-serv-outreach-v1';
+
+      const BASE_SUBJECT = 'A 12-minute game about debt bondage, launching July 30';
+
+      const BASE_BODY = `Hi,
+
+I'm a software engineer based in NYC.
+
+A while ago, I watched a Business Insider documentary on bonded labor at Pakistan's brick kilns. It had a powerful effect on me, so I built a game about it.
+
+Game: https://indenturedgame.com/
+
+It's called Indentured Servitude — a free browser game, about 12 minutes long. You shovel mud, mold bricks, fire them, and try to pay down a debt that only grows. It's rigged; you can't win. The only way out is a button that says "Accept your fate." The end screen then explains that the mechanics you just experienced are real, and points players to organizations fighting this problem.
+
+[ORG-SPECIFIC PARAGRAPH]
+
+I'm launching it July 30, the World Day Against Trafficking in Persons. Two asks: if you think it's useful for awareness work, share it. And if you have any feedback before launch, I would love to hear it.
+
+Press kit: https://github.com/asaeed/ind-serv/tree/main/press
+
+Best,
+Ahmad Saeed`;
+
+      const SEED = [
+        {
+          id: 'anti-slavery',
+          name: 'Anti-Slavery International',
+          contact: 'media@antislavery.org',
+          hook: 'linked in game',
+          why: 'Bonded labour incl. South Asian brick kilns — the exact subject of the game. Press: Yasmina Nuny Silva. Already linked on the end screen; lead with that.',
+          paragraph:
+            'Your bonded-labour page is one of the resources the end screen sends players to — it was one of the first places I went to check the game’s assumptions against reality.',
+        },
+        {
+          id: 'freedom-fund',
+          name: 'The Freedom Fund',
+          contact: 'info@freedomfund.org',
+          hook: 'linked in game',
+          why: 'Frontline anti-slavery programs; measurable reductions in bonded labour. No press email — form at freedomfund.org/contact.',
+          paragraph:
+            'The Freedom Fund is one of the organizations the end screen links players to. Your frontline work on bonded labour is exactly the "here’s what you can actually do" answer the game tries to leave people with.',
+        },
+        {
+          id: 'walk-free',
+          name: 'Walk Free',
+          contact: 'info@walkfree.org',
+          hook: 'linked in game',
+          why: 'Global Slavery Index — the "27M / 1-in-5 debt" stats the game cites. Credit their data; ask for a share. No press email.',
+          paragraph:
+            'The numbers the game cites are yours — the Global Slavery Index is credited and linked on the end screen. I wanted the "this is real" moment to stand on measured data, not game-design guesswork.',
+        },
+        {
+          id: 'goodweave',
+          name: 'GoodWeave International',
+          contact: 'PressUS@GoodWeave.org',
+          hook: 'linked in game',
+          why: 'Child & forced labour in supply chains; runs Better Brick Nepal — kiln-specific certification. Best thematic fit.',
+          paragraph:
+            'GoodWeave is one of the organizations the end screen links players to — and Better Brick Nepal makes you the closest real-world match to the game’s setting: it’s set at exactly the kind of kiln your certification program works to change.',
+        },
+        {
+          id: 'ilo',
+          name: 'International Labour Organization',
+          contact: 'newsroom@ilo.org',
+          hook: 'linked in game',
+          why: 'Global forced-labour standards & estimates; ran the "50 for Freedom" awareness campaign. Institutional credibility.',
+          paragraph:
+            'Your forced-labour page is one of the resources the end screen sends players to. If there’s a better ILO resource for a general audience landing there, I’ll swap the link.',
+        },
+        {
+          id: 'unicef',
+          name: 'UNICEF',
+          contact: 'media@unicef.org',
+          hook: 'child labour',
+          why: 'Children’s rights, child labour (the son mechanic). Office of Innovation is a second angle. NOT linked in the game — don’t claim it.',
+          paragraph:
+            'The game’s hardest moment: your character’s son leaves school and joins you at the kiln, because the debt math doesn’t work any other way. That trade-off — education vs. labour — is the game’s emotional core.',
+        },
+        {
+          id: 'save-children',
+          name: 'Save the Children',
+          contact: 'media@savechildren.org',
+          hook: 'child labour',
+          why: 'Child protection, education-vs-labour. Domain is savechildren.org, not a typo. NOT linked in the game.',
+          paragraph:
+            'The game’s hardest moment: your character’s son leaves school and joins you at the kiln, because the debt math doesn’t work any other way. That trade-off — education vs. labour — is the game’s emotional core.',
+        },
+        {
+          id: 'fcdo',
+          name: 'FCDO (UK)',
+          contact: 'fcdo.correspondence@fcdo.gov.uk',
+          hook: 'policy · lower priority',
+          why: 'UK govt development; leads international modern-slavery policy. newsdesk@ is journalist-only → use general correspondence. NOT linked in the game.',
+          paragraph:
+            'I built it for a general audience, but the underlying model — advance, interest, manipulated accounting, generational transfer — maps onto the policy literature on debt bondage. It might be useful as a communication tool.',
+        },
+        {
+          id: 'ifrc',
+          name: 'IFRC',
+          contact: 'media@ifrc.org',
+          hook: 'humanitarian',
+          why: 'Leads Red Cross trafficking & vulnerable-migrant work (Global Migration Lab); chosen over ICRC, which is armed conflict. NOT linked in the game.',
+          paragraph:
+            'The game ends by pointing players at real organizations rather than offering fake in-game redemption. If it’s useful to your trafficking and vulnerable-migrant work as an awareness tool, it’s free and needs no install.',
+        },
+        {
+          id: 'green-bricks',
+          name: 'Green Bricks Foundation',
+          contact: '',
+          hook: 'contact TBD',
+          why: 'The org BI’s own documentary points viewers to; school in Azad Nagar for the Meghwar family’s community. Most personal connection — "your film led to this game".',
+          paragraph:
+            'You’re the organization Business Insider’s brick-kiln documentary points viewers to — that same film is what led me to build this. If the game can send any attention or support toward the Meghwar family’s community and your school in Azad Nagar, that would mean a lot.',
+        },
+        {
+          id: 'bi-producers',
+          name: 'Business Insider — Nemec & Cooper',
+          contact: 'LinkedIn / X — addresses unverified, do not guess',
+          hook: 'own email · not the template',
+          why: 'Producers of the documentary. Not an awareness ask — a "look what your journalism did" note. Uses its own subject and body, not the base template.',
+          paragraph: '',
+          customSubject: 'Your brick-kiln documentary became a game',
+          customBody: `Hi Havovi, Olivia,
+
+You produced Business Insider's documentary on debt bondage at Pakistan's brick kilns (the one with the Meghwar family — 11M views now). I watched it and couldn't shake it.
+
+I'm a software developer, so the way it came out of me was a game. Indentured Servitude is a free 12-minute browser game where you shovel mud, mold bricks, and try to pay down a debt that's rigged to grow faster than you can earn. You can't win. The only ending is a button that says "Accept your fate," followed by the real numbers — and your documentary, embedded on the end screen as the thing that started it.
+
+It launches July 30, the World Day Against Trafficking in Persons.
+
+I wanted you to see it before then: https://indenturedgame.com/
+
+If it holds up to the reporting, I'd love a sentence from either of you I can quote — or if it gets something wrong, that feedback matters more.
+
+Ahmad Saeed`,
+        },
+      ];
+
+      const STATUS_LABEL = {
+        open: 'Not sent',
+        drafted: 'Drafted',
+        sent: 'Sent',
+        replied: 'Replied',
+        declined: 'Declined',
+        noreply: 'No reply',
+      };
+      const STATUS_ORDER = ['open', 'drafted', 'sent', 'replied', 'declined', 'noreply'];
+      const CHASE_AFTER_DAYS = 10;
+
+      /* ---------------- state ---------------- */
+      let state = load();
+      let sortKey = 'name';
+      let sortDir = 1;
+      let selectedId = null;
+
+      function blankEntry() {
+        return { status: 'open', sent: '', reply: '', notes: '', paragraph: null, contact: null };
+      }
+
+      function load() {
+        let saved = {};
+        try {
+          saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        } catch (e) {
+          console.warn('Saved outreach data was unreadable; starting fresh.', e);
+        }
+        return {
+          subject: saved.subject ?? BASE_SUBJECT,
+          body: saved.body ?? BASE_BODY,
+          entries: saved.entries ?? {},
+          updatedAt: saved.updatedAt ?? null,
+        };
+      }
+
+      let saveTimer = null;
+      function save() {
+        state.updatedAt = new Date().toISOString();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        renderStamp();
+        clearTimeout(saveTimer);
+        const flash = document.getElementById('savedFlash');
+        flash.classList.add('on');
+        saveTimer = setTimeout(() => flash.classList.remove('on'), 1100);
+      }
+
+      function entry(id) {
+        if (!state.entries[id]) state.entries[id] = blankEntry();
+        return state.entries[id];
+      }
+
+      // seed + saved overrides, so updating SEED later never clobbers tracking
+      function orgs() {
+        return SEED.map((seed) => {
+          const e = entry(seed.id);
+          return {
+            ...seed,
+            ...e,
+            contact: e.contact ?? seed.contact,
+            paragraph: e.paragraph ?? seed.paragraph,
+          };
+        });
+      }
+
+      /* ---------------- helpers ---------------- */
+      const daysSince = (iso) => {
+        if (!iso) return null;
+        const then = new Date(iso + 'T00:00:00');
+        return Math.floor((Date.now() - then.getTime()) / 86400000);
+      };
+
+      const fmtDate = (iso) =>
+        iso ? new Date(iso + 'T00:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '—';
+
+      const esc = (s) =>
+        String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+      function composed(org) {
+        if (org.customBody) return { subject: org.customSubject, body: org.customBody };
+        return {
+          subject: state.subject,
+          body: state.body.replace('[ORG-SPECIFIC PARAGRAPH]', org.paragraph || '[ORG-SPECIFIC PARAGRAPH]'),
+        };
+      }
+
+      /* ---------------- render ---------------- */
+      function render() {
+        const q = document.getElementById('search').value.trim().toLowerCase();
+        let list = orgs();
+        if (q) {
+          list = list.filter((o) =>
+            [o.name, o.contact, o.why, o.hook, o.notes].join(' ').toLowerCase().includes(q)
+          );
+        }
+
+        list.sort((a, b) => {
+          const pick = (o) => {
+            switch (sortKey) {
+              case 'contact': return (o.contact || '~').toLowerCase();
+              case 'hook': return (o.hook || '').toLowerCase();
+              case 'status': return STATUS_ORDER.indexOf(o.status);
+              case 'sent': return o.sent || '';
+              case 'reply': return o.reply || '';
+              default: return o.name.toLowerCase();
+            }
+          };
+          const av = pick(a);
+          const bv = pick(b);
+          if (av < bv) return -1 * sortDir;
+          if (av > bv) return 1 * sortDir;
+          return 0;
+        });
+
+        const body = document.getElementById('ledgerBody');
+        body.innerHTML = list
+          .map((o, i) => {
+            const since = daysSince(o.sent);
+            const chase = o.status === 'sent' && since !== null && since >= CHASE_AFTER_DAYS;
+            return `
+              <tr data-id="${o.id}" class="${o.id === selectedId ? 'selected' : ''}" style="animation-delay:${Math.min(i * 28, 320)}ms">
+                <td>
+                  <span class="org-name">${esc(o.name)}</span>
+                  <div class="org-why">${esc(o.why)}</div>
+                </td>
+                <td><div class="contact">${esc(o.contact || 'TBD — research')}</div></td>
+                <td><span class="pill ${o.contact ? 'linked' : 'tbd'}">${esc(o.hook)}</span></td>
+                <td><span class="status-chip s-${o.status}">${STATUS_LABEL[o.status]}</span></td>
+                <td>
+                  <span class="when">${fmtDate(o.sent)}</span>
+                  ${chase ? `<span class="chase">chase · ${since}d</span>` : ''}
+                </td>
+                <td><span class="when">${fmtDate(o.reply)}</span></td>
+              </tr>`;
+          })
+          .join('');
+
+        document.getElementById('countNote').textContent =
+          q ? `${list.length} of ${SEED.length} shown` : `${SEED.length} organizations`;
+
+        document.querySelectorAll('#headRow th').forEach((th) => {
+          th.classList.toggle('sorted', th.dataset.sort === sortKey);
+          const caret = th.querySelector('.caret');
+          if (caret) caret.textContent = sortDir === 1 ? '▾' : '▴';
+        });
+
+        renderTally();
+      }
+
+      function renderTally() {
+        const all = orgs();
+        const replied = all.filter((o) => o.status === 'replied').length;
+        const awaiting = all.filter((o) => o.status === 'sent').length;
+        const notSent = all.filter((o) => o.status === 'open' || o.status === 'drafted').length;
+        const touched = all.filter((o) => o.status !== 'open').length;
+
+        document.getElementById('tallyOpen').textContent = notSent;
+        document.getElementById('tallySent').textContent = awaiting;
+        document.getElementById('tallyReplied').textContent = replied;
+        document.getElementById('progressFill').style.width = `${(touched / all.length) * 100}%`;
+      }
+
+      function renderStamp() {
+        document.getElementById('savedAt').textContent = state.updatedAt
+          ? new Date(state.updatedAt).toLocaleString(undefined, {
+              month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
+            })
+          : 'no changes yet';
+      }
+
+      /* ---------------- drawer ---------------- */
+      function openDrawer(id) {
+        selectedId = id;
+        const org = orgs().find((o) => o.id === id);
+        if (!org) return;
+
+        document.getElementById('dName').textContent = org.name;
+        document.getElementById('dHook').textContent = org.hook;
+        document.getElementById('dWhy').textContent = org.why;
+        document.getElementById('dStatus').value = org.status;
+        document.getElementById('dContact').value = org.contact || '';
+        document.getElementById('dSent').value = org.sent || '';
+        document.getElementById('dReply').value = org.reply || '';
+        document.getElementById('dNotes').value = org.notes || '';
+
+        const paraField = document.getElementById('dParagraph').closest('.field');
+        paraField.style.display = org.customBody ? 'none' : '';
+        document.getElementById('dParagraph').value = org.paragraph || '';
+
+        renderCompose(org);
+
+        document.getElementById('drawer').classList.add('open');
+        document.getElementById('drawer').setAttribute('aria-hidden', 'false');
+        document.getElementById('scrim').classList.add('on');
+        render();
+      }
+
+      function renderCompose(org) {
+        const { subject, body } = composed(org);
+        const el = document.getElementById('dCompose');
+        const to = org.contact || 'TBD';
+        const html =
+          `<strong>To:</strong> ${esc(to)}\n<strong>Subject:</strong> ${esc(subject)}\n\n` +
+          esc(body).replace(
+            '[ORG-SPECIFIC PARAGRAPH]',
+            '<span class="slot">[ORG-SPECIFIC PARAGRAPH]</span>'
+          );
+        el.innerHTML = html;
+      }
+
+      function closeDrawer() {
+        document.getElementById('drawer').classList.remove('open');
+        document.getElementById('drawer').setAttribute('aria-hidden', 'true');
+        document.getElementById('scrim').classList.remove('on');
+        selectedId = null;
+        render();
+      }
+
+      function patch(field, value) {
+        if (!selectedId) return;
+        entry(selectedId)[field] = value;
+        save();
+        const org = orgs().find((o) => o.id === selectedId);
+        renderCompose(org);
+        render();
+      }
+
+      /* ---------------- wiring ---------------- */
+      document.getElementById('ledgerBody').addEventListener('click', (e) => {
+        const tr = e.target.closest('tr[data-id]');
+        if (tr) openDrawer(tr.dataset.id);
+      });
+
+      document.querySelectorAll('#headRow th[data-sort]').forEach((th) => {
+        th.addEventListener('click', () => {
+          const key = th.dataset.sort;
+          if (key === sortKey) sortDir *= -1;
+          else { sortKey = key; sortDir = 1; }
+          render();
+        });
+      });
+
+      document.getElementById('search').addEventListener('input', render);
+      document.getElementById('closeDrawer').addEventListener('click', closeDrawer);
+      document.getElementById('scrim').addEventListener('click', closeDrawer);
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeDrawer();
+      });
+
+      document.getElementById('dStatus').addEventListener('change', (e) => patch('status', e.target.value));
+      document.getElementById('dContact').addEventListener('input', (e) => patch('contact', e.target.value));
+      document.getElementById('dSent').addEventListener('change', (e) => patch('sent', e.target.value));
+      document.getElementById('dReply').addEventListener('change', (e) => {
+        patch('reply', e.target.value);
+        if (e.target.value && entry(selectedId).status === 'sent') {
+          entry(selectedId).status = 'replied';
+          document.getElementById('dStatus').value = 'replied';
+          save();
+          render();
+        }
+      });
+      document.getElementById('dNotes').addEventListener('input', (e) => patch('notes', e.target.value));
+      document.getElementById('dParagraph').addEventListener('input', (e) => patch('paragraph', e.target.value));
+
+      document.getElementById('markSentBtn').addEventListener('click', () => {
+        if (!selectedId) return;
+        const today = new Date().toISOString().slice(0, 10);
+        const en = entry(selectedId);
+        en.sent = today;
+        en.status = 'sent';
+        document.getElementById('dSent').value = today;
+        document.getElementById('dStatus').value = 'sent';
+        save();
+        render();
+      });
+
+      document.getElementById('copyBtn').addEventListener('click', async (e) => {
+        const org = orgs().find((o) => o.id === selectedId);
+        if (!org) return;
+        const { subject, body } = composed(org);
+        const text = `To: ${org.contact || 'TBD'}\nSubject: ${subject}\n\n${body}`;
+        try {
+          await navigator.clipboard.writeText(text);
+          e.target.textContent = 'Copied ✓';
+        } catch (err) {
+          // file:// and older Safari block the async clipboard - fall back to a select-all
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          ta.remove();
+          e.target.textContent = 'Copied ✓';
+        }
+        setTimeout(() => (e.target.textContent = 'Copy email'), 1400);
+      });
+
+      document.getElementById('mailtoBtn').addEventListener('click', () => {
+        const org = orgs().find((o) => o.id === selectedId);
+        if (!org) return;
+        const { subject, body } = composed(org);
+        const to = /@/.test(org.contact || '') ? org.contact : '';
+        window.location.href =
+          `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      });
+
+      document.getElementById('tplSubject').addEventListener('input', (e) => {
+        state.subject = e.target.value;
+        save();
+        if (selectedId) renderCompose(orgs().find((o) => o.id === selectedId));
+      });
+      document.getElementById('tplBody').addEventListener('input', (e) => {
+        state.body = e.target.value;
+        save();
+        if (selectedId) renderCompose(orgs().find((o) => o.id === selectedId));
+      });
+
+      /* export / import: localStorage is per-browser, so a JSON file is the
+         thing that actually survives a machine change over a couple of months */
+      document.getElementById('exportBtn').addEventListener('click', () => {
+        const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `outreach-${new Date().toISOString().slice(0, 10)}.json`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+      });
+
+      document.getElementById('importBtn').addEventListener('click', () =>
+        document.getElementById('importFile').click()
+      );
+      document.getElementById('importFile').addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        try {
+          const incoming = JSON.parse(await file.text());
+          if (!incoming || typeof incoming !== 'object' || !incoming.entries) {
+            throw new Error('missing entries');
+          }
+          state = {
+            subject: incoming.subject ?? BASE_SUBJECT,
+            body: incoming.body ?? BASE_BODY,
+            entries: incoming.entries,
+            updatedAt: incoming.updatedAt ?? null,
+          };
+          save();
+          hydrateTemplate();
+          render();
+        } catch (err) {
+          alert("That file doesn't look like an outreach export — nothing was changed.");
+        }
+        e.target.value = '';
+      });
+
+      document.getElementById('resetBtn').addEventListener('click', () => {
+        if (!confirm('Clear all tracked statuses, dates and notes, and restore the original template?')) return;
+        state = { subject: BASE_SUBJECT, body: BASE_BODY, entries: {}, updatedAt: null };
+        save();
+        hydrateTemplate();
+        closeDrawer();
+        render();
+      });
+
+      function hydrateTemplate() {
+        document.getElementById('tplSubject').value = state.subject;
+        document.getElementById('tplBody').value = state.body;
+      }
+
+      hydrateTemplate();
+      renderStamp();
+      render();
+    </script>
+  </body>
+</html>

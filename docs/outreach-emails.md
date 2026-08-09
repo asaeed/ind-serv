@@ -1,7 +1,12 @@
 # Outreach emails — launch week (target: Thu 2026-07-30)
 
 Base email + per-org variants. Contact addresses being researched; `To:` filled in as
-they're confirmed. Status tracking stays in `outreach-orgs.md`.
+they're confirmed.
+
+> These drafts are seeded into [`outreach-tracker.html`](outreach-tracker.html), which
+> composes each org's email for you (base + org paragraph) and tracks who was contacted
+> when. Edits made in the tracker are saved there, not back into this file — treat this as
+> the original draft and the tracker as the working copy.
 
 Game: https://indenturedgame.com/
 Press kit: https://github.com/asaeed/ind-serv/tree/main/press

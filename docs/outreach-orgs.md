@@ -4,6 +4,11 @@ Organizations to contact around the launch (targeting Thu 2026-07-30, World Day
 Against Trafficking in Persons). Goal: get the game in front of people who work on
 debt bondage / modern slavery, for amplification and credibility.
 
+> **Live status now lives in [`outreach-tracker.html`](outreach-tracker.html)** — open it in a
+> browser. This table is the seed data and the reference for *why* each org is on the list;
+> the tracker holds statuses, dates and notes (saved in the browser, exportable as JSON).
+> The Status column below is not maintained.
+
 Status legend: ⬜ not started · 🟡 contacted · 🟢 responded
 
 | Org | Focus / why relevant | Outreach angle | Contact (verified on org site) | Status |
