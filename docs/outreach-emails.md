@@ -15,7 +15,7 @@ Press kit: https://github.com/asaeed/ind-serv/tree/main/press
 
 ## Base email (core shared by all org variants)
 
-**Subject:** A 12-minute game about debt bondage, launching December 2
+**Subject:** A 10-minute game about debt bondage, launching December 2
 
 Hi,
 
@@ -26,7 +26,7 @@ bonded labor at Pakistan's brick kilns. It had a powerful effect on me, so I bui
 
 Game: https://indenturedgame.com/
 
-It's called Indentured Servitude — a free browser game, about 12 minutes long. You
+It's called Indentured Servitude — a free browser game, about 10 minutes long. You
 shovel mud, mold bricks, fire them, and try to pay down a debt that only grows. It's
 rigged; you can't win. The only way out is a button that says "Accept your fate." The
 end screen then explains that the mechanics you just experienced are real, and points
@@ -119,7 +119,7 @@ You produced Business Insider's documentary on debt bondage at Pakistan's brick 
 (the one with the Meghwar family — 11M views now). I watched it and couldn't shake it.
 
 I'm a software developer, so the way it came out of me was a game. Indentured
-Servitude is a free 12-minute browser game where you shovel mud, mold bricks, and try
+Servitude is a free 10-minute browser game where you shovel mud, mold bricks, and try
 to pay down a debt that's rigged to grow faster than you can earn. You can't win. The
 only ending is a button that says "Accept your fate," followed by the real numbers —
 and your documentary, embedded on the end screen as the thing that started it.

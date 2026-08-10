@@ -52,7 +52,11 @@ export default class EndGame {
     // social share buttons: build intent URLs from the game URL, track clicks
     this.socialsEl = this.endPage.querySelector('.end-page__socials')
     const url = encodeURIComponent(CONTACT.GAME_URL)
-    const msg = encodeURIComponent("A game you can't win — about debt bondage. The only winning move is giving up.")
+    // Shared with people who have NOT played, so it must not give away the ending -
+    // the reveal only lands if they go in cold. Lead with the premise instead.
+    const msg = encodeURIComponent(
+      "You took a loan for your father's funeral. Now you make bricks. A free 10-minute game about debt bondage."
+    )
     const shareUrls = {
       x: `https://twitter.com/intent/tweet?text=${msg}&url=${url}`,
       reddit: `https://www.reddit.com/submit?url=${url}&title=${msg}`,
