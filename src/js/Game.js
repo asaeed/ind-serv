@@ -10,6 +10,7 @@ import InfoModal from './ui/InfoModal'
 import TapControls from './TapControls'
 import gameStore from './state/gameStore'
 import { GAME_CONFIG } from './constants'
+import FixedStepLoop from './lib/FixedStepLoop.mjs'
 
 export default class Game {
   constructor() {
@@ -23,6 +24,8 @@ export default class Game {
     this._handleResize()
     window.addEventListener('resize', this._handleResize)
     window.addEventListener('orientationchange', this._handleResize)
+    this._handleVisibilityChange = () => this.fixedStepLoop?.reset()
+    document.addEventListener('visibilitychange', this._handleVisibilityChange)
 
     // map creates a layer
     this.map = new Map(this.stage, () => {
@@ -83,7 +86,7 @@ export default class Game {
     }
   }
 
-  update(tFrame) {
+  update() {
     const { gameStarted, gameOver } = gameStore.getState()
     if (!gameStarted || gameOver) return // start screen or end page is showing
     this.characterController && this.characterController.update()
@@ -92,22 +95,16 @@ export default class Game {
   }
 
   mainLoop() {
-    let msPrev = window.performance.now()
-    const msPerFrame = 1000 / GAME_CONFIG.TARGET_FPS
+    this.fixedStepLoop = new FixedStepLoop(() => this.update(), GAME_CONFIG.TARGET_FPS)
     const main = (tFrame) => {
       this.stopMain = window.requestAnimationFrame(main)
-
-      const msNow = window.performance.now()
-      const msPassed = msNow - msPrev
-
-      if (msPassed < msPerFrame) return
-
-      this.update(tFrame) // pass rAF's timestamp.
-
-      const excessTime = msPassed % msPerFrame
-      msPrev = msNow - excessTime
+      if (document.hidden) {
+        this.fixedStepLoop.reset()
+        return
+      }
+      this.fixedStepLoop.advance(tFrame)
     }
-    main()
+    this.stopMain = window.requestAnimationFrame(main)
   }
 
   dispose() {
@@ -150,6 +147,7 @@ export default class Game {
 
     window.removeEventListener('resize', this._handleResize)
     window.removeEventListener('orientationchange', this._handleResize)
+    document.removeEventListener('visibilitychange', this._handleVisibilityChange)
   }
 
   _handleResize() {

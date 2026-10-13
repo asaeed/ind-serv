@@ -7,7 +7,7 @@ import sfx from '../lib/sfx'
 export default class Hud {
   constructor(stage) {
     this.stage = stage
-    this.layer = new Konva.Layer()
+    this.layer = new Konva.Layer({ listening: false })
     this.stage.add(this.layer)
 
     // configurable HUD properties
@@ -240,6 +240,6 @@ export default class Hud {
       this.textPanel.layout({ topOffset: this.padding + this.hudHeight + 12 })
     }
 
-    this.layer.batchDraw()
+    // Konva batches redraws when attributes change; an idle HUD needs no redraw.
   }
 }

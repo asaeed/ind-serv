@@ -34,11 +34,11 @@ export default class Map {
     this.stage = stage
 
     // to be able to use tiny pixel sprites, turn off image smoothing
-    this.layer = new Konva.Layer({ imageSmoothingEnabled: false })
+    // Taps are handled by the stage using world coordinates, not shape hit tests.
+    this.layer = new Konva.Layer({ imageSmoothingEnabled: false, listening: false })
     this.stage.add(this.layer)
 
     const numTilesX = 14
-    const numTilesY = 15
 
     this.tileMap = gameStore.getState().mapData
     this.vacantTiles = [0, 1, 2, 6, 14, 28, 61, 62, 63, 64, 65, 66, 109, 186, 187]
@@ -63,27 +63,35 @@ export default class Map {
     this.imageGroup.add(this.backgroundRect)
 
     // add map tiles to stage
-    this.images = []
     const imageObj = new Image()
     imageObj.onload = () => {
-      for (let y in this.tileMap) {
-        for (let x in this.tileMap[y]) {
-          var image = new Konva.Image({
-            image: imageObj,
-            cropX: this.tileSize * (this.tileMap[y][x] % numTilesX),
-            cropY: this.tileSize * Math.floor(this.tileMap[y][x] / numTilesX),
-            cropWidth: this.tileSize,
-            cropHeight: this.tileSize,
-            x: x * this.tileSize * this.upScale,
-            y: y * this.tileSize * this.upScale,
-            width: this.tileSize * this.upScale,
-            height: this.tileSize * this.upScale,
-            listening: false,
-          })
-          this.images.push(image)
-          this.imageGroup.add(image)
+      // Terrain never changes. Paint it once at the tileset's native resolution,
+      // then scale one image instead of redrawing hundreds of tile nodes per frame.
+      const terrainCanvas = document.createElement('canvas')
+      terrainCanvas.width = this.tileMap[0].length * this.tileSize
+      terrainCanvas.height = this.tileMap.length * this.tileSize
+      const context = terrainCanvas.getContext('2d')
+      context.imageSmoothingEnabled = false
+      for (let y = 0; y < this.tileMap.length; y++) {
+        for (let x = 0; x < this.tileMap[y].length; x++) {
+          const tile = this.tileMap[y][x]
+          context.drawImage(
+            imageObj,
+            this.tileSize * (tile % numTilesX),
+            this.tileSize * Math.floor(tile / numTilesX),
+            this.tileSize, this.tileSize,
+            x * this.tileSize, y * this.tileSize,
+            this.tileSize, this.tileSize
+          )
         }
       }
+      this.terrain = new Konva.Image({
+        image: terrainCanvas,
+        width: terrainCanvas.width * this.upScale,
+        height: terrainCanvas.height * this.upScale,
+        listening: false,
+      })
+      this.imageGroup.add(this.terrain)
 
       this.layer.add(this.imageGroup)
       this.layer.batchDraw()

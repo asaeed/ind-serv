@@ -229,7 +229,6 @@ export default class NpcController {
     // top edge - ease them apart once everything is placed
     spreadMarkers(placedMarkers, this.map.stage)
 
-    // the marker layer is separate from the sprite-animated map layer, so redraw it here
-    this.markerLayer.batchDraw()
+    // Attribute changes schedule a redraw; hidden markers need no work.
   }
 }
