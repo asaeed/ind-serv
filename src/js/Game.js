@@ -89,8 +89,10 @@ export default class Game {
   update() {
     const { gameStarted, gameOver } = gameStore.getState()
     if (!gameStarted || gameOver) return // start screen or end page is showing
+    const now = performance.now()
     this.characterController && this.characterController.update()
-    this.map && this.map.update()
+    gameStore.getState().advanceProduction(now)
+    this.map && this.map.update(now)
     this.hud && this.hud.update()
   }
 

@@ -222,8 +222,8 @@ export default class Map {
     return { mapX, mapY }
   }
 
-  update() {
+  update(now) {
     this.npcController && this.npcController.update()
-    this.itemController && this.itemController.update()
+    this.itemController && this.itemController.update(now)
   }
 }

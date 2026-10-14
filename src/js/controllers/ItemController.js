@@ -143,7 +143,7 @@ export default class ItemController {
     return MapClass.findClosest(positions, x, y)
   }
 
-  createProgressBar(item) {
+  createProgressBar(item, action) {
     // only create if image is loaded and has position methods
     if (!item.o?.image || typeof item.o.image.x !== 'function') return
 
@@ -184,9 +184,7 @@ export default class ItemController {
       bg,
       fill,
       barWidth,
-      startTime: Date.now(),
-      // effective duration is injury-scaled per acting character
-      duration: gameStore.getState().activeActionDurations[item.name] ?? item.action.duration,
+      action,
     })
   }
 
@@ -199,27 +197,32 @@ export default class ItemController {
     }
   }
 
-  update() {
+  update(now = performance.now()) {
     const gameState = gameStore.getState()
 
     // update item visual states based on actions
     for (const item of this.items) {
       const actionType = item.action?.type
       if ((actionType === 'create' || actionType === 'convert') && item.o?.image) {
-        const wasActive = item.wasActive || false
-        const isActive = gameState[item.action.checkState]
+        const action = gameState.activeActions[item.name]
 
         if (item.o.image.opacity) {
-          item.o.image.opacity(isActive ? 0.5 : 1)
+          item.o.image.opacity(action ? 0.5 : 1)
         }
 
-        // show progress bar when action starts
-        if (!wasActive && isActive) {
-          this.createProgressBar(item)
+        // Compare cycles, not an active flag: a completion + restart can happen
+        // between draws without the renderer ever seeing an inactive station.
+        const bar = this.progressBars.get(item.name)
+        if (action && bar?.action !== action) {
+          this.removeProgressBar(item.name)
+          this.createProgressBar(item, action)
+        } else if (!action && bar) {
+          this.removeProgressBar(item.name)
         }
 
         // trigger particle effect when action completes
-        if (wasActive && !isActive) {
+        const completed = gameState.actionCompletions[item.name] || 0
+        if (completed > (item.lastCompletionCount || 0)) {
           sfx.play(COMPLETION_SOUNDS[item.name])
           this.particles.createParticles(item.centerX, item.centerY, 8, item.particleColor, {
             speedMin: PARTICLE_CONFIG.DEFAULT_SPEED_MIN,
@@ -230,23 +233,22 @@ export default class ItemController {
             yOffset: INTERACTION.CAMERA_OFFSET_X,
             gravityY: 0,
           })
-          this.removeProgressBar(item.name)
         }
 
-        item.wasActive = isActive
+        item.lastCompletionCount = completed
       }
     }
 
     // update progress bars
     for (const bar of this.progressBars.values()) {
-      const elapsed = Date.now() - bar.startTime
-      const progress = Math.min(elapsed / bar.duration, 1)
+      const elapsed = now - bar.action.startedAt
+      const progress = Math.max(0, Math.min(elapsed / bar.action.duration, 1))
       bar.fill.width(bar.barWidth * progress)
     }
 
     // tutorial arrows: bob over the next station until it's first used. On-screen
     // they hover above the station; off-screen they pin to the view edge.
-    const t = performance.now() / 1000
+    const t = now / 1000
     const bob = Math.abs(Math.sin(t * 2.4)) * 7
     const off = this.group.position() // camera pan (imageGroup offset)
     for (const arrow of this.tutorialArrows) {

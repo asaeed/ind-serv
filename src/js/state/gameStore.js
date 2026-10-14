@@ -40,8 +40,9 @@ const gameStore = create((set, get) => ({
   totalEarned: 0,
   totalCharged: 0,
   startTime: Date.now(),
-  // effective duration of in-flight actions, keyed by item name (injury-scaled; drives progress bars)
-  activeActionDurations: {},
+  // One clock and one cycle record drive completion and the progress bar together.
+  activeActions: {},
+  actionCompletions: {},
   textPanelContent: null,
   textPanelOptions: [],
   textPanelArrow: false, // shows the objective-arrow cue in the panel (event `showArrow`)
@@ -58,7 +59,7 @@ const gameStore = create((set, get) => ({
   // actions
   increaseScore: () => set((state) => ({ score: state.score + 1 })),
 
-  interactWith: (gameObject, characterId = null) => {
+  interactWith: (gameObject, characterId = null, startedAt = performance.now()) => {
     const { numBricksShipped, textPanelContent } = get()
     const playerStore = require('./playerStore').default
 
@@ -159,87 +160,25 @@ const gameStore = create((set, get) => ({
         const workSpeed = characterId ? playerStore.getState().getWorkSpeedMultiplier(characterId) : 1
         const duration = item.action?.duration / workSpeed
 
-        if (item.action?.type === 'create') {
-          const isCreating = get()[item.action.checkState]
-          if (!isCreating) {
+        if (item.action?.type === 'create' || item.action?.type === 'convert') {
+          const isActive = get()[item.action.checkState]
+          const hasResource = item.action.type === 'create' || get()[item.action.consumes] > 0
+
+          if (!isActive && hasResource) {
             set((state) => ({
               [item.action.checkState]: true,
-              activeActionDurations: { ...state.activeActionDurations, [item.name]: duration },
+              activeActions: {
+                ...state.activeActions,
+                [item.name]: {
+                  startedAt,
+                  duration,
+                  characterId,
+                  // Keep canvas objects out of the store (and its debug JSON).
+                  item: { name: item.name, type: 'item', action: item.action, dialog: item.dialog },
+                },
+              },
             }))
-
-            setTimeout(() => {
-              // Check if we should continue before updating state
-              const shouldContinue = characterId
-                ? playerStore.getState().getAutoProductionItem(characterId) === item.name
-                : false
-
-              set((state) => ({
-                [item.action.checkState]: false,
-                [item.action.creates]: state[item.action.creates] + 1,
-              }))
-
-              // Auto-production: retrigger on next tick if still active
-              // Small delay allows ItemController to detect state changes for visual effects
-              if (
-                shouldContinue &&
-                characterId &&
-                playerStore.getState().getAutoProductionItem(characterId) === item.name
-              ) {
-                setTimeout(() => get().interactWith(item, characterId), 16)
-              }
-            }, duration)
-          }
-        } else if (item.action?.type === 'convert') {
-          const isConverting = get()[item.action.checkState]
-          const hasResource = get()[item.action.consumes] > 0
-
-          if (!isConverting && hasResource) {
-            set((state) => ({
-              [item.action.checkState]: true,
-              activeActionDurations: { ...state.activeActionDurations, [item.name]: duration },
-            }))
-
-            setTimeout(() => {
-              // Check if we should continue before updating state
-              const shouldContinue = characterId
-                ? playerStore.getState().getAutoProductionItem(characterId) === item.name
-                : false
-
-              set((state) => {
-                const newState = {
-                  [item.action.checkState]: false,
-                  [item.action.consumes]: state[item.action.consumes] - 1,
-                  [item.action.creates]: state[item.action.creates] + 1,
-                }
-
-                // Economy: shipping bricks earns money and pays down debt.
-                // There is no win state - the event script guarantees debt outruns earnings.
-                if (item.action.creates === 'numBricksShipped') {
-                  newState.money = state.money + state.brickPrice
-                  newState.debt = Math.max(0, state.debt - state.brickPrice)
-                  newState.totalEarned = state.totalEarned + state.brickPrice
-                }
-
-                return newState
-              })
-
-              // narrative events + brick-based give-up fire on shipped-brick milestones
-              if (item.action.creates === 'numBricksShipped') {
-                get().checkEvents()
-                get().checkFateByBricks()
-              }
-
-              // Auto-production: retrigger on next tick if still active
-              // Small delay allows ItemController to detect state changes for visual effects
-              if (
-                shouldContinue &&
-                characterId &&
-                playerStore.getState().getAutoProductionItem(characterId) === item.name
-              ) {
-                setTimeout(() => get().interactWith(item, characterId), 16)
-              }
-            }, duration)
-          } else if (!isConverting && !hasResource) {
+          } else if (!isActive && !hasResource) {
             // show "no resources" dialog
             // convert camelCase to readable format: numMudMolded -> "mud molded"
             const resourceName = item.action.consumes
@@ -255,6 +194,49 @@ const gameStore = create((set, get) => ({
             }))
           }
         }
+      }
+    }
+  },
+
+  // Finish due work before drawing its bar. Timers and a one-frame false/true
+  // pulse can both be missed on a slow PC, leaving a full bar on the next cycle.
+  advanceProduction: (now = performance.now()) => {
+    if (!get().gameStarted || get().gameOver) return
+    const playerStore = require('./playerStore').default
+
+    for (const [name, cycle] of Object.entries(get().activeActions)) {
+      if (now < cycle.startedAt + cycle.duration) continue
+      const { item, characterId } = cycle
+
+      set((state) => {
+        const activeActions = { ...state.activeActions }
+        delete activeActions[name]
+        const newState = {
+          activeActions,
+          actionCompletions: { ...state.actionCompletions, [name]: (state.actionCompletions[name] || 0) + 1 },
+          [item.action.checkState]: false,
+          [item.action.creates]: state[item.action.creates] + 1,
+        }
+        if (item.action.type === 'convert') {
+          newState[item.action.consumes] = state[item.action.consumes] - 1
+        }
+        if (item.action.creates === 'numBricksShipped') {
+          newState.money = state.money + state.brickPrice
+          newState.debt = Math.max(0, state.debt - state.brickPrice)
+          newState.totalEarned = state.totalEarned + state.brickPrice
+        }
+        return newState
+      })
+
+      if (item.action.creates === 'numBricksShipped') {
+        get().checkEvents()
+        get().checkFateByBricks()
+      }
+
+      // A fresh cycle starts on this frame, after narrative/cap/resource checks.
+      // A long stall finishes one unit; it never fast-forwards a backlog of work.
+      if (characterId && playerStore.getState().getAutoProductionItem(characterId) === name) {
+        get().interactWith(item, characterId, now)
       }
     }
   },
@@ -289,17 +271,16 @@ const gameStore = create((set, get) => ({
     })
 
     if (wasEventPanel) {
+      // Give queued story events priority before resuming any work.
+      get().checkEvents()
       // resume auto-production chains that were paused by the banner
       const playerStore = require('./playerStore').default
       for (const char of Object.values(playerStore.getState().characters)) {
         if (char.autoProductionItem) {
           const itemDef = get().itemData.find((i) => i.name === char.autoProductionItem)
-          if (itemDef) setTimeout(() => get().interactWith({ ...itemDef, type: 'item' }, char.id), 50)
+          if (itemDef) get().interactWith({ ...itemDef, type: 'item' }, char.id)
         }
       }
-
-      // a milestone crossed while the banner was up shows now
-      get().checkEvents()
     }
   },
 

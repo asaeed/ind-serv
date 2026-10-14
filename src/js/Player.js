@@ -161,11 +161,11 @@ export default class Player extends SpriteAnimated {
 
     if (!isMoving && isNearItem) {
       // Standing still near an item
-      const isActionInProgress = closestObject.action?.checkState ? gameState[closestObject.action.checkState] : false
+      const action = gameState.activeActions[closestObject.name]
 
       // Detect when a new action starts during auto-production and play animation
-      const wasActionInProgress = this.lastActionState[closestObject.name] || false
-      if (!wasActionInProgress && isActionInProgress && !isInteracting && !inInteractionWindow) {
+      const previousAction = this.lastActionState[closestObject.name]
+      if (action && action !== previousAction && !isInteracting && !inInteractionWindow) {
         this.sprite.animation('hurt')
         this.sprite.frameIndex(0)
         this.interactionUntil = Date.now() + 400
@@ -174,7 +174,7 @@ export default class Player extends SpriteAnimated {
       }
 
       // Track action state for next frame
-      this.lastActionState[closestObject.name] = isActionInProgress
+      this.lastActionState[closestObject.name] = action
     } else if (isMoving && isNearItem) {
       // Moving while near item - cancel auto-production and mark item
       if (currentAutoProduction) {
