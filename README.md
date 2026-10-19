@@ -2,6 +2,8 @@
 
 A game you can't win, simulating indentured servitude.
 
+**Read more:** [Indentured Servitude on niltoid.com](https://niltoid.com/blog/ind-serv/).
+
 You owe the kiln owner $1,000. Shovel mud, mold bricks, bake them, ship them — each
 brick pays down the debt. Your wife and son arrive to help. Then the fees start:
 lodging, fuel, hospital bills when the kiln maims your family, and charges that
