@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ind-serv — Engine / Narrative split</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #12100e;
+    --bg2: #1a1714;
+    --panel: #221d19;
+    --line: #3a322b;
+    --ink: #e8ddcd;
+    --dim: #9b8f80;
+    --engine: #3ff086;
+    --split: #ffde3d;
+    --narr: #ff7a5c;
+    --data: #6fc3df;
+    --debt: #ff5555;
+    --blue: #137391;
+    --mud: #8B4513;
+    --brick: #CD853F;
+    --pixel: 'Press Start 2P', monospace;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 14px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--engine); }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- hero ---------- */
+  .hero {
+    padding: 64px 0 40px;
+    border-bottom: 1px solid var(--line);
+    background:
+      radial-gradient(900px 380px at 15% -10%, rgba(63,240,134,.10), transparent 65%),
+      radial-gradient(900px 380px at 85% -10%, rgba(255,122,92,.10), transparent 65%);
+  }
+  .kicker { font-family: var(--pixel); font-size: 9px; color: var(--dim); letter-spacing: .12em; }
+  h1 { font-family: var(--pixel); font-size: 26px; line-height: 1.5; margin: 18px 0 0; }
+  h1 .g { color: var(--engine); }
+  h1 .r { color: var(--narr); }
+  .thesis { max-width: 720px; margin: 20px 0 0; color: var(--ink); font-size: 15px; }
+  .thesis strong { color: var(--split); font-weight: normal; }
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+  .chip {
+    border: 1px solid var(--line); background: var(--bg2);
+    padding: 9px 13px; border-radius: 3px; font-size: 12px; color: var(--dim);
+  }
+  .chip b { color: var(--ink); font-weight: normal; }
+
+  /* ---------- section shell ---------- */
+  section { padding: 56px 0; border-bottom: 1px solid var(--line); }
+  h2 { font-family: var(--pixel); font-size: 15px; margin: 0 0 8px; }
+  .sub { color: var(--dim); margin: 0 0 28px; font-size: 13px; max-width: 760px; }
+
+  /* ---------- three.js stage ---------- */
+  .stage-shell { display: grid; grid-template-columns: 1fr 320px; gap: 18px; }
+  @media (max-width: 900px) { .stage-shell { grid-template-columns: 1fr; } }
+  .stage {
+    position: relative; height: 560px; border: 1px solid var(--line);
+    border-radius: 4px; overflow: hidden;
+    background: linear-gradient(180deg, #16130f 0%, #0d0b09 100%);
+    cursor: grab;
+  }
+  .stage:active { cursor: grabbing; }
+  .stage canvas { display: block; }
+  #labels { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .lbl {
+    position: absolute; left: 0; top: 0;
+    font-family: var(--mono); font-size: 10px; letter-spacing: .02em;
+    white-space: nowrap; text-shadow: 0 0 6px #000, 0 0 4px #000, 0 0 2px #000;
+    transform: translate(-50%, -50%); opacity: .92;
+  }
+  .controls {
+    position: absolute; left: 12px; top: 12px; display: flex; gap: 8px; flex-wrap: wrap; z-index: 3;
+  }
+  .btn {
+    font-family: var(--mono); font-size: 11px; color: var(--dim);
+    background: rgba(20,17,14,.9); border: 1px solid var(--line);
+    padding: 7px 11px; border-radius: 3px; cursor: pointer; transition: .15s;
+  }
+  .btn:hover { color: var(--ink); border-color: #5b4f43; }
+  .btn.on { color: var(--bg); background: var(--split); border-color: var(--split); }
+  .legend {
+    position: absolute; right: 12px; bottom: 12px; z-index: 3;
+    background: rgba(20,17,14,.9); border: 1px solid var(--line); border-radius: 3px;
+    padding: 10px 12px; font-size: 10.5px; color: var(--dim); line-height: 1.9;
+  }
+  .legend i { display: inline-block; width: 9px; height: 9px; margin-right: 7px; border-radius: 1px; }
+  .hint {
+    position: absolute; left: 12px; bottom: 12px; z-index: 3;
+    font-size: 10.5px; color: #6d6155;
+  }
+
+  /* ---------- inspector ---------- */
+  .inspector {
+    border: 1px solid var(--line); border-radius: 4px; background: var(--panel);
+    padding: 18px; min-height: 200px; align-self: start; position: sticky; top: 18px;
+  }
+  .insp-tag {
+    display: inline-block; font-family: var(--pixel); font-size: 8px;
+    padding: 5px 7px; border-radius: 2px; color: var(--bg); margin-bottom: 12px;
+  }
+  .insp-file { font-size: 12.5px; color: var(--ink); word-break: break-all; margin: 0 0 4px; }
+  .insp-loc { font-size: 11px; color: var(--dim); margin: 0 0 14px; }
+  .insp-h { font-family: var(--pixel); font-size: 8px; color: var(--dim); margin: 16px 0 6px; }
+  .insp-body { font-size: 12.5px; color: #cbbfae; margin: 0; }
+  .insp-empty { color: var(--dim); font-size: 12.5px; }
+
+  /* ---------- seam contract ---------- */
+  .seam-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 760px) { .seam-grid { grid-template-columns: 1fr; } }
+  .seam-col { border: 1px solid var(--line); border-radius: 4px; background: var(--bg2); padding: 18px; }
+  .seam-col h3 { font-family: var(--pixel); font-size: 10px; margin: 0 0 4px; }
+  .seam-col p.d { color: var(--dim); font-size: 12px; margin: 0 0 16px; }
+  .sig { font-size: 12.5px; padding: 10px 0; border-top: 1px dashed var(--line); }
+  .sig code { color: var(--ink); }
+  .sig .cm { display: block; color: var(--dim); font-size: 11.5px; margin-top: 3px; }
+  .out h3, .out code { color: var(--engine); }
+  .in h3, .in code { color: var(--data); }
+
+  /* ---------- cuts ---------- */
+  .cut { border: 1px solid var(--line); border-radius: 4px; margin-bottom: 12px; background: var(--bg2); }
+  .cut > summary {
+    cursor: pointer; padding: 16px 18px; list-style: none; display: flex; gap: 14px; align-items: baseline;
+  }
+  .cut > summary::-webkit-details-marker { display: none; }
+  .cut[open] > summary { border-bottom: 1px solid var(--line); }
+  .cut-n { font-family: var(--pixel); font-size: 11px; color: var(--split); }
+  .cut-t { font-size: 14px; flex: 1; }
+  .cut-w { font-size: 11px; color: var(--dim); }
+  .cut-body { padding: 4px 18px 18px; }
+  .cut-body p { font-size: 13px; color: #cbbfae; }
+  .ba { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
+  @media (max-width: 760px) { .ba { grid-template-columns: 1fr; } }
+  .code { background: #0d0b09; border: 1px solid var(--line); border-radius: 3px; padding: 12px; overflow-x: auto; }
+  .code .h { font-family: var(--pixel); font-size: 8px; margin-bottom: 10px; display: block; }
+  .code.before .h { color: var(--debt); }
+  .code.after .h { color: var(--engine); }
+  pre { margin: 0; font-family: var(--mono); font-size: 11.5px; line-height: 1.7; color: #cbbfae; white-space: pre; }
+  .cmt { color: #6d6155; }
+  .kw { color: var(--narr); }
+  .str { color: var(--brick); }
+  .fn { color: var(--data); }
+
+  /* ---------- ledger ---------- */
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  th {
+    text-align: left; font-family: var(--pixel); font-size: 8px; color: var(--dim);
+    padding: 10px 12px; border-bottom: 1px solid var(--line); font-weight: normal;
+  }
+  td { padding: 10px 12px; border-bottom: 1px solid #251f1a; vertical-align: top; }
+  tbody tr:hover { background: #1b1714; }
+  td.f { color: var(--ink); white-space: nowrap; }
+  td.n { color: var(--dim); text-align: right; }
+  td.w { color: #b6aa99; }
+  .pill {
+    display: inline-block; font-size: 10px; padding: 3px 7px; border-radius: 2px;
+    color: var(--bg); white-space: nowrap;
+  }
+
+  /* ---------- phases ---------- */
+  .phases { display: grid; gap: 12px; }
+  .phase {
+    border: 1px solid var(--line); border-left: 3px solid var(--split);
+    border-radius: 4px; background: var(--bg2); padding: 18px;
+    display: grid; grid-template-columns: 130px 1fr 90px; gap: 18px; align-items: start;
+  }
+  @media (max-width: 760px) { .phase { grid-template-columns: 1fr; gap: 8px; } }
+  .phase-n { font-family: var(--pixel); font-size: 9px; color: var(--split); }
+  .phase h4 { margin: 0 0 6px; font-size: 14px; font-weight: normal; }
+  .phase p { margin: 0; font-size: 12.5px; color: #b6aa99; }
+  .phase .cost { font-size: 11px; color: var(--dim); text-align: right; }
+  @media (max-width: 760px) { .phase .cost { text-align: left; } }
+  .phase.opt { border-left-color: var(--dim); }
+  .phase.opt .phase-n { color: var(--dim); }
+
+  .note {
+    margin-top: 28px; border: 1px solid var(--line); border-left: 3px solid var(--narr);
+    border-radius: 4px; background: var(--bg2); padding: 18px;
+  }
+  .note h4 { font-family: var(--pixel); font-size: 9px; color: var(--narr); margin: 0 0 10px; }
+  .note p { margin: 0 0 10px; font-size: 12.5px; color: #b6aa99; }
+  .note p:last-child { margin: 0; }
+
+  footer { padding: 40px 0 70px; color: #6d6155; font-size: 11.5px; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">IND-SERV / ARCHITECTURE</div>
+    <h1>Pulling the <span class="g">engine</span> out of the <span class="r">story</span></h1>
+    <p class="thesis">
+      The engine already exists — it just has the story stitched through it in five places.
+      Nothing here is a rewrite. <strong>~135 lines actually move</strong>; the rest is folder moves and
+      import paths. The seam is six functions wide, and zustand's <code>subscribe</code> is the whole
+      event bus, so no new dependency.
+    </p>
+    <div class="chips">
+      <div class="chip"><b>3,747</b> lines of JS today</div>
+      <div class="chip"><b>~56%</b> already engine-clean</div>
+      <div class="chip"><b>7</b> files need surgery</div>
+      <div class="chip"><b>1</b> file is the whole job — <b>gameStore.js</b></div>
+      <div class="chip"><b>0</b> new dependencies</div>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h2>1 &nbsp;/&nbsp; The split, in 3D</h2>
+    <p class="sub">
+      Every box is a real file, sized by line count. Drag to orbit, scroll to zoom, hover to
+      highlight, click for the verdict. Hit <em>After</em> to watch the tangle resolve into two
+      slabs joined by six wires.
+    </p>
+
+    <div class="stage-shell">
+      <div class="stage" id="stage">
+        <div class="controls">
+          <button class="btn on" id="btn-before">Before</button>
+          <button class="btn" id="btn-after">After</button>
+          <button class="btn" id="btn-wires">Wires: on</button>
+          <button class="btn" id="btn-spin">Spin: on</button>
+        </div>
+        <div id="labels"></div>
+        <div class="legend">
+          <div><i style="background:#3ff086"></i>engine — moves as-is</div>
+          <div><i style="background:#ffde3d"></i>split — needs surgery</div>
+          <div><i style="background:#ff7a5c"></i>narrative — moves as-is</div>
+          <div><i style="background:#6fc3df"></i>content data</div>
+        </div>
+        <div class="hint">drag&nbsp;·&nbsp;scroll&nbsp;·&nbsp;click a box</div>
+      </div>
+
+      <aside class="inspector" id="inspector">
+        <div class="insp-empty">Click a box to inspect it.<br /><br />
+          Red wires are today's couplings — every one is a line of code where the engine
+          knows something about brick kilns and debt.</div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>2 &nbsp;/&nbsp; The seam</h2>
+    <p class="sub">
+      Six functions. The engine never imports anything from <code>game/</code>; the story only ever
+      talks back through these. Both directions ride zustand stores that already exist.
+    </p>
+    <div class="seam-grid">
+      <div class="seam-col out">
+        <h3>Engine &rarr; story (events out)</h3>
+        <p class="d">Fired by the production machine. The story subscribes; the engine never waits on it.</p>
+        <div class="sig"><code>produced(itemName, resource, total)</code>
+          <span class="cm">a station finished a unit — the only hook the economy needs</span></div>
+        <div class="sig"><code>interacted(objectName, characterId)</code>
+          <span class="cm">someone worked a station or talked to an NPC</span></div>
+        <div class="sig"><code>dialogClosed()</code>
+          <span class="cm">the panel was dismissed — where the debt hit lands today</span></div>
+      </div>
+      <div class="seam-col in">
+        <h3>Story &rarr; engine (commands in)</h3>
+        <p class="d">Plain calls on engine stores. No story concepts cross this line — no debt, no fate, no bricks.</p>
+        <div class="sig"><code>showDialog(text, { blocking, arrow })</code>
+          <span class="cm">blocking pauses production; replaces eventPanelOpen</span></div>
+        <div class="sig"><code>setWorkSpeed(characterId, multiplier)</code>
+          <span class="cm">injuries, already generic in playerStore</span></div>
+        <div class="sig"><code>setFlag(name, value)</code>
+          <span class="cm">reveals gated NPCs; replaces NpcController reading eventsDone</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>3 &nbsp;/&nbsp; The five cuts</h2>
+    <p class="sub">This is the entire refactor. Everything else is <code>git mv</code>.</p>
+    <div id="cuts"></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>4 &nbsp;/&nbsp; File ledger</h2>
+    <p class="sub">Every file in <code>src/</code>, with its verdict.</p>
+    <div class="filters" id="filters"></div>
+    <table>
+      <thead><tr><th>File</th><th style="text-align:right">Lines</th><th>Verdict</th><th>Why</th></tr></thead>
+      <tbody id="ledger"></tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>5 &nbsp;/&nbsp; Phases</h2>
+    <p class="sub">Each phase ends with the game still playable. Stop after 2 and you've got 80% of the value.</p>
+    <div class="phases">
+      <div class="phase">
+        <div class="phase-n">PHASE 0<br />mechanical</div>
+        <div>
+          <h4>Move files, fix imports. Zero behaviour change.</h4>
+          <p><code>src/js/engine/</code> and <code>src/js/game/</code>. Nothing is split yet — <code>gameStore</code>
+            lands in <code>engine/</code> still full of story, and that's fine. This phase exists only so the
+            next diffs are readable.</p>
+        </div>
+        <div class="cost">~30 min<br />no risk</div>
+      </div>
+      <div class="phase">
+        <div class="phase-n">PHASE 1<br />the real cut</div>
+        <div>
+          <h4>Split gameStore into three.</h4>
+          <p><code>engine/productionStore</code> (counters, timers, storage cap, dialog panel) ·
+            <code>game/economy</code> (debt, money, brickPrice) · <code>game/story</code> (event engine,
+            fate, tracking). Wire them with <code>subscribe</code>. Cuts 1, 2 and 5.</p>
+        </div>
+        <div class="cost">~2 hrs<br />the only risky bit</div>
+      </div>
+      <div class="phase">
+        <div class="phase-n">PHASE 2<br />de-hardcode</div>
+        <div>
+          <h4>Push station names and HUD rows into data.</h4>
+          <p><code>COMPLETION_SOUNDS</code> and <code>TUTORIAL_ARROWS</code> become fields in
+            <code>item.json</code>; the HUD takes a rows config from <code>game/</code>.
+            <code>ECONOMY</code> moves out of engine constants. Cuts 3 and 4.</p>
+        </div>
+        <div class="cost">~1 hr<br />low risk</div>
+      </div>
+      <div class="phase">
+        <div class="phase-n">PHASE 3<br />shell</div>
+        <div>
+          <h4>Overlays become a list Game.js is handed.</h4>
+          <p><code>new Game({ overlays: [StartGame, EndGame, InfoModal] })</code>. The start/end page
+            markup stays in <code>index.html</code> — splitting HTML with no template system buys nothing.</p>
+        </div>
+        <div class="cost">~45 min<br />low risk</div>
+      </div>
+      <div class="phase opt">
+        <div class="phase-n">PHASE 4<br />optional</div>
+        <div>
+          <h4>Prove it with a second content pack.</h4>
+          <p>A 2-station toy that runs on the same engine with its own data and story module.
+            This is the <em>only</em> real test that the seam holds — everything before it is a
+            plausible-looking folder structure. Skip it unless you actually intend to build a second game.</p>
+        </div>
+        <div class="cost">~half day<br />skip by default</div>
+      </div>
+    </div>
+
+    <div class="note">
+      <h4>The one check that keeps it honest</h4>
+      <p>Folder structure rots the moment someone adds one convenient import. One test in
+        <code>test/</code>, in the style already there — walk <code>src/js/engine/</code>, fail if any file
+        imports from <code>game/</code> or <code>data/event.json</code>. Ten lines, no framework, runs with
+        the existing <code>node --test</code>.</p>
+      <p>That single assertion is worth more than the whole folder move, because it's the only part
+        a future change can't quietly undo.</p>
+    </div>
+
+    <div class="note">
+      <h4>What this deliberately does not do</h4>
+      <p>No event-emitter class, no plugin registry, no <code>IEngine</code> interface, no separate npm
+        package or workspace. There is one consumer of this engine. A package boundary before a second
+        game exists is a build step you maintain for nobody.</p>
+      <p>If the actual goal is shipping a second game on this engine, say so — Phase 4 stops being
+        optional and the seam is worth widening. If the goal is "the story is hard to change without
+        breaking production", Phases 1–2 alone fix that.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    ind-serv · engine/narrative split · generated from a read of <code>src/</code> at
+    <code>main</code> (b675178). Interactive scene: three.js r185.
+  </div>
+</footer>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.185.1/examples/jsm/"
+}}
+</script>
+
+<script type="module">
+import * as THREE from 'three'
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
+
+/* ------------------------------------------------------------------ data */
+
+const C = { engine: 0x3ff086, split: 0xffde3d, narrative: 0xff7a5c, data: 0x6fc3df }
+const CSS = { engine: '#3ff086', split: '#ffde3d', narrative: '#ff7a5c', data: '#6fc3df' }
+const VERDICT = { engine: 'ENGINE', split: 'SPLIT', narrative: 'NARRATIVE', data: 'CONTENT' }
+
+// side: which slab it lands on in the "after" layout
+const MODULES = [
+  { id: 'gamestore', label: 'gameStore', file: 'js/state/gameStore.js', loc: 430, g: 'split', side: 'L',
+    why: 'The whole job. Three machines in one file: the generic production loop, the economy, and the story event engine.',
+    todo: 'Split three ways. engine/productionStore keeps interactWith, the create/convert timers, the storage cap and the dialog panel. game/economy takes debt, money, brickPrice, totalEarned/Charged. game/story takes checkEvents, checkFateByBricks, acceptFate, eventsDone, fateAvailable and the track() calls. Both game halves subscribe to production counters instead of being called from inside them.' },
+  { id: 'itemctl', label: 'ItemController', file: 'js/controllers/ItemController.js', loc: 275, g: 'split', side: 'L',
+    why: 'Generic sprite + progress-bar + particle controller, but it hardcodes two maps of literal station names: COMPLETION_SOUNDS and TUTORIAL_ARROWS.',
+    todo: 'Move both maps into item.json as per-item fields (sound, arrowNeeds). The controller then reads item.sound and item.arrowNeeds and knows nothing about shovels or kilns. ~10 lines deleted, no logic change.' },
+  { id: 'hud', label: 'Hud', file: 'js/ui/Hud.js', loc: 245, g: 'split', side: 'L',
+    why: 'Good generic layout engine wrapped around hardcoded DEBT / MONEY / YEARS WORKED rows and four brick-pipeline labels.',
+    todo: 'Take a rows config: [{ key, label, color, format }]. game/ supplies the debt/money/years rows and the pipeline rows. Keep the debt spin-up animation in the HUD — it is a generic "value eased toward target" behaviour, it just happens to be used for debt.' },
+  { id: 'npcctl', label: 'NpcController', file: 'js/controllers/NpcController.js', loc: 235, g: 'split', side: 'L',
+    why: 'Almost clean — wander, pathing, objective markers, recruit arrows. One leak: update() reads gameStore.eventsDone to reveal NPCs gated on appearsOnEvent.',
+    todo: 'Replace eventsDone with a generic flags set on the engine store. npc.appearsOnEvent becomes npc.appearsOnFlag; game/story calls setFlag(id, true) when the event fires. One line changes.' },
+  { id: 'game', label: 'Game', file: 'js/Game.js', loc: 183, g: 'split', side: 'L',
+    why: 'The loop, stage and resize are pure engine. But the constructor news up EndGame, StartGame and InfoModal, and _applyUrlParams pokes story state (?end, ?bricks).',
+    todo: 'Constructor takes { overlays: [] } and constructs whatever it is handed. Move the ?end / ?bricks shortcuts into game/, where they can keep poking story state legitimately.' },
+  { id: 'constants', label: 'constants', file: 'js/constants.js', loc: 86, g: 'split', side: 'L',
+    why: 'GAME_CONFIG, INTERACTION, NPC_CONFIG, PARTICLE_CONFIG, SPRITE_DEFAULTS and the key maps are engine. ECONOMY, CONTACT and ANALYTICS are not.',
+    todo: 'Straight cut: engine/constants.js keeps the first group, game/constants.js takes the second. No logic touched.' },
+  { id: 'indexjs', label: 'index.js', file: 'index.js', loc: 49, g: 'split', side: 'L',
+    why: 'Boot plus two narrative concerns: the page_loaded / left analytics bookends and the pinch-zoom lockout (that one is engine).',
+    todo: 'Engine exports boot(); game/main.js calls it, then registers its own analytics bookends. Pinch-zoom prevention moves into the engine boot.' },
+
+  { id: 'map', label: 'Map', file: 'js/Map.js', loc: 221, g: 'engine', side: 'L',
+    why: 'Tilemap, camera pan, coordsToPosition, pathfinding glue. Reads mapData off the store, which is fine — that is content, not story.', todo: 'Move as-is.' },
+  { id: 'player', label: 'Player', file: 'js/Player.js', loc: 316, g: 'engine', side: 'L',
+    why: 'Movement, facing, proximity, the interact key. Calls interactWith(closestObject) — a generic engine call that stays generic once gameStore is split.', todo: 'Move as-is. Import path changes only.' },
+  { id: 'touch', label: 'TouchControls', file: 'js/ui/TouchControls.js', loc: 211, g: 'engine', side: 'L',
+    why: 'D-pad and action buttons. No story knowledge.', todo: 'Move as-is.' },
+  { id: 'charctl', label: 'CharacterController', file: 'js/controllers/CharacterController.js', loc: 193, g: 'engine', side: 'L',
+    why: 'Multi-character sprites and switching. Subscribes to recruitedNpcs — rename to a generic "party" concept and it is clean.', todo: 'Move as-is; recruitedNpcs becomes party membership on the engine side.' },
+  { id: 'tap', label: 'TapControls', file: 'js/TapControls.js', loc: 147, g: 'engine', side: 'L',
+    why: 'Click/tap to walk or work. Touches the dialog panel to dismiss, which stays engine-side.', todo: 'Move as-is.' },
+  { id: 'textpanel', label: 'TextPanel', file: 'js/ui/TextPanel.js', loc: 204, g: 'engine', side: 'L',
+    why: 'Already fully generic: renders whatever text the store holds, handles dismissal, options, the cue arrow. It never reads a story field.', todo: 'Move as-is. This one is the proof the split is achievable — it is what every UI file should look like.' },
+  { id: 'playerstore', label: 'playerStore', file: 'js/state/playerStore.js', loc: 155, g: 'engine', side: 'L',
+    why: 'Characters, states, auto-production, work-speed multiplier. workSpeedMultiplier reads as an injury thing but is a generic modifier.', todo: 'Move as-is.' },
+  { id: 'sfx', label: 'sfx + zzfx + doppler', file: 'js/lib/{sfx,zzfx,doppler}.js', loc: 240, g: 'engine', side: 'L',
+    why: 'Synth audio. sfx has named clips (dig, mold, kiln, ship, recruit, fate) — content names, not story logic.', todo: 'Move as-is; clip names get supplied by data once cut 3 lands.' },
+  { id: 'sprites', label: 'sprites/*', file: 'js/sprites/*.js', loc: 164, g: 'engine', side: 'L',
+    why: 'SpriteAnimated, SpriteStatic, Particles. Pure rendering.', todo: 'Move as-is.' },
+  { id: 'input', label: 'Input', file: 'js/Input.js', loc: 86, g: 'engine', side: 'L',
+    why: 'Keyboard state.', todo: 'Move as-is.' },
+  { id: 'pathfind', label: 'findPath + marker', file: 'js/lib/findPath.mjs, ui/objectiveMarker.mjs', loc: 120, g: 'engine', side: 'L',
+    why: 'A* and edge-pinned markers. Already unit-tested and already pure functions.', todo: 'Move as-is. Tests move with them.' },
+
+  { id: 'story', label: 'story (new)', file: 'js/game/story.js', loc: 125, g: 'narrative', side: 'R',
+    why: 'Carved out of gameStore: the event engine, the hybrid give-up trigger, acceptFate, eventsDone, recurring charges.',
+    todo: 'New file, but not new code — it is checkEvents + checkFateByBricks + acceptFate lifted verbatim, with their gameStore.get() calls swapped for a productionStore subscription.' },
+  { id: 'economy', label: 'economy (new)', file: 'js/game/economy.js', loc: 40, g: 'narrative', side: 'R',
+    why: 'Debt, money, brickPrice, totalEarned, totalCharged, and the pending-debt-lands-on-dismiss rule.',
+    todo: 'New file. Subscribes to numBricksShipped and to dialogClosed. Replaces the hardcoded if (creates === "numBricksShipped") block inside the engine.' },
+  { id: 'endgame', label: 'EndGame', file: 'js/ui/EndGame.js', loc: 125, g: 'narrative', side: 'R',
+    why: 'Fate button, end page, stats-as-indictment, share intents, resource links, video tracking. 100% story.', todo: 'Move to game/ui/ as-is.' },
+  { id: 'infomodal', label: 'InfoModal', file: 'js/ui/InfoModal.js', loc: 92, g: 'narrative', side: 'R',
+    why: 'About copy, contact form, profile links. Only the mute toggle is engine-ish, and it just calls sfx.', todo: 'Move to game/ui/ as-is.' },
+  { id: 'startgame', label: 'StartGame', file: 'js/ui/StartGame.js', loc: 29, g: 'narrative', side: 'R',
+    why: 'Start overlay. Thin, but it fires the opening story beat.', todo: 'Move to game/ui/ as-is.' },
+  { id: 'html', label: 'index.html', file: 'index.html', loc: 360, g: 'split', side: 'R',
+    why: 'Canvas shell and touch controls (engine) share a file with the start page, end page, resource links and info modal (all story).',
+    todo: 'Leave it. With no template system, splitting one static HTML file into two costs a build step and buys nothing. Note the boundary in a comment and move on.' },
+  { id: 'eventjson', label: 'event.json', file: 'data/event.json', loc: 112, g: 'narrative', side: 'R',
+    why: 'The script. Triggers, debt deltas, copy, the recurring charge.', todo: 'Move to game/content/. The engine must never import this.' },
+  { id: 'npcjson', label: 'npc.json', file: 'data/npc.json', loc: 151, g: 'data', side: 'R',
+    why: 'Placement and sprites (engine schema) plus speech keyed to minBricks (story copy) in the same records.',
+    todo: 'Leave the file whole — one file with two kinds of field is cheaper than two files that must stay in sync. The engine ignores speech; story reads it.' },
+  { id: 'itemjson', label: 'item.json', file: 'data/item.json', loc: 100, g: 'data', side: 'R',
+    why: 'Station definitions: sprite, grid, action type, durations. This is the engine schema and it is already good.',
+    todo: 'Gains sound and arrowNeeds fields in cut 3. Otherwise untouched.' },
+  { id: 'mapjson', label: 'map.json', file: 'data/map.json', loc: 17, g: 'data', side: 'R',
+    why: 'Tile grid.', todo: 'Untouched.' },
+]
+
+// today's couplings — every one is a real line of code
+const LINKS = [
+  ['gamestore', 'economy',  'interactWith hardcodes: if (creates === "numBricksShipped") → money/debt'],
+  ['gamestore', 'story',    'checkEvents + checkFateByBricks called from inside the converter'],
+  ['gamestore', 'eventjson','the production store imports the script'],
+  ['gamestore', 'constants','ECONOMY.GIVE_UP_THRESHOLD / GIVE_UP_BRICKS read by the store'],
+  ['gamestore', 'playerstore','require() inside actions to stop/resume auto-production'],
+  ['itemctl',   'itemjson', 'COMPLETION_SOUNDS + TUTORIAL_ARROWS hardcode station names'],
+  ['hud',       'economy',  'DEBT / MONEY / YEARS WORKED rows baked into createHUD'],
+  ['npcctl',    'story',    'update() reads gameStore.eventsDone to reveal gated NPCs'],
+  ['game',      'endgame',  'constructor news up the story overlays'],
+  ['game',      'startgame','constructor news up the story overlays'],
+  ['game',      'infomodal','constructor news up the story overlays'],
+  ['game',      'story',    '?end / ?bricks URL params poke story state'],
+  ['textpanel', 'gamestore','reads panel fields — fine, they stay engine-side'],
+  ['player',    'gamestore','interactWith(closestObject) — generic once split'],
+  ['map',       'gamestore','mapData off the store'],
+  ['tap',       'gamestore','dismisses the dialog panel'],
+  ['charctl',   'gamestore','subscribes to recruitedNpcs'],
+  ['endgame',   'gamestore','acceptFate + fateAvailable subscription'],
+  ['indexjs',   'story',    'page_loaded / left analytics bookends'],
+  ['startgame', 'gamestore','startGame() fires the opening beat'],
+  ['npcctl',    'npcjson',  'placement + speech from the same records'],
+  ['hud',       'gamestore','pipeline counters'],
+]
+
+// after: the six wires
+const SEAM = [
+  ['gamestore', 'economy',  'produced()'],
+  ['gamestore', 'story',    'produced()'],
+  ['gamestore', 'story',    'dialogClosed()'],
+  ['story',     'gamestore','showDialog()'],
+  ['story',     'playerstore','setWorkSpeed()'],
+  ['story',     'npcctl',   'setFlag()'],
+]
+
+const CUTS = [
+  { n: 1, t: 'The converter knows what a brick is worth', w: '~8 lines', file: 'gameStore.js:217',
+    p: 'Inside the generic create/convert machine there is an if-statement about shipped bricks that pays money and reduces debt. That single branch is why the production loop cannot run without the economy.',
+    before: `<span class="cmt">// gameStore.interactWith — inside the convert timer</span>
+set((state) => {
+  <span class="kw">const</span> newState = {
+    [item.action.checkState]: <span class="kw">false</span>,
+    [item.action.consumes]: state[item.action.consumes] - 1,
+    [item.action.creates]:  state[item.action.creates] + 1,
+  }
+  <span class="cmt">// engine knows about bricks, money and debt</span>
+  <span class="kw">if</span> (item.action.creates === <span class="str">'numBricksShipped'</span>) {
+    newState.money  = state.money + state.brickPrice
+    newState.debt   = Math.max(0, state.debt - state.brickPrice)
+    newState.totalEarned = state.totalEarned + state.brickPrice
+  }
+  <span class="kw">return</span> newState
+})
+<span class="kw">if</span> (item.action.creates === <span class="str">'numBricksShipped'</span>) {
+  get().<span class="fn">checkEvents</span>()
+  get().<span class="fn">checkFateByBricks</span>()
+}`,
+    after: `<span class="cmt">// engine/productionStore — counters only</span>
+set((state) => ({
+  [item.action.checkState]: <span class="kw">false</span>,
+  [item.action.consumes]: state[item.action.consumes] - 1,
+  [item.action.creates]:  state[item.action.creates] + 1,
+}))
+
+<span class="cmt">// game/economy.js — subscribe IS the event bus</span>
+production.<span class="fn">subscribe</span>(
+  (s) => s.numBricksShipped,
+  (n, prev) => {
+    <span class="kw">if</span> (n <= prev) <span class="kw">return</span>
+    set((e) => ({
+      money: e.money + e.brickPrice,
+      debt: Math.max(0, e.debt - e.brickPrice),
+      totalEarned: e.totalEarned + e.brickPrice,
+    }))
+  }
+)` },
+  { n: 2, t: 'The event engine lives inside the store it drives', w: '~125 lines', file: 'gameStore.js:322-403',
+    p: 'checkEvents, checkFateByBricks and acceptFate are 125 lines of pure story sitting in the same object as the production counters, reading eventData at module scope. They move out almost verbatim — the only change is where they get their trigger from.',
+    before: `<span class="cmt">// gameStore.js</span>
+<span class="kw">import</span> eventData <span class="kw">from</span> <span class="str">'../../data/event.json'</span>
+
+<span class="kw">const</span> gameStore = <span class="fn">create</span>((set, get) => ({
+  numBricksShipped: 0,     <span class="cmt">// engine</span>
+  debt: 0, money: 0,       <span class="cmt">// economy</span>
+  eventsDone: {},          <span class="cmt">// story</span>
+  fateAvailable: <span class="kw">false</span>,   <span class="cmt">// story</span>
+  <span class="fn">interactWith</span>: () => { <span class="cmt">/* engine */</span> },
+  <span class="fn">checkEvents</span>:  () => { <span class="cmt">/* 70 lines of story */</span> },
+  <span class="fn">acceptFate</span>:   () => { <span class="cmt">/* story */</span> },
+}))`,
+    after: `<span class="cmt">// engine/productionStore.js — no story import at all</span>
+<span class="kw">const</span> production = <span class="fn">create</span>(...)   <span class="cmt">// counters, timers, dialog</span>
+
+<span class="cmt">// game/story.js</span>
+<span class="kw">import</span> eventData <span class="kw">from</span> <span class="str">'./content/event.json'</span>
+<span class="kw">import</span> production <span class="kw">from</span> <span class="str">'../engine/productionStore'</span>
+
+production.<span class="fn">subscribe</span>((s) => s.numBricksShipped, <span class="fn">checkEvents</span>)
+production.<span class="fn">subscribe</span>((s) => s.dialogOpen, (open) => {
+  <span class="kw">if</span> (!open) <span class="fn">onDialogClosed</span>()   <span class="cmt">// debt lands here</span>
+})` },
+  { n: 3, t: 'ItemController hardcodes four station names, twice', w: '~10 lines', file: 'ItemController.js:11-17',
+    p: 'Two literal maps at the top of an otherwise generic controller. The fix deletes both and reads the fields off the item the controller is already holding.',
+    before: `<span class="kw">const</span> COMPLETION_SOUNDS =
+  { shovel: <span class="str">'dig'</span>, mold: <span class="str">'mold'</span>, kiln: <span class="str">'kiln'</span>, truck: <span class="str">'ship'</span> }
+
+<span class="kw">const</span> TUTORIAL_ARROWS =
+  { shovel: <span class="kw">null</span>, mold: <span class="str">'numMud'</span>,
+    kiln: <span class="str">'numBricksMolded'</span>, truck: <span class="str">'numBricksBaked'</span> }
+
+sfx.<span class="fn">play</span>(COMPLETION_SOUNDS[item.name])`,
+    after: `<span class="cmt">// item.json gains two fields per station</span>
+{ <span class="str">"name"</span>: <span class="str">"mold"</span>,
+  <span class="str">"sound"</span>: <span class="str">"mold"</span>,
+  <span class="str">"arrowNeeds"</span>: <span class="str">"numMud"</span>, ... }
+
+<span class="cmt">// ItemController</span>
+sfx.<span class="fn">play</span>(item.sound)` },
+  { n: 4, t: 'The HUD is a debt meter, not a HUD', w: '~30 lines', file: 'Hud.js:64-135',
+    p: 'The layout, the particle bursts on increase and the wheel-of-fortune debt spin are all good generic behaviour. They are just wrapped around four hardcoded rows with a story in them.',
+    before: `this.<span class="fn">debtLabel</span> = <span class="kw">new</span> Konva.Text({ text: <span class="str">'DEBT'</span>, ... })
+this.<span class="fn">moneyLabel</span> = <span class="kw">new</span> Konva.Text({ text: <span class="str">'MONEY'</span>, ... })
+this.yearsText.<span class="fn">text</span>(<span class="str">\`YEARS WORKED: \${years}\`</span>)
+this.mudText = this.<span class="fn">createStageText</span>(y+25, <span class="str">'Mud Shoveled:'</span>, ...)`,
+    after: `<span class="cmt">// game/hudRows.js</span>
+<span class="kw">export default</span> [
+  { key: <span class="str">'debt'</span>,  label: <span class="str">'DEBT'</span>,  big: <span class="kw">true</span>, ease: <span class="kw">true</span> },
+  { key: <span class="str">'money'</span>, label: <span class="str">'MONEY'</span>, big: <span class="kw">true</span> },
+  { key: <span class="str">'numMud'</span>, label: <span class="str">'Mud Shoveled:'</span>, color: <span class="str">'#8B4513'</span> },
+]
+
+<span class="cmt">// engine/Hud.js</span>
+<span class="kw">new</span> <span class="fn">Hud</span>(stage, { rows })` },
+  { n: 5, t: 'Two concepts named eventPanelOpen', w: '~5 lines', file: 'gameStore.js:36, 121, 291',
+    p: 'The engine pauses production while a story banner is up, and it knows it is a story banner. Rename it and the coupling evaporates — the engine only needs to know a blocking dialog is showing, not why.',
+    before: `eventPanelOpen: <span class="kw">false</span>,  <span class="cmt">// a story event is showing</span>
+
+<span class="kw">if</span> (get().eventPanelOpen) <span class="kw">return</span>   <span class="cmt">// pause production</span>
+
+<span class="kw">if</span> (wasEventPanel) { <span class="cmt">/* resume auto-production */</span> }`,
+    after: `dialogBlocking: <span class="kw">false</span>,   <span class="cmt">// engine concept, no story in it</span>
+
+<span class="fn">showDialog</span>(text, { blocking: <span class="kw">true</span>, arrow })
+
+<span class="cmt">// story calls it; the engine never asks what the text was</span>` },
+]
+
+/* ------------------------------------------------------------ three.js */
+
+const stageEl = document.getElementById('stage')
+const labelsEl = document.getElementById('labels')
+
+const scene = new THREE.Scene()
+scene.fog = new THREE.Fog(0x0d0b09, 26, 62)
+
+const camera = new THREE.PerspectiveCamera(46, 1, 0.1, 200)
+camera.position.set(6, 5, 25)
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2))
+stageEl.appendChild(renderer.domElement)
+
+const controls = new OrbitControls(camera, renderer.domElement)
+controls.enableDamping = true
+controls.dampingFactor = 0.08
+controls.minDistance = 10
+controls.maxDistance = 55
+controls.autoRotate = true
+controls.autoRotateSpeed = 0.35
+controls.target.set(0, 0.5, 0)
+
+scene.add(new THREE.AmbientLight(0xffffff, 1.1))
+const key = new THREE.DirectionalLight(0xffffff, 1.5)
+key.position.set(8, 14, 10)
+scene.add(key)
+const rim = new THREE.DirectionalLight(0xff9a6a, 0.6)
+rim.position.set(-10, 4, -8)
+scene.add(rim)
+
+// ground grid
+const grid = new THREE.GridHelper(60, 30, 0x2c251f, 0x1d1814)
+grid.position.y = -7.5
+grid.material.transparent = true
+grid.material.opacity = 0.55
+scene.add(grid)
+
+// the seam plane (after mode only)
+const seamGeo = new THREE.PlaneGeometry(17, 12)
+const seamMat = new THREE.MeshBasicMaterial({
+  color: 0xffde3d, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false,
+})
+const seam = new THREE.Mesh(seamGeo, seamMat)
+seam.rotation.y = Math.PI / 2
+seam.position.y = 0.5
+scene.add(seam)
+
+const seamEdge = new THREE.LineSegments(
+  new THREE.EdgesGeometry(seamGeo),
+  new THREE.LineBasicMaterial({ color: 0xffde3d, transparent: true, opacity: 0 })
+)
+seamEdge.rotation.copy(seam.rotation)
+seamEdge.position.copy(seam.position)
+scene.add(seamEdge)
+
+// deterministic scatter so "before" looks the same every load
+function rnd(seed) { const x = Math.sin(seed * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x) }
+
+// --- build boxes
+const boxes = []
+const byId = {}
+MODULES.forEach((m, i) => {
+  const h = Math.min(2.0, 0.35 + m.loc / 230)
+  const geo = new THREE.BoxGeometry(1.9, h, 1.4)
+  const mat = new THREE.MeshStandardMaterial({
+    color: C[m.g], roughness: 0.45, metalness: 0.15,
+    emissive: C[m.g], emissiveIntensity: 0.12,
+  })
+  const mesh = new THREE.Mesh(geo, mat)
+
+  const edges = new THREE.LineSegments(
+    new THREE.EdgesGeometry(geo),
+    new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.18 })
+  )
+  mesh.add(edges)
+
+  // before: one tangled blob. The angle is driven by a shuffled index, not i —
+  // MODULES is grouped by verdict, so using i directly would sort the "tangle"
+  // into neat colour arcs and undersell the point.
+  const shuffled = (i * 7) % MODULES.length
+  const a = (shuffled / MODULES.length) * Math.PI * 2 + rnd(i) * 0.7
+  const r = 5.5 + rnd(i + 90) * 5.5
+  const before = new THREE.Vector3(
+    Math.cos(a) * r,
+    (rnd(i + 40) - 0.5) * 8,
+    Math.sin(a) * r * 0.8
+  )
+
+  mesh.position.copy(before)
+  mesh.userData = { m, before, after: new THREE.Vector3(), edges, baseEmissive: 0.12, top: h / 2 + 0.5 }
+  scene.add(mesh)
+  boxes.push(mesh)
+  byId[m.id] = mesh
+
+  const el = document.createElement('div')
+  el.className = 'lbl'
+  el.textContent = m.label
+  el.style.color = CSS[m.g]
+  labelsEl.appendChild(el)
+  mesh.userData.label = el
+})
+
+// after: two flat slabs facing each other across the seam.
+// Columns spread along z (not x) so each side reads as one wall, not a staircase.
+;(function layoutAfter() {
+  const place = (list, x, cols) => {
+    list.forEach((b, i) => {
+      const col = i % cols
+      const row = Math.floor(i / cols)
+      b.userData.after.set(x, 4.0 - row * 2.5, (col - (cols - 1) / 2) * 3.4)
+    })
+  }
+  place(boxes.filter((b) => b.userData.m.side === 'L'), -5.5, 5)
+  place(boxes.filter((b) => b.userData.m.side === 'R'), 5.5, 3)
+})()
+
+// --- wires
+const wireGroup = new THREE.Group()
+scene.add(wireGroup)
+
+function makeWire(aId, bId, color, opacity) {
+  const geo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()])
+  const mat = new THREE.LineBasicMaterial({ color, transparent: true, opacity })
+  const line = new THREE.Line(geo, mat)
+  line.userData = { a: byId[aId], b: byId[bId] }
+  wireGroup.add(line)
+  return line
+}
+
+const beforeWires = LINKS.map(([a, b]) => makeWire(a, b, 0xff5555, 0.5)).filter(Boolean)
+const afterWires = SEAM.map(([a, b], i) => makeWire(a, b, i < 3 ? 0x3ff086 : 0x6fc3df, 0)).filter(Boolean)
+
+const mid = new THREE.Vector3()
+function updateWires(list) {
+  for (const w of list) {
+    const { a, b } = w.userData
+    if (!a || !b) continue
+    mid.addVectors(a.position, b.position).multiplyScalar(0.5)
+    mid.y += 1.6 // gentle arc so overlapping wires stay readable
+    const p = w.geometry.attributes.position
+    p.setXYZ(0, a.position.x, a.position.y, a.position.z)
+    p.setXYZ(1, mid.x, mid.y, mid.z)
+    p.setXYZ(2, b.position.x, b.position.y, b.position.z)
+    p.needsUpdate = true
+  }
+}
+
+// --- interaction
+const raycaster = new THREE.Raycaster()
+const pointer = new THREE.Vector2()
+let hovered = null
+let selected = null
+
+renderer.domElement.addEventListener('pointermove', (e) => {
+  const r = renderer.domElement.getBoundingClientRect()
+  pointer.x = ((e.clientX - r.left) / r.width) * 2 - 1
+  pointer.y = -((e.clientY - r.top) / r.height) * 2 + 1
+})
+
+let dragged = false
+renderer.domElement.addEventListener('pointerdown', () => { dragged = false })
+renderer.domElement.addEventListener('pointermove', (e) => { if (e.buttons) dragged = true })
+renderer.domElement.addEventListener('pointerup', () => {
+  if (dragged) return
+  if (hovered) select(hovered.userData.m)
+})
+
+const inspector = document.getElementById('inspector')
+function select(m) {
+  selected = m.id
+  inspector.innerHTML = `
+    <span class="insp-tag" style="background:${CSS[m.g]}">${VERDICT[m.g]}</span>
+    <p class="insp-file">${m.file}</p>
+    <p class="insp-loc">${m.loc} lines</p>
+    <div class="insp-h">WHAT IT IS</div>
+    <p class="insp-body">${m.why}</p>
+    <div class="insp-h">WHAT HAPPENS TO IT</div>
+    <p class="insp-body">${m.todo}</p>`
+}
+
+// --- mode
+let mode = 'before'
+let wiresOn = true
+const btnBefore = document.getElementById('btn-before')
+const btnAfter = document.getElementById('btn-after')
+const btnWires = document.getElementById('btn-wires')
+const btnSpin = document.getElementById('btn-spin')
+
+function setMode(next) {
+  mode = next
+  btnBefore.classList.toggle('on', next === 'before')
+  btnAfter.classList.toggle('on', next === 'after')
+}
+btnBefore.onclick = () => setMode('before')
+btnAfter.onclick = () => setMode('after')
+btnWires.onclick = () => {
+  wiresOn = !wiresOn
+  btnWires.textContent = `Wires: ${wiresOn ? 'on' : 'off'}`
+}
+btnSpin.onclick = () => {
+  controls.autoRotate = !controls.autoRotate
+  btnSpin.textContent = `Spin: ${controls.autoRotate ? 'on' : 'off'}`
+}
+
+// --- resize
+function resize() {
+  const w = stageEl.clientWidth
+  const h = stageEl.clientHeight
+  renderer.setSize(w, h)
+  camera.aspect = w / h
+  camera.updateProjectionMatrix()
+}
+new ResizeObserver(resize).observe(stageEl)
+resize()
+
+// --- loop
+const v = new THREE.Vector3()
+function tick() {
+  requestAnimationFrame(tick)
+
+  // hover
+  raycaster.setFromCamera(pointer, camera)
+  const hit = raycaster.intersectObjects(boxes, false)[0]
+  hovered = hit ? hit.object : null
+  stageEl.style.cursor = hovered ? 'pointer' : ''
+
+  const t = performance.now() / 1000
+
+  for (const b of boxes) {
+    const target = mode === 'before' ? b.userData.before : b.userData.after
+    b.position.lerp(target, 0.055)
+
+    const isHot = b === hovered || b.userData.m.id === selected
+    const want = isHot ? 1.14 : 1
+    b.scale.lerp(v.set(want, want, want), 0.18)
+    b.material.emissiveIntensity +=
+      ((isHot ? 0.55 : b.userData.baseEmissive) - b.material.emissiveIntensity) * 0.15
+    b.userData.edges.material.opacity += ((isHot ? 0.75 : 0.18) - b.userData.edges.material.opacity) * 0.15
+    b.rotation.y = Math.sin(t * 0.3 + b.position.x) * 0.05
+  }
+
+  updateWires(beforeWires)
+  updateWires(afterWires)
+
+  const pulse = 0.4 + Math.abs(Math.sin(t * 1.2)) * 0.25
+  for (const w of beforeWires) {
+    const want = wiresOn && mode === 'before' ? pulse : 0
+    w.material.opacity += (want - w.material.opacity) * 0.09
+  }
+  for (const w of afterWires) {
+    const want = wiresOn && mode === 'after' ? 0.75 : 0
+    w.material.opacity += (want - w.material.opacity) * 0.09
+  }
+  const seamWant = mode === 'after' ? 0.045 : 0
+  seamMat.opacity += (seamWant - seamMat.opacity) * 0.08
+  seamEdge.material.opacity += ((mode === 'after' ? 0.35 : 0) - seamEdge.material.opacity) * 0.08
+
+  controls.update()
+  renderer.render(scene, camera)
+
+  // css labels
+  const r = renderer.domElement.getBoundingClientRect()
+  for (const b of boxes) {
+    v.copy(b.position)
+    v.y += b.userData.top
+    v.project(camera)
+    const el = b.userData.label
+    if (v.z > 1) { el.style.display = 'none'; continue }
+    el.style.display = ''
+    el.style.left = `${(v.x * 0.5 + 0.5) * r.width}px`
+    el.style.top = `${(-v.y * 0.5 + 0.5) * r.height}px`
+    // labels stay deliberately crowded in "before" — the mess is the argument —
+    // but dim enough that the hovered one is still readable through it
+    const isHot = b === hovered || b.userData.m.id === selected
+    el.style.opacity = isHot ? 1 : mode === 'before' ? 0.42 : 0.8
+    el.style.zIndex = isHot ? 2 : 1
+  }
+}
+tick()
+
+/* ------------------------------------------------------------ the rest */
+
+document.getElementById('cuts').innerHTML = CUTS.map((c) => `
+  <details class="cut"${c.n === 1 ? ' open' : ''}>
+    <summary>
+      <span class="cut-n">CUT ${c.n}</span>
+      <span class="cut-t">${c.t}</span>
+      <span class="cut-w">${c.w} &middot; ${c.file}</span>
+    </summary>
+    <div class="cut-body">
+      <p>${c.p}</p>
+      <div class="ba">
+        <div class="code before"><span class="h">TODAY</span><pre>${c.before}</pre></div>
+        <div class="code after"><span class="h">AFTER</span><pre>${c.after}</pre></div>
+      </div>
+    </div>
+  </details>`).join('')
+
+const ledgerEl = document.getElementById('ledger')
+const filtersEl = document.getElementById('filters')
+let filter = 'all'
+
+function renderLedger() {
+  const rows = MODULES
+    .filter((m) => filter === 'all' || m.g === filter)
+    .sort((a, b) => b.loc - a.loc)
+  ledgerEl.innerHTML = rows.map((m) => `
+    <tr>
+      <td class="f">${m.file}</td>
+      <td class="n">${m.loc}</td>
+      <td><span class="pill" style="background:${CSS[m.g]}">${VERDICT[m.g]}</span></td>
+      <td class="w">${m.todo}</td>
+    </tr>`).join('')
+}
+
+const FILTERS = [
+  ['all', 'All'], ['engine', 'Engine'], ['split', 'Needs surgery'],
+  ['narrative', 'Narrative'], ['data', 'Content'],
+]
+filtersEl.innerHTML = FILTERS.map(([k, l], i) =>
+  `<button class="btn${i === 0 ? ' on' : ''}" data-f="${k}">${l}</button>`).join('')
+filtersEl.onclick = (e) => {
+  const b = e.target.closest('button')
+  if (!b) return
+  filter = b.dataset.f
+  filtersEl.querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b))
+  renderLedger()
+}
+renderLedger()
+</script>
+</body>
+</html>
